@@ -1,4 +1,4 @@
-// Generated from E:/uni/lectures/4th Year/Compiler/Practical/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+// Generated from C:/Users/Dell/Desktop/SQL Compiler/SQL Compiler\Sql.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -28,11 +28,11 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#java_stmt}.
+	 * Visit a parse tree produced by {@link SqlParser#variable}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitJava_stmt(SqlParser.Java_stmtContext ctx);
+	T visitVariable(SqlParser.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#default_parameter}.
 	 * @param ctx the parse tree
@@ -64,12 +64,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitHigher_order_function(SqlParser.Higher_order_functionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#ho_java_function}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHo_java_function(SqlParser.Ho_java_functionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -82,17 +76,17 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitJava_function(SqlParser.Java_functionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#method_logic}.
+	 * Visit a parse tree produced by {@link SqlParser#java_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMethod_logic(SqlParser.Method_logicContext ctx);
+	T visitJava_stmt(SqlParser.Java_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#comments}.
+	 * Visit a parse tree produced by {@link SqlParser#java_stmt_within_loop}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitComments(SqlParser.CommentsContext ctx);
+	T visitJava_stmt_within_loop(SqlParser.Java_stmt_within_loopContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#variable_identification}.
 	 * @param ctx the parse tree
@@ -106,18 +100,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArray_identification(SqlParser.Array_identificationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#array_call}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray_call(SqlParser.Array_callContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#element}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElement(SqlParser.ElementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#json_object}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -130,17 +112,40 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrint(SqlParser.PrintContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#string}.
+	 * Visit a parse tree produced by the {@code logical_expression_case5}
+	 * labeled alternative in {@link SqlParser#logical_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitString(SqlParser.StringContext ctx);
+	T visitLogical_expression_case5(SqlParser.Logical_expression_case5Context ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#logical_expression}.
+	 * Visit a parse tree produced by the {@code logical_expression_case1}
+	 * labeled alternative in {@link SqlParser#logical_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogical_expression(SqlParser.Logical_expressionContext ctx);
+	T visitLogical_expression_case1(SqlParser.Logical_expression_case1Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logical_expression_case2}
+	 * labeled alternative in {@link SqlParser#logical_expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogical_expression_case2(SqlParser.Logical_expression_case2Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logical_expression_case3}
+	 * labeled alternative in {@link SqlParser#logical_expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogical_expression_case3(SqlParser.Logical_expression_case3Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logical_expression_case4}
+	 * labeled alternative in {@link SqlParser#logical_expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogical_expression_case4(SqlParser.Logical_expression_case4Context ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#logical_condition}.
 	 * @param ctx the parse tree
@@ -160,6 +165,78 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment_operator(SqlParser.Assignment_operatorContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SqlParser#block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlock(SqlParser.BlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#loop_block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoop_block(SqlParser.Loop_blockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#one_line_block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOne_line_block(SqlParser.One_line_blockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#conditional_stmt_one_line_block_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditional_stmt_one_line_block_within_loop(SqlParser.Conditional_stmt_one_line_block_within_loopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#conditional_stmt_block_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditional_stmt_block_within_loop(SqlParser.Conditional_stmt_block_within_loopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#if_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIf_stmt(SqlParser.If_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#else_if_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_if_stmt(SqlParser.Else_if_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#else_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_stmt(SqlParser.Else_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#if_stmt_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIf_stmt_within_loop(SqlParser.If_stmt_within_loopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#else_if_stmt_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_if_stmt_within_loop(SqlParser.Else_if_stmt_within_loopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#else_stmt_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElse_stmt_within_loop(SqlParser.Else_stmt_within_loopContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#conditional_stmt_within_loop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditional_stmt_within_loop(SqlParser.Conditional_stmt_within_loopContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SqlParser#conditional_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -172,11 +249,11 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLoop_stmt(SqlParser.Loop_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#for_lopp}.
+	 * Visit a parse tree produced by {@link SqlParser#for_loop}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFor_lopp(SqlParser.For_loppContext ctx);
+	T visitFor_loop(SqlParser.For_loopContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#while_loop}.
 	 * @param ctx the parse tree
@@ -771,18 +848,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMethod_ID(SqlParser.Method_IDContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#variable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariable(SqlParser.VariableContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#array_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray_name(SqlParser.Array_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#any_name}.
 	 * @param ctx the parse tree
