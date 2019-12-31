@@ -1,5 +1,6 @@
 package Rules;
 
+import Rules.*;
 import Rules.AST.Parse;
 import Rules.AST.Visitor.BaseASTVisitor;
 import Rules.Base.BaseVisitor;

@@ -1,5 +1,5 @@
 package Rules.Base;
-
+import Rules.*;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.*;
 
