@@ -1,4 +1,4 @@
-package gen;// Generated from E:/uni/lectures/4th Year/Compiler/Practical/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+package Rules;// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -37,16 +37,6 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitJava_stmt(SqlParser.Java_stmtContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#default_parameter}.
-	 * @param ctx the parse tree
-	 */
-	void enterDefault_parameter(SqlParser.Default_parameterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#default_parameter}.
-	 * @param ctx the parse tree
-	 */
-	void exitDefault_parameter(SqlParser.Default_parameterContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SqlParser#parameter_list}.
 	 * @param ctx the parse tree
 	 */
@@ -77,16 +67,6 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitJava_function_call(SqlParser.Java_function_callContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#ho_java_function}.
-	 * @param ctx the parse tree
-	 */
-	void enterHo_java_function(SqlParser.Ho_java_functionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#ho_java_function}.
-	 * @param ctx the parse tree
-	 */
-	void exitHo_java_function(SqlParser.Ho_java_functionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
 	 */
@@ -96,16 +76,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReturn_stmt(SqlParser.Return_stmtContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#string}.
-	 * @param ctx the parse tree
-	 */
-	void enterString(SqlParser.StringContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#string}.
-	 * @param ctx the parse tree
-	 */
-	void exitString(SqlParser.StringContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#java_function_declaration}.
 	 * @param ctx the parse tree
@@ -157,15 +127,25 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitComments(SqlParser.CommentsContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#variable_identification}.
+	 * Enter a parse tree produced by {@link SqlParser#variable}.
 	 * @param ctx the parse tree
 	 */
-	void enterVariable_identification(SqlParser.Variable_identificationContext ctx);
+	void enterVariable(SqlParser.VariableContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#variable_identification}.
+	 * Exit a parse tree produced by {@link SqlParser#variable}.
 	 * @param ctx the parse tree
 	 */
-	void exitVariable_identification(SqlParser.Variable_identificationContext ctx);
+	void exitVariable(SqlParser.VariableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SqlParser#variable_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariable_declaration(SqlParser.Variable_declarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#variable_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariable_declaration(SqlParser.Variable_declarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#variable_assignment}.
 	 * @param ctx the parse tree
@@ -177,16 +157,6 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitVariable_assignment(SqlParser.Variable_assignmentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#array_identification}.
-	 * @param ctx the parse tree
-	 */
-	void enterArray_identification(SqlParser.Array_identificationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#array_identification}.
-	 * @param ctx the parse tree
-	 */
-	void exitArray_identification(SqlParser.Array_identificationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SqlParser#array_call}.
 	 * @param ctx the parse tree
 	 */
@@ -197,95 +167,159 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitArray_call(SqlParser.Array_callContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#element}.
+	 * Enter a parse tree produced by the {@code var}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void enterElement(SqlParser.ElementContext ctx);
+	void enterVar(SqlParser.VarContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#element}.
+	 * Exit a parse tree produced by the {@code var}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void exitElement(SqlParser.ElementContext ctx);
+	void exitVar(SqlParser.VarContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#json_object}.
+	 * Enter a parse tree produced by the {@code javaFunc}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void enterJson_object(SqlParser.Json_objectContext ctx);
+	void enterJavaFunc(SqlParser.JavaFuncContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#json_object}.
+	 * Exit a parse tree produced by the {@code javaFunc}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void exitJson_object(SqlParser.Json_objectContext ctx);
+	void exitJavaFunc(SqlParser.JavaFuncContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#print}.
+	 * Enter a parse tree produced by the {@code literalVal}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void enterPrint(SqlParser.PrintContext ctx);
+	void enterLiteralVal(SqlParser.LiteralValContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#print}.
+	 * Exit a parse tree produced by the {@code literalVal}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 */
-	void exitPrint(SqlParser.PrintContext ctx);
+	void exitLiteralVal(SqlParser.LiteralValContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#expression}.
+	 * Enter a parse tree produced by {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpression(SqlParser.ExpressionContext ctx);
+	void enterNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#expression}.
+	 * Exit a parse tree produced by {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpression(SqlParser.ExpressionContext ctx);
+	void exitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#object}.
+	 * Enter a parse tree produced by the {@code val}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterObject(SqlParser.ObjectContext ctx);
+	void enterVal(SqlParser.ValContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#object}.
+	 * Exit a parse tree produced by the {@code val}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitObject(SqlParser.ObjectContext ctx);
+	void exitVal(SqlParser.ValContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#math_expr}.
+	 * Enter a parse tree produced by the {@code true}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterMath_expr(SqlParser.Math_exprContext ctx);
+	void enterTrue(SqlParser.TrueContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#math_expr}.
+	 * Exit a parse tree produced by the {@code true}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitMath_expr(SqlParser.Math_exprContext ctx);
+	void exitTrue(SqlParser.TrueContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#boolean_expr}.
+	 * Enter a parse tree produced by the {@code false}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterBoolean_expr(SqlParser.Boolean_exprContext ctx);
+	void enterFalse(SqlParser.FalseContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#boolean_expr}.
+	 * Exit a parse tree produced by the {@code false}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitBoolean_expr(SqlParser.Boolean_exprContext ctx);
+	void exitFalse(SqlParser.FalseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#logical_condition}.
+	 * Enter a parse tree produced by the {@code doubleBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogical_condition(SqlParser.Logical_conditionContext ctx);
+	void enterDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#logical_condition}.
+	 * Exit a parse tree produced by the {@code doubleBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogical_condition(SqlParser.Logical_conditionContext ctx);
+	void exitDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#increment}.
+	 * Enter a parse tree produced by the {@code doubleNonBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterIncrement(SqlParser.IncrementContext ctx);
+	void enterDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#increment}.
+	 * Exit a parse tree produced by the {@code doubleNonBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitIncrement(SqlParser.IncrementContext ctx);
+	void exitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code postInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostInc(SqlParser.PostIncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code postInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostInc(SqlParser.PostIncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code preInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void enterPreInc(SqlParser.PreIncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code preInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void exitPreInc(SqlParser.PreIncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code postDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostDec(SqlParser.PostDecContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code postDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostDec(SqlParser.PostDecContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code preDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void enterPreDec(SqlParser.PreDecContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code preDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 */
+	void exitPreDec(SqlParser.PreDecContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#assignment_operator}.
 	 * @param ctx the parse tree
@@ -386,16 +420,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFor_each_loop(SqlParser.For_each_loopContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#switch_stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterSwitch_stmt(SqlParser.Switch_stmtContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#switch_stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitSwitch_stmt(SqlParser.Switch_stmtContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#sql_stmt_list}.
 	 * @param ctx the parse tree
@@ -1096,16 +1120,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMethod_ID(SqlParser.Method_IDContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariable(SqlParser.VariableContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariable(SqlParser.VariableContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#array_name}.
 	 * @param ctx the parse tree

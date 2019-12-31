@@ -42,7 +42,7 @@ public interface ASTVisitor {
     public void visit(JsonObject jsonObject);
     public void visit(Print print);
     public void visit(VariableAssignment variableAssignment);
-    public void visit(VariableIdentification variableIdentification);
+    public void visit(VariableDeclaration variableIdentification);
 
     //javaLogicConditional
     public void visit(ConditionalStmt conditionalStmt);

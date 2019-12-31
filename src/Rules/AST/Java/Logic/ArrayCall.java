@@ -1,6 +1,6 @@
 package Rules.AST.Java.Logic;
 
-import Rules.AST.Node;
+import Rules.AST.Java.Utils.Value;
 
-public class ArrayCall extends Node {
+public class ArrayCall extends Value {
 }

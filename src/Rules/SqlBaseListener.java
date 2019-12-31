@@ -1,4 +1,4 @@
-package gen;// Generated from E:/uni/lectures/4th Year/Compiler/Practical/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+package Rules;// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -51,18 +51,6 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefault_parameter(SqlParser.Default_parameterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDefault_parameter(SqlParser.Default_parameterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterParameter_list(SqlParser.Parameter_listContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -99,18 +87,6 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterHo_java_function(SqlParser.Ho_java_functionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitHo_java_function(SqlParser.Ho_java_functionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterReturn_stmt(SqlParser.Return_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -118,18 +94,6 @@ public class SqlBaseListener implements SqlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturn_stmt(SqlParser.Return_stmtContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterString(SqlParser.StringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitString(SqlParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -195,13 +159,25 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVariable_identification(SqlParser.Variable_identificationContext ctx) { }
+	@Override public void enterVariable(SqlParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVariable_identification(SqlParser.Variable_identificationContext ctx) { }
+	@Override public void exitVariable(SqlParser.VariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVariable_declaration(SqlParser.Variable_declarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVariable_declaration(SqlParser.Variable_declarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -219,18 +195,6 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArray_identification(SqlParser.Array_identificationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArray_identification(SqlParser.Array_identificationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterArray_call(SqlParser.Array_callContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -243,109 +207,157 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElement(SqlParser.ElementContext ctx) { }
+	@Override public void enterVar(SqlParser.VarContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElement(SqlParser.ElementContext ctx) { }
+	@Override public void exitVar(SqlParser.VarContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJson_object(SqlParser.Json_objectContext ctx) { }
+	@Override public void enterJavaFunc(SqlParser.JavaFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJson_object(SqlParser.Json_objectContext ctx) { }
+	@Override public void exitJavaFunc(SqlParser.JavaFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPrint(SqlParser.PrintContext ctx) { }
+	@Override public void enterLiteralVal(SqlParser.LiteralValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitPrint(SqlParser.PrintContext ctx) { }
+	@Override public void exitLiteralVal(SqlParser.LiteralValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpression(SqlParser.ExpressionContext ctx) { }
+	@Override public void enterNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpression(SqlParser.ExpressionContext ctx) { }
+	@Override public void exitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterObject(SqlParser.ObjectContext ctx) { }
+	@Override public void enterVal(SqlParser.ValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitObject(SqlParser.ObjectContext ctx) { }
+	@Override public void exitVal(SqlParser.ValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMath_expr(SqlParser.Math_exprContext ctx) { }
+	@Override public void enterTrue(SqlParser.TrueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMath_expr(SqlParser.Math_exprContext ctx) { }
+	@Override public void exitTrue(SqlParser.TrueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBoolean_expr(SqlParser.Boolean_exprContext ctx) { }
+	@Override public void enterFalse(SqlParser.FalseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBoolean_expr(SqlParser.Boolean_exprContext ctx) { }
+	@Override public void exitFalse(SqlParser.FalseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogical_condition(SqlParser.Logical_conditionContext ctx) { }
+	@Override public void enterDoubleBool(SqlParser.DoubleBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogical_condition(SqlParser.Logical_conditionContext ctx) { }
+	@Override public void exitDoubleBool(SqlParser.DoubleBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIncrement(SqlParser.IncrementContext ctx) { }
+	@Override public void enterDoubleNonBool(SqlParser.DoubleNonBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIncrement(SqlParser.IncrementContext ctx) { }
+	@Override public void exitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPostInc(SqlParser.PostIncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPostInc(SqlParser.PostIncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPreInc(SqlParser.PreIncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPreInc(SqlParser.PreIncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPostDec(SqlParser.PostDecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPostDec(SqlParser.PostDecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPreDec(SqlParser.PreDecContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPreDec(SqlParser.PreDecContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -466,18 +478,6 @@ public class SqlBaseListener implements SqlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFor_each_loop(SqlParser.For_each_loopContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSwitch_stmt(SqlParser.Switch_stmtContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSwitch_stmt(SqlParser.Switch_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1318,18 +1318,6 @@ public class SqlBaseListener implements SqlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMethod_ID(SqlParser.Method_IDContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterVariable(SqlParser.VariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitVariable(SqlParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

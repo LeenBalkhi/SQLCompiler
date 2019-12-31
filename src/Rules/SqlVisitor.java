@@ -1,4 +1,4 @@
-package gen;// Generated from E:/uni/lectures/4th Year/Compiler/Practical/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -28,12 +28,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitJava_stmt(SqlParser.Java_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#default_parameter}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDefault_parameter(SqlParser.Default_parameterContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#parameter_list}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -52,23 +46,11 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitJava_function_call(SqlParser.Java_function_callContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#ho_java_function}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHo_java_function(SqlParser.Ho_java_functionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitReturn_stmt(SqlParser.Return_stmtContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#string}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitString(SqlParser.StringContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#java_function_declaration}.
 	 * @param ctx the parse tree
@@ -100,11 +82,17 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComments(SqlParser.CommentsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#variable_identification}.
+	 * Visit a parse tree produced by {@link SqlParser#variable}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVariable_identification(SqlParser.Variable_identificationContext ctx);
+	T visitVariable(SqlParser.VariableContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#variable_declaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable_declaration(SqlParser.Variable_declarationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#variable_assignment}.
 	 * @param ctx the parse tree
@@ -112,71 +100,101 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariable_assignment(SqlParser.Variable_assignmentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#array_identification}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray_identification(SqlParser.Array_identificationContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#array_call}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitArray_call(SqlParser.Array_callContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#element}.
+	 * Visit a parse tree produced by the {@code var}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElement(SqlParser.ElementContext ctx);
+	T visitVar(SqlParser.VarContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#json_object}.
+	 * Visit a parse tree produced by the {@code javaFunc}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitJson_object(SqlParser.Json_objectContext ctx);
+	T visitJavaFunc(SqlParser.JavaFuncContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#print}.
+	 * Visit a parse tree produced by the {@code literalVal}
+	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPrint(SqlParser.PrintContext ctx);
+	T visitLiteralVal(SqlParser.LiteralValContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#expression}.
+	 * Visit a parse tree produced by {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpression(SqlParser.ExpressionContext ctx);
+	T visitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#object}.
+	 * Visit a parse tree produced by the {@code val}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitObject(SqlParser.ObjectContext ctx);
+	T visitVal(SqlParser.ValContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#math_expr}.
+	 * Visit a parse tree produced by the {@code true}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMath_expr(SqlParser.Math_exprContext ctx);
+	T visitTrue(SqlParser.TrueContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#boolean_expr}.
+	 * Visit a parse tree produced by the {@code false}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBoolean_expr(SqlParser.Boolean_exprContext ctx);
+	T visitFalse(SqlParser.FalseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#logical_condition}.
+	 * Visit a parse tree produced by the {@code doubleBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogical_condition(SqlParser.Logical_conditionContext ctx);
+	T visitDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#increment}.
+	 * Visit a parse tree produced by the {@code doubleNonBool}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIncrement(SqlParser.IncrementContext ctx);
+	T visitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code postInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPostInc(SqlParser.PostIncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code preInc}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPreInc(SqlParser.PreIncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code postDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPostDec(SqlParser.PostDecContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code preDec}
+	 * labeled alternative in {@link SqlParser#increment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPreDec(SqlParser.PreDecContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#assignment_operator}.
 	 * @param ctx the parse tree
@@ -237,12 +255,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFor_each_loop(SqlParser.For_each_loopContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#switch_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSwitch_stmt(SqlParser.Switch_stmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#sql_stmt_list}.
 	 * @param ctx the parse tree
@@ -663,12 +675,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMethod_ID(SqlParser.Method_IDContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#variable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariable(SqlParser.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#array_name}.
 	 * @param ctx the parse tree

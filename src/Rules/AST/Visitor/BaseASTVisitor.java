@@ -114,8 +114,8 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(VariableIdentification variableIdentification) {
-        System.out.println("ast VariableIdentification ");
+    public void visit(VariableDeclaration variableIdentification) {
+        System.out.println("ast VariableDeclaration ");
     }
 
     @Override

@@ -1,6 +1,6 @@
 package Rules.AST.Java.Logic.Loop;
 
-import Rules.AST.Node;
+import Rules.AST.Java.JavaBody.JavaBody;
 
-public class LoopStmt extends Node {
+public class LoopStmt extends JavaBody {
 }

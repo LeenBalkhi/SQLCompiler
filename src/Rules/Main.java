@@ -8,8 +8,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
-import gen.*;
-import gen.SqlParser;
 
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
 

@@ -1,10 +1,7 @@
 package Rules.Base;
 
-import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.*;
-import gen.SqlBaseVisitor;
-import gen.SqlParser;
 
 import java.util.ArrayList;
 import java.util.List;
