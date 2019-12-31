@@ -118,11 +118,11 @@ conditional_stmt
 |java_function_call';'
 // |sql_stmt_list
 |loop_stmt
-//|switch_stmt
+|switch_stmt
 |increment ';'
 |variable_declaration ';'
 |variable_assignment ';'
-/*|print ';'*/
+//|print ';'
 |K_BREAK ';'
 |K_CONTINUE ';'
 | '{' java_body* '}'
@@ -314,9 +314,9 @@ K_FOR '(' K_VAR? variable ':' array_name ')'
 (block | one_line_block)
 ;
 
-/*switch_stmt
+switch_stmt
 :
-K_SWITCH OPEN_PAR object CLOSE_PAR
+K_SWITCH OPEN_PAR value CLOSE_PAR
 '{'
 switch_case*
 switch_default?
@@ -325,14 +325,14 @@ switch_default?
 
 switch_case
 :
-(K_CASE (object|literal_value) ':'(block | one_line_block) )
+(K_CASE (value|literal_value) ':'(block | one_line_block) )
 ;
 
 switch_default
 :
 (K_DEFAULT ':' (block | one_line_block) )
 ;
-*/
+
 sql_stmt_list
  : ';'* sql_stmt ( ';'+ sql_stmt )* ';'*
  ;

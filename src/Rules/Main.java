@@ -1,9 +1,10 @@
 package Rules;
 
-import Rules.*;
 import Rules.AST.Parse;
 import Rules.AST.Visitor.BaseASTVisitor;
-import Rules.Base.BaseVisitor;
+import Rules.Base.*;
+import Rules.generated.SqlLexer;
+import Rules.generated.SqlParser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -23,7 +24,7 @@ public class Main {
             SqlParser parser = new SqlParser(token);
             ParseTree tree = parser.parse();
 
-            Parse p = (Parse) new BaseVisitor().visit(tree);
+            Parse p = (Parse) new MainVisitor().visit(tree);
 
             p.accept(new BaseASTVisitor());
 
