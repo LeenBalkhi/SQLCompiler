@@ -1,4 +1,6 @@
-package Rules;// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+package Rules;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -40,11 +42,23 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArgument_list(SqlParser.Argument_listContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#java_function_call}.
+	 * Visit a parse tree produced by {@link SqlParser#java_function_call_as_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitJava_function_call(SqlParser.Java_function_callContext ctx);
+	T visitJava_function_call_as_statement(SqlParser.Java_function_call_as_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#java_function_call_as_non_bool_value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJava_function_call_as_non_bool_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#java_function_call_as_bool_value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJava_function_call_as_bool_value(SqlParser.Java_function_call_as_bool_valueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
@@ -127,42 +141,56 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLiteralVal(SqlParser.LiteralValContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#non_boolean_expression}.
+	 * Visit a parse tree produced by the {@code nbeDoubleNonBool}
+	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
+	T visitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code nbeVal}
+	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNbeVal(SqlParser.NbeValContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code nbeParenth}
+	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNbeParenth(SqlParser.NbeParenthContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression(SqlParser.ExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code val}
-	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * labeled alternative in {@link SqlParser#boolean_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitVal(SqlParser.ValContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code true}
-	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * Visit a parse tree produced by the {@code parenth}
+	 * labeled alternative in {@link SqlParser#boolean_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTrue(SqlParser.TrueContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code false}
-	 * labeled alternative in {@link SqlParser#boolean_exprk}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFalse(SqlParser.FalseContext ctx);
+	T visitParenth(SqlParser.ParenthContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code doubleBool}
-	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * labeled alternative in {@link SqlParser#boolean_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code doubleNonBool}
-	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * labeled alternative in {@link SqlParser#boolean_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

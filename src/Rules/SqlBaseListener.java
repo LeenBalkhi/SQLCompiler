@@ -1,4 +1,5 @@
-package Rules;// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+package Rules;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -75,13 +76,37 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJava_function_call(SqlParser.Java_function_callContext ctx) { }
+	@Override public void enterJava_function_call_as_statement(SqlParser.Java_function_call_as_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJava_function_call(SqlParser.Java_function_callContext ctx) { }
+	@Override public void exitJava_function_call_as_statement(SqlParser.Java_function_call_as_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJava_function_call_as_non_bool_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJava_function_call_as_non_bool_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJava_function_call_as_bool_value(SqlParser.Java_function_call_as_bool_valueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJava_function_call_as_bool_value(SqlParser.Java_function_call_as_bool_valueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -243,13 +268,49 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx) { }
+	@Override public void enterNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx) { }
+	@Override public void exitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNbeVal(SqlParser.NbeValContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNbeVal(SqlParser.NbeValContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNbeParenth(SqlParser.NbeParenthContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNbeParenth(SqlParser.NbeParenthContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExpression(SqlParser.ExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpression(SqlParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -267,25 +328,13 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTrue(SqlParser.TrueContext ctx) { }
+	@Override public void enterParenth(SqlParser.ParenthContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTrue(SqlParser.TrueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFalse(SqlParser.FalseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFalse(SqlParser.FalseContext ctx) { }
+	@Override public void exitParenth(SqlParser.ParenthContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

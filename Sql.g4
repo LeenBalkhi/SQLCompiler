@@ -1,33 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2014 by Bart Kiers
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * Project      : sqlite-parser; an ANTLR4 grammar for SQLite
- *                https://github.com/bkiers/sqlite-parser
- * Developed by : Bart Kiers, bart@big-o.nl
- */
 grammar Sql;
 
 parse
@@ -45,7 +15,6 @@ error
 java_stmt
 :
  java_function_declaration';'
- | java_function_call ';'
 ;
 
 
@@ -62,10 +31,20 @@ parameter_list
 
 argument_list
 :
-(any_name | literal_value)? ( ',' (any_name | literal_value))*
+(expression)? ( ',' (expression))*
 ;
 
-java_function_call
+java_function_call_as_statement
+:
+method_ID  '(' (argument_list)?  ')'
+;
+
+java_function_call_as_non_bool_value
+:
+method_ID  '(' (argument_list)?  ')'
+;
+
+java_function_call_as_bool_value
 :
 method_ID  '(' (argument_list)?  ')'
 ;
@@ -85,8 +64,7 @@ method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')
  */
 return_stmt
 :
- K_RETURN (/*'"' (string) '"'|*/ non_boolean_expression | boolean_exprk)? ';'
-
+ K_RETURN (expression)? ';'
 ;
 
 /*
@@ -102,7 +80,7 @@ block
 block:
 '{'
  (java_body)*
-return_stmt?
+ return_stmt?
 '}'
 ;
 
@@ -115,7 +93,7 @@ java_body
 :
 conditional_stmt
 |comments
-|java_function_call';'
+|java_function_call_as_statement';'
 // |sql_stmt_list
 |loop_stmt
 //|switch_stmt
@@ -125,7 +103,7 @@ conditional_stmt
 /*|print ';'*/
 |K_BREAK ';'
 |K_CONTINUE ';'
-| '{' java_body* '}'
+|'{' java_body* '}'
 ;
 
 comments:
@@ -135,23 +113,21 @@ JAVA_SINGLE_LINE_COMMENT
 // why don't comments appear in parse tree?
 ;
 
-
 variable:
 any_name
 |array_call
 ;
 
+
 variable_declaration
 :
- K_VAR any_name ('='  (non_boolean_expression | boolean_exprk))?
+ K_VAR any_name ('=' expression)?
  /*|  K_VAR? (object | array_call) ('=' sql_stmt_list)?*/
-
 ;
-
 
 variable_assignment
 :
-   variable assignment_operator (non_boolean_expression | boolean_exprk) /*|json_object | array_identification | /*logical_condition*/
+   variable assignment_operator expression /*|json_object | array_identification | /*logical_condition*/
 ;
 
 /*array_identification
@@ -160,8 +136,9 @@ variable_assignment
 ;*/
 
 array_call:
-array_name '[' value ']'
+array_name '[' expression ']'
 ;
+
 
 /*element
 :
@@ -207,36 +184,31 @@ K_PRINT '(' (object| '"' (string)? '"' | java_function_call  |array_call)
 
 
 value:
-variable #var
-| java_function_call #javaFunc
+  variable #var
+| java_function_call_as_non_bool_value #javaFunc
 | literal_value #literalVal
 ;
 
-/*object
-:
-variable
-|'(' object ')'
-// array - varaible - json object - literal value
-;*/
 
 non_boolean_expression
 :
-value
-| non_boolean_expression ( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  non_boolean_expression
-|'(' non_boolean_expression ')'
+value #nbeVal
+| non_boolean_expression op=( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  non_boolean_expression #nbeDoubleNonBool
+|'(' non_boolean_expression ')' #nbeParenth
 ;
 
+expression:
+boolean_expr
+|non_boolean_expression
+;
 
-boolean_exprk
+boolean_expr
 :
 value #val
-|non_boolean_expression ( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) non_boolean_expression #doubleNonBool
-//| boolean_expr (   ) boolean_expr
-| K_TRUE #true
-| K_FALSE #false
-| boolean_exprk ( '||' | '&&' )boolean_exprk #doubleBool
+|non_boolean_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) non_boolean_expression #doubleNonBool
+| boolean_expr op=( '||' | '&&' )boolean_expr #doubleBool
+| '(' boolean_expr ')' #parenth
 ;
-
 
 /*logical_condition
 :
@@ -266,21 +238,20 @@ if_stmt+ else_if_stmt* else_stmt?
 
 if_stmt
 :
-K_IF '(' boolean_exprk ')'
+K_IF '(' boolean_expr ')'
 (block | one_line_block)
 ;
 
 else_if_stmt:
-K_ELSE K_IF '('boolean_exprk')'
+K_ELSE K_IF '('boolean_expr')'
 (block | one_line_block)
-
 ;
 
 else_stmt:
 K_ELSE
 (block | one_line_block)
-
 ;
+
 loop_stmt
 :
 for_lopp
@@ -292,20 +263,20 @@ for_lopp
 
 for_lopp
 :
-(K_FOR '(' variable_declaration ';' boolean_exprk ';' increment ')')
+(K_FOR '(' variable_declaration ';' boolean_expr ';' increment ')')
 (block | one_line_block)
 ;
 
 while_loop
 :
-(K_WHILE '('boolean_exprk ')')
+(K_WHILE '('boolean_expr ')')
 (block | one_line_block)
 ;
 
 do_while_loop
 :
 K_DO ( (block | one_line_block) )
- K_WHILE OPEN_PAR boolean_exprk CLOSE_PAR ';'
+ K_WHILE OPEN_PAR boolean_expr CLOSE_PAR ';'
 ;
 
 for_each_loop

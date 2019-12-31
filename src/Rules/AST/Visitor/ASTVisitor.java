@@ -71,7 +71,7 @@ public interface ASTVisitor {
     public void visit(JavaObj javaObj);
     public void visit(LiteralValue literalValue);
     public void visit(LogicalCondition logicalCondition);
-    public void visit(MathExpression mathExpression);
+    //public void visit(MathExpression mathExpression);
     public void visit(Variable variable);
 
 

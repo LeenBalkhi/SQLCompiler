@@ -218,10 +218,10 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast LogicalCondition ");
     }
 
-    @Override
-    public void visit(MathExpression mathExpression) {
-        System.out.println("ast MathExpression ");
-    }
+//    @Override
+//    public void visit(MathExpression mathExpression) {
+//        System.out.println("ast MathExpression ");
+//    }
 
     @Override
     public void visit(Variable variable) {
