@@ -130,13 +130,13 @@ variable_assignment
    variable assignment_operator expression /*|json_object | array_identification | /*logical_condition*/
 ;
 
-/*array_identification
+array_identification
 :
-'{'  (( ( element | object | literal_value | '"' object '"'| json_object) ','*)*  |( array_identification ','* )*)'}'
-;*/
+'{'(expression ','| array_identification ',')* (expression | array_identification)? '}'
+;
 
 array_call:
-array_name '[' expression ']'
+array_name '[' non_boolean_expression ']'
 ;
 
 
@@ -144,8 +144,8 @@ array_name '[' expression ']'
 :
 IDENTIFIER ':' object | literal_value
 ;
-
-json_object
+*/
+/*json_object
 :
 '{'
  IDENTIFIER ':' (object | literal_value | '"' (literal_value| object) '"' | '\'' (literal_value|object) '\'' | json_object | array_identification)
@@ -210,13 +210,13 @@ value #val
 | '(' boolean_expr ')' #parenth
 ;
 
-/*logical_condition
+logical_condition
 :
 boolean_expr ('?' (logical_condition | expression) ':' (logical_condition | expression))?
 | '(' logical_condition ')'
 
 ;
-*/
+
 
 increment
 :
