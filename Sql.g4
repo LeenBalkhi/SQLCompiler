@@ -14,19 +14,23 @@ error
 
 java_stmt
 :
- java_function_declaration';'
+  |variable_declaration ';' (java_stmt)?
+  | java_function_declaration';'* (java_stmt)?
+  | java_function_call ';' (java_stmt)?
+  | higher_order_java_function_call ';' (java_stmt)?
+  |comments
 ;
 
 
 // the java fucntion identification method
-/*default_parameter
+default_parameter
 :
-K_VAR variable '=' (non_boolean_expression | boolean_expr)
+K_VAR variable '=' expression
 ;
-*/
+
 parameter_list
 :
-((K_VAR any_name)? (',' K_VAR any_name)*) /*((',')? default_parameter (',' default_parameter)*)?*/
+((K_VAR any_name)? (',' K_VAR any_name)*) ((',')? default_parameter (',' default_parameter)*)?
 ;
 
 argument_list
@@ -34,22 +38,13 @@ argument_list
 (expression)? ( ',' (expression))*
 ;
 
-java_function_call_as_statement
+java_function_call
 :
 method_ID  '(' (argument_list)?  ')'
 ;
 
-java_function_call_as_non_bool_value
-:
-method_ID  '(' (argument_list)?  ')'
-;
 
-java_function_call_as_bool_value
-:
-method_ID  '(' (argument_list)?  ')'
-;
-
-/*higher_order_java_function_call
+higher_order_java_function_call
 :
 method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')' )
 ;
@@ -61,16 +56,22 @@ method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')
  block*
  '}'
  ;
- */
+
 return_stmt
 :
- K_RETURN (expression)? ';'
+ K_RETURN (return_value)? ';'
 ;
 
-/*
+return_value
+:
+expression
+|string
+|logical_condition
+;
+
 string:
-(expression?) (object|SPACES)* (expression?) (object|SPACES)*
-;*/
+'"'(expression|any_name|SPACES)* '"'
+;
 
 java_function_declaration
 : K_FUNCTION? method_ID OPEN_PAR (parameter_list) CLOSE_PAR
@@ -91,19 +92,18 @@ java_body
 
 java_body
 :
-conditional_stmt
+(conditional_stmt
 |comments
-|java_function_call_as_statement';'
-// |sql_stmt_list
+|java_function_call';'
 |loop_stmt
 |switch_stmt
 |increment ';'
 |variable_declaration ';'
 |variable_assignment ';'
-//|print ';'
-|K_BREAK ';'
-|K_CONTINUE ';'
-|'{' java_body* '}'
+|print ';'
+|'{' java_body* '}')
+(K_BREAK ';'
+ |K_CONTINUE ';')?
 ;
 
 comments:
@@ -121,98 +121,92 @@ any_name
 
 variable_declaration
 :
- K_VAR any_name ('=' expression)?
+ K_VAR variable_assignment
+ (',' variable_assignment )*
  /*|  K_VAR? (object | array_call) ('=' sql_stmt_list)?*/
 ;
 
+
 variable_assignment
 :
-   variable assignment_operator expression /*|json_object | array_identification | /*logical_condition*/
+variable (assignment_operator variable_assignment_value)*
+;
+
+variable_assignment_value
+:
+expression
+|logical_condition
+|json_object
+|array_identification
 ;
 
 array_identification
 :
-'{'(expression ','| array_identification ',')* (expression | array_identification)? '}'
+'['(expression ','| array_identification ',')* (expression | array_identification)? ']'
 ;
 
 array_call:
-array_name '[' non_boolean_expression ']'
+array_name '[' math_expression? ']'
 ;
 
 
-/*element
+element
 :
-IDENTIFIER ':' object | literal_value
+IDENTIFIER ':'
+ (value
+ | json_object
+ |'"' value '"'
+ |'\'' value '\''
+ |array_identification
+ )
 ;
-*/
-/*json_object
+
+json_object
 :
 '{'
- IDENTIFIER ':' (object | literal_value | '"' (literal_value| object) '"' | '\'' (literal_value|object) '\'' | json_object | array_identification)
-(','  IDENTIFIER ':' (object | literal_value | '"' (literal_value| object) '"' | '\'' (literal_value|object) '\'' | json_object | array_identification))*
+ element  (','  element)*
 '}'
 ;
 
 print
 :
-K_PRINT '(' (object| '"' (string)? '"' | java_function_call  |array_call)
-('+'(object| '"' string '"' | java_function_call  |array_call))* ')'
+K_PRINT '(' (expression | string)? ('+' ( expression| string))*')'
 ;
-*/
-//logical_expression:
-//   ( ( variable '.' )* variable '.' )? variable
-//  |literal_value
-//  | '"' logical_expression '"'
-//  | '(' logical_expression ')'
-//  | unary_operator logical_expression
-//  | logical_expression ( '*' | '/' | '%' ) logical_expression
-//  | logical_expression ( '+' | '-' ) logical_expression
-//  | logical_expression ( '<<' | '>>' ) logical_expression
-//  | logical_expression ( '<' | '<=' | '>' | '>=' ) logical_expression
-//  | logical_expression ( '==' | '!=' | '<>'  ) logical_expression
-//  | K_TRUE
-//  | K_FALSE
-//  | logical_expression (( '||' | '&&' )logical_expression)
-//  | java_function_call
-//  //increment
-//  |logical_expression '++'
-//   | '++' logical_expression
-//  |logical_expression '--'
-//  | '--' logical_expression
-//   |variable assignment_operator (signed_number|variable) (assignment_operator (signed_number|variable))*
-//;
-
 
 value:
   variable #var
-| java_function_call_as_non_bool_value #javaFunc
+| java_function_call #javaFunc
 | literal_value #literalVal
-;
-
-
-non_boolean_expression
-:
-value #nbeVal
-| non_boolean_expression op=( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  non_boolean_expression #nbeDoubleNonBool
-|'(' non_boolean_expression ')' #nbeParenth
+| '(' value ')' #valParenth
 ;
 
 expression:
-boolean_expr
-|non_boolean_expression
+value
+|boolean_expression
+|math_expression
+|increment
 ;
 
-boolean_expr
+math_expression
+:
+value #nbeVal
+|math_expression op=( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  math_expression #nbeDoubleNonBool
+|'(' math_expression ')' #nbeParenth
+;
+
+boolean_expression
 :
 value #val
-|non_boolean_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) non_boolean_expression #doubleNonBool
-| boolean_expr op=( '||' | '&&' )boolean_expr #doubleBool
-| '(' boolean_expr ')' #parenth
+|math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #doubleNonBool
+| boolean_expression op=( '||' | '&&' )boolean_expression #doubleBool
+| K_TRUE #booltrue
+| K_FALSE #boolfalse
+| '(' boolean_expression ')' #parenth
 ;
 
 logical_condition
 :
-boolean_expr ('?' (logical_condition | expression) ':' (logical_condition | expression))?
+boolean_expression ('?' (logical_condition | expression) ':' (logical_condition | expression))?
 | '(' logical_condition ')'
 
 ;
@@ -238,12 +232,12 @@ if_stmt+ else_if_stmt* else_stmt?
 
 if_stmt
 :
-K_IF '(' boolean_expr ')'
+K_IF '(' boolean_expression ')'
 (block | one_line_block)
 ;
 
 else_if_stmt:
-K_ELSE K_IF '('boolean_expr')'
+K_ELSE K_IF '('boolean_expression')'
 (block | one_line_block)
 ;
 
@@ -254,29 +248,29 @@ K_ELSE
 
 loop_stmt
 :
-for_lopp
+for_loop
 | while_loop
 | do_while_loop
 | for_each_loop
 ;
 
 
-for_lopp
+for_loop
 :
-(K_FOR '(' variable_declaration ';' boolean_expr ';' increment ')')
+(K_FOR '(' variable_declaration ';' boolean_expression ';' (increment|variable_assignment) ')')
 (block | one_line_block)
 ;
 
 while_loop
 :
-(K_WHILE '('boolean_expr ')')
+(K_WHILE '('boolean_expression ')')
 (block | one_line_block)
 ;
 
 do_while_loop
 :
 K_DO ( (block | one_line_block) )
- K_WHILE OPEN_PAR boolean_expr CLOSE_PAR ';'
+ K_WHILE OPEN_PAR boolean_expression CLOSE_PAR ';'
 ;
 
 for_each_loop
@@ -296,7 +290,7 @@ switch_default?
 
 switch_case
 :
-(K_CASE (value|literal_value) ':'(block | one_line_block) )
+(K_CASE (value) ':'(block | one_line_block) )
 ;
 
 switch_default
