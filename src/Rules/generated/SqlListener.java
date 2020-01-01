@@ -1,7 +1,4 @@
-
-// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
-package Rules;
-
+package Rules.generated;// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -60,35 +57,15 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitArgument_list(SqlParser.Argument_listContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#java_function_call_as_statement}.
+	 * Enter a parse tree produced by {@link SqlParser#java_function_call}.
 	 * @param ctx the parse tree
 	 */
-	void enterJava_function_call_as_statement(SqlParser.Java_function_call_as_statementContext ctx);
+	void enterJava_function_call(SqlParser.Java_function_callContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SqlParser#java_function_call_as_statement}.
+	 * Exit a parse tree produced by {@link SqlParser#java_function_call}.
 	 * @param ctx the parse tree
 	 */
-	void exitJava_function_call_as_statement(SqlParser.Java_function_call_as_statementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#java_function_call_as_non_bool_value}.
-	 * @param ctx the parse tree
-	 */
-	void enterJava_function_call_as_non_bool_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#java_function_call_as_non_bool_value}.
-	 * @param ctx the parse tree
-	 */
-	void exitJava_function_call_as_non_bool_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#java_function_call_as_bool_value}.
-	 * @param ctx the parse tree
-	 */
-	void enterJava_function_call_as_bool_value(SqlParser.Java_function_call_as_bool_valueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#java_function_call_as_bool_value}.
-	 * @param ctx the parse tree
-	 */
-	void exitJava_function_call_as_bool_value(SqlParser.Java_function_call_as_bool_valueContext ctx);
+	void exitJava_function_call(SqlParser.Java_function_callContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
@@ -226,96 +203,72 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitLiteralVal(SqlParser.LiteralValContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code nbeDoubleNonBool}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
+	 * Enter a parse tree produced by {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx);
+	void enterNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code nbeDoubleNonBool}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
+	 * Exit a parse tree produced by {@link SqlParser#non_boolean_expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code nbeVal}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNbeVal(SqlParser.NbeValContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code nbeVal}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNbeVal(SqlParser.NbeValContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code nbeParenth}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNbeParenth(SqlParser.NbeParenthContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code nbeParenth}
-	 * labeled alternative in {@link SqlParser#non_boolean_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNbeParenth(SqlParser.NbeParenthContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpression(SqlParser.ExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpression(SqlParser.ExpressionContext ctx);
+	void exitNon_boolean_expression(SqlParser.Non_boolean_expressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code val}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void enterVal(SqlParser.ValContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code val}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void exitVal(SqlParser.ValContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code parenth}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * Enter a parse tree produced by the {@code true}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void enterParenth(SqlParser.ParenthContext ctx);
+	void enterTrue(SqlParser.TrueContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code parenth}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * Exit a parse tree produced by the {@code true}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
-	void exitParenth(SqlParser.ParenthContext ctx);
+	void exitTrue(SqlParser.TrueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code false}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * @param ctx the parse tree
+	 */
+	void enterFalse(SqlParser.FalseContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code false}
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
+	 * @param ctx the parse tree
+	 */
+	void exitFalse(SqlParser.FalseContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code doubleBool}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void enterDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code doubleBool}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void exitDoubleBool(SqlParser.DoubleBoolContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code doubleNonBool}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void enterDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code doubleNonBool}
-	 * labeled alternative in {@link SqlParser#boolean_expr}.
+	 * labeled alternative in {@link SqlParser#boolean_exprk}.
 	 * @param ctx the parse tree
 	 */
 	void exitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
