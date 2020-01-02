@@ -1,5 +1,6 @@
 package Rules.AST.Visitor;
 
+import Rules.AST.Java.ArgumentList;
 import Rules.AST.Java.FunctionDeclaration;
 import Rules.AST.Java.*;
 import Rules.AST.Java.JavaBody.*;
@@ -13,13 +14,27 @@ import Rules.AST.Java.Logic.Switch.SwitchCase;
 import Rules.AST.Java.Logic.Switch.SwitchDefault;
 import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
+import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.SelectStmt;
 import Rules.AST.QueryStmt.Statement;
 
 public interface ASTVisitor {
     //Java
+    public void visit(MathExpression mathExpression);
+    public void visit(False f);
+    public void visit(True t);
+    public void visit(BooleanInParenth booleanInParenth);
+    public void visit(MultipleBooleanExpression multipleBooleanExpression);
+    public void visit(Compare compare);
+    public void visit(ArithmeticOperation arithmeticOperation);
+    public void visit(MathInParenth mathInParenth);
+    public void visit(ValueInParenth valueInParenth);
+    public void visit(SimpleLiteralValue simpleLiteralValue);
+    public void visit(SimpleVariable simpleVariable);
     public void visit(Parse p);
+    public void visit(Node n);
+    public void visit(Value value);
     public void visit(JavaStatment javaStmt);
     public void visit(ArgumentList argumentList);
     public void visit(Comment comment);
@@ -71,7 +86,7 @@ public interface ASTVisitor {
     public void visit(JavaObj javaObj);
     public void visit(LiteralValue literalValue);
     public void visit(LogicalCondition logicalCondition);
-    public void visit(MathExpression mathExpression);
+    //public void visit(MathExpression mathExpression);
     public void visit(Variable variable);
 
 

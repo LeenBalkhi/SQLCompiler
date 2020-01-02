@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class sqlVisitor extends JavaVisitor {
-    @Override public List<Statement> visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx) {
+    /*@Override public List<Statement> visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx) {
 
         System.out.println("visitSql_stmt_list");
 
@@ -109,4 +109,6 @@ public class sqlVisitor extends JavaVisitor {
 
 
     @Override public  Object visitKeyword(SqlParser.KeywordContext ctx) { return visitChildren(ctx); }
+
+     */
 }

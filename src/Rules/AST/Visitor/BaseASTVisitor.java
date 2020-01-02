@@ -12,24 +12,112 @@ import Rules.AST.Java.Logic.Switch.*;
 import Rules.AST.Java.Utils.*;
 
 
+import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.SelectStmt;
 import Rules.AST.QueryStmt.Statement;
 
 public class BaseASTVisitor implements ASTVisitor {
     @Override
+    public void visit(True t) {
+
+    }
+
+    @Override
+    public void visit(MathExpression mathExpression) {
+        System.out.println("ast MathExpression");
+        if(mathExpression.expression instanceof Value)
+            visit((Value)mathExpression.expression);
+    }
+
+    @Override
+    public void visit(False f) {
+
+    }
+
+    @Override
+    public void visit(Compare compare) {
+       System.out.println("ast Compare");
+       visit((MathExpression)compare.left);
+       System.out.println(compare.op);
+       visit((MathExpression)compare.right);
+    }
+
+    @Override
+    public void visit(MathInParenth mathInParenth) {
+
+    }
+
+    @Override
+    public void visit(ValueInParenth valueInParenth) {
+        System.out.println("ast ValueInParenth");
+        visit((Value)valueInParenth.value);
+    }
+
+    @Override
+    public void visit(BooleanInParenth booleanInParenth) {
+
+    }
+
+    @Override
+    public void visit(SimpleLiteralValue simpleLiteralValue) {
+
+    }
+
+    @Override
+    public void visit(ArithmeticOperation arithmeticOperation) {
+
+    }
+
+    @Override
+    public void visit(MultipleBooleanExpression multipleBooleanExpression) {
+
+    }
+
+    @Override
+    public void visit(SimpleVariable simpleVariable) {
+        System.out.println("ast SimpleVariable");
+        System.out.println(simpleVariable.VariableName);
+    }
+
+    @Override
+    public void visit(Value value) {
+        System.out.println("ast Value");
+        if(value.value instanceof Variable)
+            visit((Variable)value.value);
+        if(value.value instanceof FunctionCall)
+            visit((FunctionCall)value.value);
+        if(value.value instanceof SimpleLiteralValue)
+            visit((SimpleLiteralValue)value.value);
+        if(value.value instanceof ValueInParenth)
+            visit((ValueInParenth)value.value);
+    }
+
+    @Override
     public void visit(Parse p) {
         System.out.println("ast parse ");
     }
 
     @Override
-    public void visit(JavaStatment javaStmt) {
+    public void visit(Node n) {
+        if (n instanceof JavaStatment)
+            visit((JavaStatment) n);
+        //tbc
+    }
+
+    @Override
+    public void visit(JavaStatment javaStmt)
+    {
         System.out.println("ast JavaStatment ");
+        if(javaStmt.javaStatment instanceof FunctionCall)
+            visit((FunctionCall)javaStmt.javaStatment);
     }
 
     @Override
     public void visit(ArgumentList argumentList) {
         System.out.println("ast ArgumentList ");
+        for (int i=0;i<argumentList.argumentList.size();i++)
+            visit((Expression)argumentList.argumentList.get(i));
     }
 
     @Override
@@ -43,8 +131,11 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(FunctionCall funcCall) {
+    public void visit(FunctionCall funcCall)
+    {
         System.out.println("ast FunctionCall ");
+        System.out.println(funcCall.functionName);
+        visit((ArgumentList)funcCall.argumentList);
     }
 
     @Override
@@ -91,6 +182,8 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(ArrayCall arrayCall) {
         System.out.println("ast ArrayCall ");
+        System.out.println(arrayCall.arrayName);
+        visit((Expression) arrayCall.expression);
     }
 
     @Override
@@ -186,6 +279,16 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(BooleanExpression booleanExpression) {
         System.out.println("ast BooleanExpression ");
+        if(booleanExpression.booleanExpression instanceof Value)
+        {
+            visit((Value)booleanExpression.booleanExpression);
+        }
+        else if(booleanExpression.booleanExpression instanceof Compare)
+        {
+            visit((Compare)booleanExpression.booleanExpression);
+        }
+        else if(booleanExpression.booleanExpression instanceof MultipleBooleanExpression)
+            visit((MultipleBooleanExpression)booleanExpression.booleanExpression);
     }
 
     @Override
@@ -196,6 +299,12 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(Expression expression) {
         System.out.println("ast Expression ");
+        if(expression.expression instanceof Value)
+            visit((Value)expression.expression);
+        else if(expression.expression instanceof BooleanExpression)
+            visit((BooleanExpression) expression.expression);
+        else if(expression.expression instanceof MathExpression)
+            visit((MathExpression)expression.expression);
     }
 
     @Override
@@ -218,14 +327,19 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast LogicalCondition ");
     }
 
-    @Override
-    public void visit(MathExpression mathExpression) {
-        System.out.println("ast MathExpression ");
-    }
+//    @Override
+//    public void visit(MathExpression mathExpression) {
+//        System.out.println("ast MathExpression ");
+//    }
 
     @Override
-    public void visit(Variable variable) {
+    public void visit(Variable variable)
+    {
         System.out.println("ast Variable ");
+        if (variable.variable instanceof SimpleVariable)
+            visit((SimpleVariable)variable.variable);
+        if(variable.variable instanceof ArrayCall)
+            visit((ArrayCall)variable.variable);
     }
 
     @Override

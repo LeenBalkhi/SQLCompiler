@@ -1,5 +1,6 @@
 package Rules;
 
+import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.Visitor.BaseASTVisitor;
 import Rules.Base.*;
@@ -23,13 +24,8 @@ public class Main {
             CommonTokenStream token  = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(token);
             ParseTree tree = parser.parse();
-
-            Parse p = (Parse) new MainVisitor().visit(tree);
-
-            p.accept(new BaseASTVisitor());
-
-            System.out.println(p.toString());
-
+            Node n =  new JavaVisitor().visit(tree);
+            n.accept(new BaseASTVisitor());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,5 @@
 package Rules.AST.Java.Utils;
 
-import Rules.AST.Node;
-
-public class LiteralValue extends Node {
+public class LiteralValue extends Value {
+    public String literalValue;
 }
