@@ -3,16 +3,20 @@ import Rules.AST.Java.*;
 import Rules.AST.Java.JavaBody.Block;
 import Rules.AST.Java.JavaBody.JavaBody;
 import Rules.AST.Java.JavaBody.ReturnStmt;
+import Rules.AST.Java.JavaBody.ReturnValue;
 import Rules.AST.Java.Logic.Conditional.ConditionalStmt;
 import Rules.AST.Java.Logic.Loop.LoopStmt;
 import Rules.AST.Java.Logic.VariableAssignment;
+import Rules.AST.Java.Logic.VariableAssignmentValue;
 import Rules.AST.Java.Logic.VariableDeclaration;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
 import Rules.generated.SqlBaseVisitor;
 import Rules.generated.SqlParser;
 
+import java.rmi.server.LoaderHandler;
 import java.util.ArrayList;
+import java.util.jar.JarFile;
 
 public class JavaVisitor extends SqlBaseVisitor<Node> {
 
@@ -21,6 +25,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         JavaStatment javaStatment=new JavaStatment();
         if(ctx.java_function_call()!=null)
             javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
+        else if(ctx.java_function_declaration()!= null)
+            javaStatment.javaStatment=visitJava_function_declaration(ctx.java_function_declaration());
         return javaStatment;
     }
 
@@ -31,7 +37,52 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         functionCall.argumentList = visitArgument_list(ctx.argument_list());
         return functionCall;
     }
+    @Override
+    public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
+        FunctionDeclaration functionDeclaration = new FunctionDeclaration();
+        functionDeclaration.functionName = ctx.method_ID().getText();
+       functionDeclaration.pl = visitParameter_list(ctx.parameter_list());
+        //functionCall.functionName = ctx.method_ID().getText();
+      //  functionCall.argumentList = visitArgument_list(ctx.argument_list());
+        return functionDeclaration;
+    }
+    @Override
+    public HigherOrderFunctionCall visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx)
+    {
+        HigherOrderFunctionCall higherOrderFunctionCall = new HigherOrderFunctionCall();
+        for(int i=0 ; i < ctx.argument_list().size() ; i ++)
+        {
+            higherOrderFunctionCall.argumentLists.add(visitArgument_list(ctx.argument_list().get(i)));
+        }
+        higherOrderFunctionCall.higherOrderFunction = visitHo_java_function(ctx.ho_java_function());
+        return higherOrderFunctionCall;
+    }
+    @Override
+    public HigherOrderFunction visitHo_java_function(SqlParser.Ho_java_functionContext ctx)
+    {
+        HigherOrderFunction higherOrderFunction = new HigherOrderFunction();
+        higherOrderFunction.argumentList = visitArgument_list(ctx.argument_list());
+        for(int i=0 ; i < ctx.block().size(); i ++)
+        {
+            higherOrderFunction.blocks.add(visitBlock(ctx.block().get(i)));
+        }
+        return higherOrderFunction;
+    }
+    @Override
+    public ParameterList visitParameter_list(SqlParser.Parameter_listContext ctx)
+    {
+        ParameterList parameterList = new ParameterList();
+        for (int i=0;i<ctx.any_name().size();i++)
+        {
 
+            parameterList.list.add(ctx.any_name(i).IDENTIFIER().getSymbol().getText());
+        }
+        for(int i=0 ; i <ctx.default_parameter().size();i++)
+        {
+            parameterList.defaultParameters.add(visitDefault_parameter(ctx.default_parameter().get(i)));
+        }
+        return parameterList;
+    }
     @Override
     public ArgumentList visitArgument_list(SqlParser.Argument_listContext ctx) {
         ArgumentList argumentList = new ArgumentList();
@@ -43,6 +94,86 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
+    public DefaultParameter visitDefault_parameter(SqlParser.Default_parameterContext ctx)
+    {
+        DefaultParameter defaultParameter = new DefaultParameter();
+        defaultParameter.variable = ctx.variable().any_name().IDENTIFIER().getSymbol().getText();
+        defaultParameter.expression = visitExpression(ctx.expression());
+        return defaultParameter;
+    }
+    @Override
+    public VariableDeclaration visitVariable_declaration(SqlParser.Variable_declarationContext ctx)
+    {
+        VariableDeclaration variableDeclaration = new VariableDeclaration();
+        for(int i=0 ; i <ctx.variable_assignment().size(); i ++)
+        {
+           // variableDeclaration.variableAssignments.add();
+        }
+        return variableDeclaration;
+    }
+    @Override
+    public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx)
+    {
+        VariableAssignment variableAssignment = new VariableAssignment();
+        variableAssignment.operator = ctx.variable().getText();
+       // variableAssignment.variableAssignmentValue =
+        return variableAssignment;
+    }
+    @Override
+    public VariableAssignmentValue visitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx)
+    {
+        VariableAssignmentValue variableAssignmentValue = new VariableAssignmentValue();
+       // if(ctx.expression()!= null)
+            return variableAssignmentValue;
+    }
+    @Override
+    public Block visitBlock(SqlParser.BlockContext ctx)
+    {
+        Block block = new Block();
+
+        return block;
+    }
+    @Override
+    public ReturnStmt visitReturn_stmt(SqlParser.Return_stmtContext ctx)
+    {
+        ReturnStmt returnStmt = new ReturnStmt();
+        returnStmt.returnValue = visitReturn_value(ctx.return_value());
+        return returnStmt;
+    }
+    @Override
+    public ReturnValue visitReturn_value(SqlParser.Return_valueContext ctx)
+    {
+        ReturnValue returnValue = new ReturnValue();
+
+        return  returnValue;
+    }
+    @Override
+    public JavaString visitString(SqlParser.StringContext ctx)
+    {
+        JavaString javaString = new JavaString();
+        javaString.string ="";
+        for(int i=0 ; i < ctx.expression().size(); i ++)
+            javaString.string+= visitExpression(ctx.expression().get(i));
+        for(int i=0 ; i < ctx.any_name().size(); i ++)
+            javaString.string+=ctx.any_name().get(i).getText();
+        //get spaces
+        return  javaString;
+    }
+    @Override
+    public LogicalCondition visitLogical_condition (SqlParser.Logical_conditionContext ctx)
+    {
+        LogicalCondition logicalCondition = new LogicalCondition();
+        logicalCondition.condition = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.logical_condition()!= null)
+            logicalCondition.ifTrue = visitLogical_condition(ctx.logical_condition().get(0));
+        else if(ctx.expression()!= null)
+            logicalCondition.ifTrue = visitExpression(ctx.expression().get(0));
+        if(ctx.logical_condition()!= null)
+            logicalCondition.ifFalse = visitLogical_condition(ctx.logical_condition().get(1));
+        else if(ctx.expression()!= null)
+            logicalCondition.ifFalse = visitExpression(ctx.expression().get(1));
+        return logicalCondition;
+    }
     public Expression visitExpression(SqlParser.ExpressionContext ctx) {
         Expression expression = new Expression();
         if(ctx.value()!=null)

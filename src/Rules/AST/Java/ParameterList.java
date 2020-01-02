@@ -6,4 +6,5 @@ import java.util.ArrayList;
 
 public class ParameterList extends Node {
     public ArrayList<String> list = new ArrayList<>();
+    public ArrayList<DefaultParameter> defaultParameters = new ArrayList<>();
 }

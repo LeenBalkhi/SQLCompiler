@@ -4,5 +4,5 @@ import Rules.AST.Java.Utils.Expression;
 import Rules.AST.Node;
 
 public class ReturnStmt extends Node {
-    public Expression expression;
+    public ReturnValue returnValue;
 }

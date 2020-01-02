@@ -111,6 +111,8 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast JavaStatment ");
         if(javaStmt.javaStatment instanceof FunctionCall)
             visit((FunctionCall)javaStmt.javaStatment);
+        if(javaStmt.javaStatment instanceof  FunctionDeclaration)
+            visit((FunctionDeclaration) javaStmt.javaStatment);
     }
 
     @Override
@@ -141,6 +143,8 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(FunctionDeclaration funcDec) {
         System.out.println("ast FunctionDeclaration ");
+        System.out.println(funcDec.functionName);
+        visit(funcDec.pl);
 
     }
 
@@ -156,7 +160,12 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(ParameterList ParamList) {
+
         System.out.println("ast ParameterList ");
+        for(int i=0 ; i < ParamList.list.size(); i ++)
+        {
+            System.out.println(ParamList.list.get(i));
+        }
     }
 
     @Override
