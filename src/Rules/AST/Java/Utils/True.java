@@ -1,4 +1,7 @@
 package Rules.AST.Java.Utils;
 
-public class True {
+import Rules.AST.Node;
+
+public class True extends Node {
+    public String value="True";
 }

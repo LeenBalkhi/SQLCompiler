@@ -12,6 +12,8 @@ import Rules.AST.Node;
 import Rules.generated.SqlBaseVisitor;
 import Rules.generated.SqlParser;
 
+import java.util.ArrayList;
+
 public class JavaVisitor extends SqlBaseVisitor<Node> {
 
     @Override
@@ -24,8 +26,193 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
 
     @Override
     public FunctionCall visitJava_function_call(SqlParser.Java_function_callContext ctx) {
-        return new FunctionCall();
+        FunctionCall functionCall = new FunctionCall();
+        functionCall.functionName = ctx.method_ID().getText();
+        functionCall.argumentList = visitArgument_list(ctx.argument_list());
+        return functionCall;
     }
+
+    @Override
+    public ArgumentList visitArgument_list(SqlParser.Argument_listContext ctx) {
+        ArgumentList argumentList = new ArgumentList();
+        for (int i=0;i<ctx.expression().size();i++)
+        {
+            argumentList.argumentList.add(visitExpression(ctx.expression().get(i)));
+        }
+        return argumentList;
+    }
+
+    @Override
+    public Expression visitExpression(SqlParser.ExpressionContext ctx) {
+        Expression expression = new Expression();
+        if(ctx.value()!=null)
+            expression.expression = visitValue(ctx.value());
+        if(ctx.boolean_expression()!=null)
+            expression.expression = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.math_expression()!=null)
+            expression.expression = visitMathExpression(ctx.math_expression());
+        return expression;
+    }
+
+    public BooleanExpression visitBooleanExpression(SqlParser.Boolean_expressionContext ctx)
+    {
+        BooleanExpression booleanExpression = new BooleanExpression();
+        Node temp = visit(ctx);
+        if(temp instanceof Value)
+            booleanExpression.booleanExpression=(Value)temp;
+        if(temp instanceof MultipleBooleanExpression)
+            booleanExpression.booleanExpression = (MultipleBooleanExpression)temp;
+        if(temp instanceof Compare)
+            booleanExpression.booleanExpression =(Compare)temp;
+        if(temp instanceof BooleanInParenth)
+            booleanExpression.booleanExpression = (BooleanInParenth)temp;
+        if(temp instanceof True)
+            booleanExpression.booleanExpression=(True)temp;
+        if(temp instanceof False)
+            booleanExpression.booleanExpression=(False)temp;
+        return booleanExpression;
+    }
+
+    @Override
+    public Value visitValBool(SqlParser.ValBoolContext ctx) {
+        return visitValue(ctx.value());
+    }
+
+    @Override
+    public Compare visitCompareBool(SqlParser.CompareBoolContext ctx) {
+        Compare compare = new Compare();
+        compare.left = visitMathExpression(ctx.math_expression(0));
+        compare.right = visitMathExpression(ctx.math_expression(1));
+        compare.op = ctx.op.getText();
+        return compare;
+    }
+
+    @Override
+    public MultipleBooleanExpression visitMultipleBool(SqlParser.MultipleBoolContext ctx) {
+        MultipleBooleanExpression multipleBooleanExpression = new MultipleBooleanExpression();
+        multipleBooleanExpression.left = visitBooleanExpression(ctx.boolean_expression(0));
+        multipleBooleanExpression.right = visitBooleanExpression(ctx.boolean_expression(1));
+        multipleBooleanExpression.op = ctx.op.getText();
+        return multipleBooleanExpression;
+    }
+
+    @Override
+    public BooleanInParenth visitParenthBool(SqlParser.ParenthBoolContext ctx) {
+        BooleanInParenth booleanInParenth = new BooleanInParenth();
+        booleanInParenth.value = visitBooleanExpression(ctx.boolean_expression());
+        return booleanInParenth;
+    }
+
+    @Override
+    public True visitTrueBool(SqlParser.TrueBoolContext ctx) {
+        return new True();
+    }
+
+    @Override
+    public False visitFalseBool(SqlParser.FalseBoolContext ctx) {
+        return new False();
+    }
+
+    public MathExpression visitMathExpression(SqlParser.Math_expressionContext ctx)
+    {
+        MathExpression mathExpression = new MathExpression();
+        Node temp = visit(ctx);
+        if(temp instanceof Value)
+            mathExpression.expression = (Value)temp;
+        if(temp instanceof ArithmeticOperation)
+            mathExpression.expression = (ArithmeticOperation)temp;
+        if(temp instanceof MathInParenth)
+            mathExpression.expression = (MathInParenth)temp;
+        return mathExpression;
+    }
+
+    @Override
+    public Value visitValueMath(SqlParser.ValueMathContext ctx) {
+        return visitValue(ctx.value());
+    }
+
+    @Override
+    public ArithmeticOperation visitArithmeticMath(SqlParser.ArithmeticMathContext ctx) {
+        ArithmeticOperation arithmeticOperation = new ArithmeticOperation();
+        arithmeticOperation.left = visitMathExpression(ctx.math_expression(0));
+        arithmeticOperation.right = visitMathExpression(ctx.math_expression(1));
+        arithmeticOperation.op = ctx.op.getText();
+        return arithmeticOperation;
+    }
+
+    @Override
+    public MathInParenth visitParenthMath(SqlParser.ParenthMathContext ctx) {
+        MathInParenth mathInParenth = new MathInParenth();
+        mathInParenth.expression = visitMathExpression(ctx.math_expression());
+        return mathInParenth;
+    }
+
+    public Value visitValue(SqlParser.ValueContext ctx)
+    {
+        Value value=new Value();
+        Node temp = visit(ctx);
+        if(temp instanceof Variable)
+            value.value = (Variable)temp;
+        if(temp instanceof FunctionCall)
+            value.value = (FunctionCall)temp;
+        if(temp instanceof SimpleLiteralValue)
+            value.value = (SimpleLiteralValue)temp;
+        if(temp instanceof ValueInParenth)
+            value.value = (ValueInParenth)temp;
+        return value;
+    }
+
+    @Override
+    public ValueInParenth visitParenthVal(SqlParser.ParenthValContext ctx) {
+        ValueInParenth valueInParenth = new ValueInParenth();
+        valueInParenth.value = visitValue(ctx.value());
+        return valueInParenth;
+    }
+
+    @Override
+    public SimpleLiteralValue visitLvVal(SqlParser.LvValContext ctx) {
+        return visitLiteral_value(ctx.literal_value());
+    }
+
+    @Override
+    public SimpleLiteralValue visitLiteral_value(SqlParser.Literal_valueContext ctx) {
+        SimpleLiteralValue simpleLiteralValue = new SimpleLiteralValue();
+        simpleLiteralValue.value = ctx.literal_value().getText();
+        return simpleLiteralValue;
+    }
+
+    @Override
+    public FunctionCall visitJfcVal(SqlParser.JfcValContext ctx) {
+        return visitJava_function_call(ctx.java_function_call());
+    }
+
+    @Override
+    public Variable visitVarVal(SqlParser.VarValContext ctx) {
+        return visitVariable(ctx.variable());
+    }
+
+    @Override
+    public Variable visitVariable(SqlParser.VariableContext ctx) {
+        Variable variable = new Variable();
+        if(ctx.any_name()!=null)
+        {
+            SimpleVariable s = new SimpleVariable();
+            s.VariableName=ctx.any_name().getText();
+            variable.variable = s;
+        }
+        else
+            variable.variable = visitArray_call(ctx.array_call());
+        return variable;
+    }
+
+    @Override
+    public ArrayCall visitArray_call(SqlParser.Array_callContext ctx) {
+        ArrayCall arrayCall = new ArrayCall();
+        arrayCall.arrayName = ctx.array_name().getText();
+        arrayCall.expression = visitMathExpression(ctx.math_expression());
+        return arrayCall;
+    }
+
     /*
 
     @Override
@@ -99,9 +286,9 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     //Non Boolean Expression
-    public NonBooleanExpression visitNonBooleanExpression(SqlParser.Non_boolean_expressionContext ctx)
+    public MathExpression visitNonBooleanExpression(SqlParser.Non_boolean_expressionContext ctx)
     {
-        return (NonBooleanExpression)visit(ctx);
+        return (MathExpression)visit(ctx);
     }
 
     @Override
@@ -120,10 +307,10 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
-    public ParanthesesNonBoolean visitNbeParenth(SqlParser.NbeParenthContext ctx)
+    public ParanthesesMath visitNbeParenth(SqlParser.NbeParenthContext ctx)
     {
-        ParanthesesNonBoolean paranthesesNonBoolean= new ParanthesesNonBoolean();
-        paranthesesNonBoolean.nonBooleanExpression = visitNonBooleanExpression(ctx.non_boolean_expression());
+        ParanthesesMath paranthesesNonBoolean= new ParanthesesMath();
+        paranthesesNonBoolean.mathExpression = visitNonBooleanExpression(ctx.non_boolean_expression());
         return paranthesesNonBoolean;
     }
 
@@ -168,8 +355,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
-    public MultipleExpressions visitDoubleBool(SqlParser.DoubleBoolContext ctx) {
-        MultipleExpressions multipleExpressions=new MultipleExpressions();
+    public MultipleBooleanExpression visitDoubleBool(SqlParser.DoubleBoolContext ctx) {
+        MultipleBooleanExpression multipleExpressions=new MultipleBooleanExpression();
         multipleExpressions.left=visitBooleanExpression(ctx.boolean_expr(0));
         multipleExpressions.right=visitBooleanExpression(ctx.boolean_expr(1));
         multipleExpressions.op=ctx.op.getText();

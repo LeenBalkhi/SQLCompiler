@@ -1,5 +1,9 @@
 package Rules.AST.Java.Utils;
 
 
-public class Variable extends Value {
+import Rules.AST.Node;
+
+public class Variable extends Node
+{
+    public Node variable;
 }

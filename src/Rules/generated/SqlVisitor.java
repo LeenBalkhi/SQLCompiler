@@ -167,40 +167,33 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrint(SqlParser.PrintContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code var}
+	 * Visit a parse tree produced by the {@code varVal}
 	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVar(SqlParser.VarContext ctx);
+	T visitVarVal(SqlParser.VarValContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code str}
+	 * Visit a parse tree produced by the {@code jfcVal}
 	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStr(SqlParser.StrContext ctx);
+	T visitJfcVal(SqlParser.JfcValContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code javaFunc}
+	 * Visit a parse tree produced by the {@code lvVal}
 	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitJavaFunc(SqlParser.JavaFuncContext ctx);
+	T visitLvVal(SqlParser.LvValContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code literalVal}
+	 * Visit a parse tree produced by the {@code parenthVal}
 	 * labeled alternative in {@link SqlParser#value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLiteralVal(SqlParser.LiteralValContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code valParenth}
-	 * labeled alternative in {@link SqlParser#value}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitValParenth(SqlParser.ValParenthContext ctx);
+	T visitParenthVal(SqlParser.ParenthValContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#expression}.
 	 * @param ctx the parse tree
@@ -208,68 +201,68 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(SqlParser.ExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code nbeDoubleNonBool}
+	 * Visit a parse tree produced by the {@code valueMath}
 	 * labeled alternative in {@link SqlParser#math_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx);
+	T visitValueMath(SqlParser.ValueMathContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code nbeVal}
+	 * Visit a parse tree produced by the {@code arithmeticMath}
 	 * labeled alternative in {@link SqlParser#math_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNbeVal(SqlParser.NbeValContext ctx);
+	T visitArithmeticMath(SqlParser.ArithmeticMathContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code nbeParenth}
+	 * Visit a parse tree produced by the {@code parenthMath}
 	 * labeled alternative in {@link SqlParser#math_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNbeParenth(SqlParser.NbeParenthContext ctx);
+	T visitParenthMath(SqlParser.ParenthMathContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code val}
+	 * Visit a parse tree produced by the {@code parenthBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVal(SqlParser.ValContext ctx);
+	T visitParenthBool(SqlParser.ParenthBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code booltrue}
+	 * Visit a parse tree produced by the {@code compareBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBooltrue(SqlParser.BooltrueContext ctx);
+	T visitCompareBool(SqlParser.CompareBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code boolfalse}
+	 * Visit a parse tree produced by the {@code trueBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBoolfalse(SqlParser.BoolfalseContext ctx);
+	T visitTrueBool(SqlParser.TrueBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code parenth}
+	 * Visit a parse tree produced by the {@code multipleBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitParenth(SqlParser.ParenthContext ctx);
+	T visitMultipleBool(SqlParser.MultipleBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code doubleBool}
+	 * Visit a parse tree produced by the {@code valBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDoubleBool(SqlParser.DoubleBoolContext ctx);
+	T visitValBool(SqlParser.ValBoolContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code doubleNonBool}
+	 * Visit a parse tree produced by the {@code falseBool}
 	 * labeled alternative in {@link SqlParser#boolean_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx);
+	T visitFalseBool(SqlParser.FalseBoolContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#logical_condition}.
 	 * @param ctx the parse tree

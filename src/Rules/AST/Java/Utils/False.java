@@ -1,4 +1,7 @@
 package Rules.AST.Java.Utils;
 
-public class False {
+import Rules.AST.Node;
+
+public class False extends Node {
+    public  String value="False";
 }

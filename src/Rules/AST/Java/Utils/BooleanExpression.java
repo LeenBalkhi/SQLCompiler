@@ -1,4 +1,7 @@
 package Rules.AST.Java.Utils;
 
-public class BooleanExpression extends Expression {
+import Rules.AST.Node;
+
+public class BooleanExpression extends Node {
+    public Node booleanExpression;
 }

@@ -174,10 +174,10 @@ K_PRINT '(' (expression | string)? ('+' ( expression| string))*')'
 ;
 
 value:
-  variable #var
-| java_function_call #javaFunc
-| literal_value #literalVal
-| '(' value ')' #valParenth
+  variable #varVal
+| java_function_call #jfcVal
+| literal_value #lvVal
+| '(' value ')' #parenthVal
 ;
 
 expression:
@@ -189,19 +189,19 @@ value
 
 math_expression
 :
-value #nbeVal
-|math_expression op=( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  math_expression #nbeDoubleNonBool
-|'(' math_expression ')' #nbeParenth
+value #valueMath
+|math_expression op=( '<<' | '>>' |'*' | '/' | '%' |'+' | '-' )  math_expression #arithmeticMath
+|'(' math_expression ')' #parenthMath
 ;
 
 boolean_expression
 :
-value #val
-|math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #doubleNonBool
-| boolean_expression op=( '||' | '&&' )boolean_expression #doubleBool
-| K_TRUE #booltrue
-| K_FALSE #boolfalse
-| '(' boolean_expression ')' #parenth
+value #valBool
+|math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #compareBool
+| boolean_expression op=( '||' | '&&' )boolean_expression #multipleBool
+| K_TRUE #trueBool
+| K_FALSE #falseBool
+| '(' boolean_expression ')' #parenthBool
 ;
 
 logical_condition

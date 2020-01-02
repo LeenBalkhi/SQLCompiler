@@ -327,61 +327,49 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVar(SqlParser.VarContext ctx) { }
+	@Override public void enterVarVal(SqlParser.VarValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVar(SqlParser.VarContext ctx) { }
+	@Override public void exitVarVal(SqlParser.VarValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStr(SqlParser.StrContext ctx) { }
+	@Override public void enterJfcVal(SqlParser.JfcValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStr(SqlParser.StrContext ctx) { }
+	@Override public void exitJfcVal(SqlParser.JfcValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJavaFunc(SqlParser.JavaFuncContext ctx) { }
+	@Override public void enterLvVal(SqlParser.LvValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJavaFunc(SqlParser.JavaFuncContext ctx) { }
+	@Override public void exitLvVal(SqlParser.LvValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLiteralVal(SqlParser.LiteralValContext ctx) { }
+	@Override public void enterParenthVal(SqlParser.ParenthValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLiteralVal(SqlParser.LiteralValContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterValParenth(SqlParser.ValParenthContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitValParenth(SqlParser.ValParenthContext ctx) { }
+	@Override public void exitParenthVal(SqlParser.ParenthValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -399,109 +387,109 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx) { }
+	@Override public void enterValueMath(SqlParser.ValueMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx) { }
+	@Override public void exitValueMath(SqlParser.ValueMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNbeVal(SqlParser.NbeValContext ctx) { }
+	@Override public void enterArithmeticMath(SqlParser.ArithmeticMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNbeVal(SqlParser.NbeValContext ctx) { }
+	@Override public void exitArithmeticMath(SqlParser.ArithmeticMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNbeParenth(SqlParser.NbeParenthContext ctx) { }
+	@Override public void enterParenthMath(SqlParser.ParenthMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNbeParenth(SqlParser.NbeParenthContext ctx) { }
+	@Override public void exitParenthMath(SqlParser.ParenthMathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVal(SqlParser.ValContext ctx) { }
+	@Override public void enterParenthBool(SqlParser.ParenthBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVal(SqlParser.ValContext ctx) { }
+	@Override public void exitParenthBool(SqlParser.ParenthBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBooltrue(SqlParser.BooltrueContext ctx) { }
+	@Override public void enterCompareBool(SqlParser.CompareBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBooltrue(SqlParser.BooltrueContext ctx) { }
+	@Override public void exitCompareBool(SqlParser.CompareBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBoolfalse(SqlParser.BoolfalseContext ctx) { }
+	@Override public void enterTrueBool(SqlParser.TrueBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBoolfalse(SqlParser.BoolfalseContext ctx) { }
+	@Override public void exitTrueBool(SqlParser.TrueBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParenth(SqlParser.ParenthContext ctx) { }
+	@Override public void enterMultipleBool(SqlParser.MultipleBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParenth(SqlParser.ParenthContext ctx) { }
+	@Override public void exitMultipleBool(SqlParser.MultipleBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDoubleBool(SqlParser.DoubleBoolContext ctx) { }
+	@Override public void enterValBool(SqlParser.ValBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDoubleBool(SqlParser.DoubleBoolContext ctx) { }
+	@Override public void exitValBool(SqlParser.ValBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDoubleNonBool(SqlParser.DoubleNonBoolContext ctx) { }
+	@Override public void enterFalseBool(SqlParser.FalseBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx) { }
+	@Override public void exitFalseBool(SqlParser.FalseBoolContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
