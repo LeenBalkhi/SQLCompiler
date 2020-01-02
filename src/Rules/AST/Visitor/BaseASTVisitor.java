@@ -12,6 +12,7 @@ import Rules.AST.Java.Logic.Switch.*;
 import Rules.AST.Java.Utils.*;
 
 
+import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.SelectStmt;
 import Rules.AST.QueryStmt.Statement;
@@ -23,8 +24,19 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(JavaStatment javaStmt) {
+    public void visit(Node n) {
+        if (n instanceof JavaStatment)
+            visit((JavaStatment) n);
+        else
+            return;
+    }
+
+    @Override
+    public void visit(JavaStatment javaStmt)
+    {
         System.out.println("ast JavaStatment ");
+        if(javaStmt.javaStatment instanceof FunctionCall)
+            visit((FunctionCall)javaStmt.javaStatment);
     }
 
     @Override

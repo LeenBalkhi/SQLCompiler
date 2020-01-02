@@ -15,9 +15,18 @@ import Rules.generated.SqlParser;
 public class JavaVisitor extends SqlBaseVisitor<Node> {
 
     @Override
-    public Node visitJava_stmt(SqlParser.Java_stmtContext ctx) {
-        return  visitChildren(ctx);
+    public JavaStatment visitJava_stmt(SqlParser.Java_stmtContext ctx) {
+        JavaStatment javaStatment=new JavaStatment();
+        if(ctx.java_function_call()!=null)
+            javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
+        return javaStatment;
     }
+
+    @Override
+    public FunctionCall visitJava_function_call(SqlParser.Java_function_callContext ctx) {
+        return new FunctionCall();
+    }
+    /*
 
     @Override
     public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
@@ -231,7 +240,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         //arrayCall.expression=visitExpression(ctx.expression());
         return arrayCall;
     }
-
+*/
 }
 
 

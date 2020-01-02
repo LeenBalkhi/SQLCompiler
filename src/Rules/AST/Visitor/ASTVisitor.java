@@ -13,6 +13,7 @@ import Rules.AST.Java.Logic.Switch.SwitchCase;
 import Rules.AST.Java.Logic.Switch.SwitchDefault;
 import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
+import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.SelectStmt;
 import Rules.AST.QueryStmt.Statement;
@@ -20,6 +21,7 @@ import Rules.AST.QueryStmt.Statement;
 public interface ASTVisitor {
     //Java
     public void visit(Parse p);
+    public void visit(Node n);
     public void visit(JavaStatment javaStmt);
     public void visit(ArgumentList argumentList);
     public void visit(Comment comment);

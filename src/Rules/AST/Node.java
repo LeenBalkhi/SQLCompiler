@@ -23,5 +23,8 @@ public class Node {
         return col;
     }
 
-    public void accept(ASTVisitor astVisitor){}
+    public void accept(ASTVisitor astVisitor)
+    {
+        astVisitor.visit(this);
+    }
 }
