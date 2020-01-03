@@ -1,19 +1,18 @@
 package Rules.Base;
 import Rules.AST.Java.*;
-import Rules.AST.Java.JavaBody.Block;
-import Rules.AST.Java.JavaBody.JavaBody;
-import Rules.AST.Java.JavaBody.ReturnStmt;
-import Rules.AST.Java.JavaBody.ReturnValue;
+import Rules.AST.Java.JavaBody.*;
+import Rules.AST.Java.Logic.*;
 import Rules.AST.Java.Logic.Conditional.ConditionalStmt;
-import Rules.AST.Java.Logic.Loop.LoopStmt;
-import Rules.AST.Java.Logic.VariableAssignment;
-import Rules.AST.Java.Logic.VariableAssignmentValue;
-import Rules.AST.Java.Logic.VariableDeclaration;
+import Rules.AST.Java.Logic.Conditional.ElseIfStmt;
+import Rules.AST.Java.Logic.Conditional.ElseStmt;
+import Rules.AST.Java.Logic.Conditional.IfStmt;
+import Rules.AST.Java.Logic.Loop.*;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
 import Rules.generated.SqlBaseVisitor;
 import Rules.generated.SqlParser;
 
+import java.awt.image.LookupOp;
 import java.rmi.server.LoaderHandler;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
@@ -23,7 +22,12 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public JavaStatment visitJava_stmt(SqlParser.Java_stmtContext ctx) {
         JavaStatment javaStatment=new JavaStatment();
-        if(ctx.java_function_call()!=null)
+
+        if(ctx.variable_declaration() != null)
+            javaStatment.javaStatment=visitVariable_declaration(ctx.variable_declaration());
+         if (ctx.higher_order_java_function_call()!= null)
+            javaStatment.javaStatment=visitHigher_order_java_function_call(ctx.higher_order_java_function_call());
+        else if(ctx.java_function_call()!=null)
             javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
         else if(ctx.java_function_declaration()!= null)
             javaStatment.javaStatment=visitJava_function_declaration(ctx.java_function_declaration());
@@ -123,15 +127,71 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public VariableAssignmentValue visitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx)
     {
         VariableAssignmentValue variableAssignmentValue = new VariableAssignmentValue();
-       // if(ctx.expression()!= null)
+        if(ctx.expression()!= null)
+            variableAssignmentValue.Value = visitExpression(ctx.expression());
+        if(ctx.array_identification()!= null)
+            variableAssignmentValue.Value = visitArray_identification(ctx.array_identification());
+        if(ctx.json_object()!=null)
+            variableAssignmentValue.Value = visitJson_object(ctx.json_object());
+        if(ctx.logical_condition() != null)
+            variableAssignmentValue.Value = visitLogical_condition(ctx.logical_condition());
             return variableAssignmentValue;
     }
     @Override
     public Block visitBlock(SqlParser.BlockContext ctx)
     {
         Block block = new Block();
-
+        for(int i=0; i < ctx.java_body().size() ; i++)
+            block.javaBodies.add(visitJava_body(ctx.java_body().get(i)));
+        if(ctx.return_stmt() != null)
+            block.returnStmt = visitReturn_stmt(ctx.return_stmt());
         return block;
+    }
+    @Override
+    public OneLineBlock visitOne_line_block(SqlParser.One_line_blockContext ctx)
+    {
+        //fix grammar
+        OneLineBlock oneLineBlock = new OneLineBlock();
+        oneLineBlock.javaBodies = visitJava_body(ctx.java_body());
+        oneLineBlock.returnStmt = visitReturn_stmt(ctx.return_stmt());
+        return oneLineBlock;
+    }
+    @Override
+    public JavaBody visitJava_body(SqlParser.Java_bodyContext ctx)
+    {
+        JavaBody javaBody = new JavaBody();
+        if(ctx.conditional_stmt()!= null)
+            javaBody.command = visitConditional_stmt(ctx.conditional_stmt());
+        if(ctx.increment() != null)
+            javaBody.command = visitIncrement(ctx.increment());
+        if(ctx.java_function_call() != null)
+            javaBody.command = visitJava_function_call(ctx.java_function_call());
+        if(ctx.increment() != null)
+            javaBody.command = visitIncrement(ctx.increment());
+        if(ctx.loop_stmt() != null)
+            javaBody.command = visitLoop_stmt(ctx.loop_stmt());
+        if(ctx.print() != null)
+            javaBody.command = visitPrint(ctx.print());
+        if(ctx.switch_stmt() != null)
+            javaBody.command = visitSwitch_stmt(ctx.switch_stmt());
+        for(int i=0 ; i < ctx.java_body().size() ; i ++)
+            javaBody.bodyInScopes.add(visitJava_body(ctx.java_body().get(i)));
+        if(ctx.variable_assignment() != null)
+            javaBody.command = visitVariable_assignment(ctx.variable_assignment());
+        if(ctx.variable_declaration() != null)
+            javaBody.command = visitVariable_declaration(ctx.variable_declaration());
+        if(ctx.K_BREAK() != null)
+            javaBody.suddenCommand = ctx.K_BREAK().getSymbol().getText();
+        if(ctx.K_CONTINUE() != null)
+            javaBody.suddenCommand = ctx.K_CONTINUE().getSymbol().getText();
+        return javaBody;
+    }
+    @Override
+    public Increment visitIncrement (SqlParser.IncrementContext ctx)
+    {
+        Increment increment = new Increment();
+
+        return increment;
     }
     @Override
     public ReturnStmt visitReturn_stmt(SqlParser.Return_stmtContext ctx)
@@ -144,7 +204,12 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ReturnValue visitReturn_value(SqlParser.Return_valueContext ctx)
     {
         ReturnValue returnValue = new ReturnValue();
-
+        if(ctx.expression() != null)
+            returnValue.value = visitExpression(ctx.expression());
+        if(ctx.logical_condition() != null)
+            returnValue.value = visitLogical_condition(ctx.logical_condition());
+        if(ctx.string() != null)
+            returnValue.value = visitString(ctx.string());
         return  returnValue;
     }
     @Override
@@ -152,18 +217,138 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     {
         JavaString javaString = new JavaString();
         javaString.string ="";
+        ////fix grammar
         for(int i=0 ; i < ctx.expression().size(); i ++)
             javaString.string+= visitExpression(ctx.expression().get(i));
         for(int i=0 ; i < ctx.any_name().size(); i ++)
             javaString.string+=ctx.any_name().get(i).getText();
-        //get spaces
+        for(int i=0 ; i < ctx.SPACES().size() ; i++)
+            javaString.string+=ctx.SPACES().get(i).getSymbol().getText();
         return  javaString;
+    }
+    @Override
+    public Print visitPrint(SqlParser.PrintContext ctx)
+    {
+        Print print = new Print();
+        for(int i=0 ; i < ctx.expression().size(); i ++)
+            print.expressions.add(visitExpression(ctx.expression().get(i)));
+        for(int i=0 ; i < ctx.string().size(); i ++)
+            print.strings.add(visitString(ctx.string().get(i)));
+        return print;
+    }
+    @Override
+    public JsonObject visitJson_object(SqlParser.Json_objectContext ctx)
+    {
+        JsonObject jsonObject = new JsonObject();
+        for(int i=0 ; i < ctx.element().size(); i++)
+        jsonObject.element.add(visitElement(ctx.element().get(i)));
+        return jsonObject;
+    }
+    @Override
+    public Element visitElement(SqlParser.ElementContext ctx)
+    {
+        Element element = new Element();
+        element.objName = ctx.IDENTIFIER().getSymbol().getText();
+        if(ctx.array_identification() != null)
+            element.obj = visitArray_identification(ctx.array_identification());
+        if(ctx.json_object() != null)
+            element.obj = visitJson_object(ctx.json_object());
+        if(ctx.value() != null)
+            element.obj = visitValue(ctx.value());
+        return element;
+    }
+    @Override
+    public ConditionalStmt visitConditional_stmt(SqlParser.Conditional_stmtContext ctx)
+    {
+        ConditionalStmt conditionalStmt = new ConditionalStmt();
+        for( int i=0 ; i < ctx.if_stmt().size() ; i++)
+            conditionalStmt.ifs.add(visitIf_stmt(ctx.if_stmt().get(i)));
+        for( int i=0 ; i < ctx.else_if_stmt().size(); i++)
+            conditionalStmt.elseifs.add(visitElse_if_stmt(ctx.else_if_stmt().get(i)));
+        if(ctx.else_stmt() != null)
+            conditionalStmt.elseStmt = visitElse_stmt(ctx.else_stmt());
+        return conditionalStmt;
+    }
+    @Override
+    public IfStmt visitIf_stmt(SqlParser.If_stmtContext ctx)
+    {
+        IfStmt ifStmt = new IfStmt();
+        ifStmt.condition = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.one_line_block() != null )
+            ifStmt.body = visitOne_line_block(ctx.one_line_block());
+        if(ctx.block() != null)
+            ifStmt.body = visitBlock(ctx.block());
+        return ifStmt;
+    }
+    @Override
+    public ElseIfStmt visitElse_if_stmt(SqlParser.Else_if_stmtContext ctx)
+    {
+        ElseIfStmt elseIfStmt = new ElseIfStmt();
+        elseIfStmt.condition = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.one_line_block() != null )
+            elseIfStmt.body = visitOne_line_block(ctx.one_line_block());
+        if(ctx.block() != null)
+            elseIfStmt.body = visitBlock(ctx.block());
+        return elseIfStmt;
+    }
+    @Override
+    public ElseStmt visitElse_stmt(SqlParser.Else_stmtContext ctx)
+    {
+        ElseStmt elseStmt = new ElseStmt();
+        if(ctx.one_line_block() != null )
+            elseStmt.body = visitOne_line_block(ctx.one_line_block());
+        if(ctx.block() != null)
+            elseStmt.body = visitBlock(ctx.block());
+        return elseStmt;
+    }
+    @Override
+    public LoopStmt visitLoop_stmt(SqlParser.Loop_stmtContext ctx)
+    {
+        LoopStmt loopStmt = new LoopStmt();
+        if(ctx.for_loop() != null)
+            loopStmt.loop = visitFor_loop(ctx.for_loop());
+        if(ctx.for_each_loop() != null)
+            loopStmt.loop = visitFor_each_loop(ctx.for_each_loop());
+        if(ctx.while_loop() != null)
+            loopStmt.loop = visitWhile_loop(ctx.while_loop());
+        if(ctx.do_while_loop() != null)
+            loopStmt.loop = visitDo_while_loop(ctx.do_while_loop());
+        return loopStmt;
+    }
+    @Override
+    public ForLoop visitFor_loop(SqlParser.For_loopContext ctx)
+    {
+        ForLoop  forLoop = new ForLoop();
+
+        return forLoop;
+    }
+    @Override
+    public ForEachLoop visitFor_each_loop(SqlParser.For_each_loopContext ctx)
+    {
+        ForEachLoop  forEachLoop = new ForEachLoop();
+
+        return forEachLoop;
+    }
+    @Override
+    public WhileLoop visitWhile_loop(SqlParser.While_loopContext ctx)
+    {
+        WhileLoop  whileLoop = new WhileLoop();
+
+        return whileLoop;
+    }
+    @Override
+    public DoWhileLoop visitDo_while_loop(SqlParser.Do_while_loopContext ctx)
+    {
+        DoWhileLoop  doWhileLoop = new DoWhileLoop();
+
+        return doWhileLoop;
     }
     @Override
     public LogicalCondition visitLogical_condition (SqlParser.Logical_conditionContext ctx)
     {
         LogicalCondition logicalCondition = new LogicalCondition();
         logicalCondition.condition = visitBooleanExpression(ctx.boolean_expression());
+        ///Might need to fix grammar;
         if(ctx.logical_condition()!= null)
             logicalCondition.ifTrue = visitLogical_condition(ctx.logical_condition().get(0));
         else if(ctx.expression()!= null)
@@ -343,7 +528,16 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         arrayCall.expression = visitMathExpression(ctx.math_expression());
         return arrayCall;
     }
-
+    @Override
+    public ArrayIdentification visitArray_identification(SqlParser.Array_identificationContext ctx)
+    {
+        ArrayIdentification arrayIdentification = new ArrayIdentification();
+        for( int i=0 ; i < ctx.expression().size() ; i ++)
+            arrayIdentification.arrayElementasExpr.add(visitExpression(ctx.expression().get(i)));
+        for (int i=0 ; i < ctx.array_identification().size(); i++)
+            arrayIdentification.arrayElementasArray.add(visitArray_identification(ctx.array_identification().get(i)));
+        return arrayIdentification;
+    }
     /*
 
     @Override

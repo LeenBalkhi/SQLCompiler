@@ -1,5 +1,6 @@
 package Rules.Base;
 import Rules.*;
+import Rules.AST.Java.Utils.Increment;
 import Rules.AST.Parse;
 import Rules.AST.QueryStmt.*;
 import Rules.generated.*;
@@ -31,6 +32,12 @@ public class BaseVisitor extends SqlBaseVisitor {
          * {@link #visitChildren} on {@code ctx}.</p>
          */
         @Override public  Object visitError(SqlParser.ErrorContext ctx) { return visitChildren(ctx); }
+
+        @Override
+        public Object visitIncrement(SqlParser.IncrementContext ctx) {
+                return visitChildren(ctx);
+        }
+
         /**
          * {@inheritDoc}
          *

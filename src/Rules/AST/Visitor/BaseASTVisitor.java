@@ -126,6 +126,10 @@ public class BaseASTVisitor implements ASTVisitor {
             visit((FunctionCall)javaStmt.javaStatment);
         if(javaStmt.javaStatment instanceof  FunctionDeclaration)
             visit((FunctionDeclaration) javaStmt.javaStatment);
+        if(javaStmt.javaStatment instanceof HigherOrderFunctionCall)
+            visit((HigherOrderFunctionCall) javaStmt.javaStatment);
+        if(javaStmt.javaStatment instanceof VariableDeclaration)
+            visit((VariableDeclaration) javaStmt.javaStatment);
     }
 
     @Override

@@ -1,5 +1,6 @@
 // Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
+import Rules.AST.Java.Utils.Increment;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -10,7 +11,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public class SqlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SqlVisitor<T> {
+public abstract class SqlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SqlVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -74,6 +75,10 @@ public class SqlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements Sq
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitHo_java_function(SqlParser.Ho_java_functionContext ctx) { return visitChildren(ctx); }
+
+	public T  visitIncrement(SqlParser.IncrementContext ctx)
+	{ return visitChildren(ctx);}
+
 	/**
 	 * {@inheritDoc}
 	 *
