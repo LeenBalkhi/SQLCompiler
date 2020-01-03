@@ -28,6 +28,10 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast MathExpression");
         if(mathExpression.expression instanceof Value)
             visit((Value)mathExpression.expression);
+        if(mathExpression.expression instanceof ArithmeticOperation)
+            visit((ArithmeticOperation)mathExpression.expression);
+        if(mathExpression.expression instanceof MathInParenth)
+            visit((MathInParenth)mathExpression.expression);
     }
 
     @Override
@@ -45,7 +49,8 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(MathInParenth mathInParenth) {
-
+        System.out.println("ast MathInParenth");
+        visit((MathExpression)mathInParenth.expression);
     }
 
     @Override
@@ -67,7 +72,10 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(ArithmeticOperation arithmeticOperation) {
-
+        System.out.println("ast ArithmeticOperation");
+        visit((MathExpression)arithmeticOperation.left);
+        System.out.println(arithmeticOperation.op);
+        visit((MathExpression)arithmeticOperation.right);
     }
 
     @Override
@@ -193,7 +201,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(ArrayCall arrayCall) {
         System.out.println("ast ArrayCall ");
         System.out.println(arrayCall.arrayName);
-        visit((Expression) arrayCall.expression);
+        visit((MathExpression) arrayCall.expression);
     }
 
     @Override
