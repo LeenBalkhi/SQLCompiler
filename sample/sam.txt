@@ -1,2 +1,2 @@
-func((8+5));
+func((true || false) || True);
 

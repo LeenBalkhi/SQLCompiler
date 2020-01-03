@@ -20,7 +20,7 @@ import Rules.AST.QueryStmt.Statement;
 public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(True t) {
-
+        System.out.println("ast True");
     }
 
     @Override
@@ -36,7 +36,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(False f) {
-
+        System.out.println("ast False");
     }
 
     @Override
@@ -61,7 +61,8 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(BooleanInParenth booleanInParenth) {
-
+        System.out.println("ast BooleanInParenth");
+        visit((BooleanExpression)booleanInParenth.value);
     }
 
     @Override
@@ -80,7 +81,10 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(MultipleBooleanExpression multipleBooleanExpression) {
-
+        System.out.println("ast MultipleBooleanExpression");
+        visit((BooleanExpression)multipleBooleanExpression.left);
+        System.out.println(multipleBooleanExpression.op);
+        visit((BooleanExpression)multipleBooleanExpression.right);
     }
 
     @Override
@@ -298,15 +302,17 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(BooleanExpression booleanExpression) {
         System.out.println("ast BooleanExpression ");
         if(booleanExpression.booleanExpression instanceof Value)
-        {
             visit((Value)booleanExpression.booleanExpression);
-        }
-        else if(booleanExpression.booleanExpression instanceof Compare)
-        {
+        if(booleanExpression.booleanExpression instanceof Compare)
             visit((Compare)booleanExpression.booleanExpression);
-        }
-        else if(booleanExpression.booleanExpression instanceof MultipleBooleanExpression)
+        if(booleanExpression.booleanExpression instanceof MultipleBooleanExpression)
             visit((MultipleBooleanExpression)booleanExpression.booleanExpression);
+        if(booleanExpression.booleanExpression instanceof BooleanInParenth)
+            visit((BooleanInParenth)booleanExpression.booleanExpression);
+        if(booleanExpression.booleanExpression instanceof True)
+            visit((True)booleanExpression.booleanExpression);
+        if(booleanExpression.booleanExpression instanceof False)
+            visit((False)booleanExpression.booleanExpression);
     }
 
     @Override
