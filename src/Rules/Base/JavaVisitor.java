@@ -308,7 +308,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public SimpleLiteralValue visitLiteral_value(SqlParser.Literal_valueContext ctx) {
         SimpleLiteralValue simpleLiteralValue = new SimpleLiteralValue();
-        simpleLiteralValue.value = ctx.literal_value().getText();
+        simpleLiteralValue.value = ctx.getText();
         return simpleLiteralValue;
     }
 

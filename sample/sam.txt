@@ -1,4 +1,2 @@
-func(var x=z)
-{
+func(6);
 
-}

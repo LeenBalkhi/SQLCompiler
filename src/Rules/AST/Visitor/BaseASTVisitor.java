@@ -61,7 +61,8 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SimpleLiteralValue simpleLiteralValue) {
-
+        System.out.println("ast SimpleLiteralValue");
+        System.out.println(simpleLiteralValue.value);
     }
 
     @Override
