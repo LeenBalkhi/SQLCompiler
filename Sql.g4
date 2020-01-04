@@ -548,7 +548,7 @@ join_operator
  ;
 
 join_constraint
-   : ( K_ON expr)?
+   : ( K_ON expr)
  ;
 
 select_core
