@@ -81,7 +81,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         ParameterList parameterList = new ParameterList();
         for (int i=0;i<ctx.any_name().size();i++)
         {
-
             parameterList.list.add(ctx.any_name(i).IDENTIFIER().getSymbol().getText());
         }
         for(int i=0 ; i <ctx.default_parameter().size();i++)
@@ -93,9 +92,12 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public ArgumentList visitArgument_list(SqlParser.Argument_listContext ctx) {
         ArgumentList argumentList = new ArgumentList();
-        for (int i=0;i<ctx.expression().size();i++)
+        if(ctx.expression().size()!=0)
         {
-            argumentList.argumentList.add(visitExpression(ctx.expression().get(i)));
+            for (int i=0;i<ctx.expression().size();i++)
+            {
+                argumentList.argumentList.add(visitExpression(ctx.expression().get(i)));
+            }
         }
         return argumentList;
     }
@@ -141,7 +143,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         assignment.variableAssignmentValue = visitVariable_assignment_value(ctx.variable_assignment_value());
         return assignment;
     }
-
 
     @Override  public AssignmentOperator visitAssignment_operator(SqlParser.Assignment_operatorContext ctx) {
         AssignmentOperator assignmentOperator = new AssignmentOperator();
@@ -459,6 +460,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             elseIfStmt.body = visitBlock(ctx.block());
         return elseIfStmt;
     }
+
     @Override
     public ElseStmt visitElse_stmt(SqlParser.Else_stmtContext ctx)
     {
@@ -469,6 +471,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             elseStmt.body = visitBlock(ctx.block());
         return elseStmt;
     }
+
     @Override
     public LoopStmt visitLoop_stmt(SqlParser.Loop_stmtContext ctx)
     {
@@ -483,6 +486,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             loopStmt.loop = visitDo_while_loop(ctx.do_while_loop());
         return loopStmt;
     }
+
     @Override
     public ForLoop visitFor_loop(SqlParser.For_loopContext ctx)
     {
@@ -499,6 +503,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             forLoop.block = visitOne_line_block(ctx.one_line_block());
         return forLoop;
     }
+
     @Override
     public ForEachLoop visitFor_each_loop(SqlParser.For_each_loopContext ctx)
     {
@@ -511,6 +516,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             forEachLoop.block=visitOne_line_block(ctx.one_line_block());
         return forEachLoop;
     }
+
     @Override
     public WhileLoop visitWhile_loop(SqlParser.While_loopContext ctx)
     {
@@ -522,6 +528,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             whileLoop.block = visitOne_line_block(ctx.one_line_block());
         return whileLoop;
     }
+
     @Override
     public DoWhileLoop visitDo_while_loop(SqlParser.Do_while_loopContext ctx)
     {
@@ -533,22 +540,40 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             doWhileLoop.block = visitOne_line_block(ctx.one_line_block());
         return doWhileLoop;
     }
-    @Override
+
     public LogicalCondition visitLogical_condition (SqlParser.Logical_conditionContext ctx)
     {
         LogicalCondition logicalCondition = new LogicalCondition();
-        logicalCondition.condition = visitBooleanExpression(ctx.boolean_expression());
-        ///Might need to fix grammar;
-        if(ctx.logical_condition()!= null)
-            logicalCondition.ifTrue = visitLogical_condition(ctx.logical_condition().get(0));
-        else if(ctx.expression()!= null)
-            logicalCondition.ifTrue = visitExpression(ctx.expression().get(0));
-        if(ctx.logical_condition()!= null)
-            logicalCondition.ifFalse = visitLogical_condition(ctx.logical_condition().get(1));
-        else if(ctx.expression()!= null)
-            logicalCondition.ifFalse = visitExpression(ctx.expression().get(1));
+        Node temp = visit(ctx);
+        if(temp instanceof LogicalConditionNormal)
+            logicalCondition.logicalCondition = (LogicalConditionNormal)temp;
+        if(temp instanceof LogicalConditionInParenth)
+            logicalCondition.logicalCondition = (LogicalConditionInParenth)temp;
         return logicalCondition;
     }
+
+    @Override
+    public LogicalConditionNormal visitNormalLog(SqlParser.NormalLogContext ctx) {
+        LogicalConditionNormal logicalConditionNormal = new LogicalConditionNormal();
+        logicalConditionNormal.condition = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.expression(0)!=null)
+            logicalConditionNormal.ifTrue = visitExpression(ctx.expression(0));
+        if(ctx.logical_condition(0)!=null)
+            logicalConditionNormal.ifTrue = visitLogical_condition(ctx.logical_condition(0));
+        if(ctx.expression(1)!=null)
+            logicalConditionNormal.ifFalse = visitExpression(ctx.expression(1));
+        if(ctx.logical_condition(1)!=null)
+            logicalConditionNormal.ifFalse = visitLogical_condition(ctx.logical_condition(1));
+        return logicalConditionNormal;
+    }
+
+    @Override
+    public Node visitParenthLog(SqlParser.ParenthLogContext ctx) {
+        LogicalConditionInParenth logicalConditionInParenth = new LogicalConditionInParenth();
+        logicalConditionInParenth.logicalCondition = visitLogical_condition(ctx.logical_condition());
+        return logicalConditionInParenth;
+    }
+
     public Expression visitExpression(SqlParser.ExpressionContext ctx) {
         Expression expression = new Expression();
         if(ctx.value()!=null)
@@ -722,10 +747,16 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ArrayIdentification visitArray_identification(SqlParser.Array_identificationContext ctx)
     {
         ArrayIdentification arrayIdentification = new ArrayIdentification();
-        for( int i=0 ; i < ctx.expression().size() ; i ++)
-            arrayIdentification.arrayElementasExpr.add(visitExpression(ctx.expression().get(i)));
-        for (int i=0 ; i < ctx.array_identification().size(); i++)
-            arrayIdentification.arrayElementasArray.add(visitArray_identification(ctx.array_identification().get(i)));
+        if(ctx.expression().size()!=0)
+        {
+            for( int i=0 ; i < ctx.expression().size() ; i ++)
+                arrayIdentification.arrayElementasExpr.add(visitExpression(ctx.expression().get(i)));
+        }
+        if(ctx.array_identification().size()!=0)
+        {
+            for (int i=0 ; i < ctx.array_identification().size(); i++)
+                arrayIdentification.arrayElementasArray.add(visitArray_identification(ctx.array_identification().get(i)));
+        }
         return arrayIdentification;
     }
     /*

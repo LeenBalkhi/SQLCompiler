@@ -6,6 +6,6 @@ import Rules.AST.Node;
 import java.util.ArrayList;
 
 public class ArrayIdentification extends Node {
-   public ArrayList<Expression> arrayElementasExpr;
-   public ArrayList<ArrayIdentification> arrayElementasArray;
+   public ArrayList<Node> arrayElementasExpr = new ArrayList<>();
+   public ArrayList<Node> arrayElementasArray = new ArrayList<>();
 }

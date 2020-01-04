@@ -21,6 +21,14 @@ import Rules.AST.QueryStmt.Statement;
 
 public interface ASTVisitor {
     //Java
+    public void visit(PreIncrement preIncrement);
+    public void visit(PreDecrement preDecrement);
+    public void visit(PostIncrement postIncrement);
+    public void visit(PostDecrement postDecrement);
+    public void visit(LogicalConditionInParenth logicalConditionInParenth);
+    public void visit(LogicalConditionNormal logicalConditionNormal);
+    public void visit(VariableAssignmentValue variableAssignmentValue);
+    public void visit(Assignment assignment);
     public void visit(MathExpression mathExpression);
     public void visit(False f);
     public void visit(True t);

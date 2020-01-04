@@ -18,6 +18,67 @@ import Rules.AST.QueryStmt.SelectStmt;
 import Rules.AST.QueryStmt.Statement;
 
 public class BaseASTVisitor implements ASTVisitor {
+
+    @Override
+    public void visit(PostIncrement postIncrement) {
+
+    }
+
+    @Override
+    public void visit(PostDecrement postDecrement) {
+
+    }
+
+    @Override
+    public void visit(PreIncrement preIncrement) {
+
+    }
+
+    @Override
+    public void visit(PreDecrement preDecrement) {
+
+    }
+
+    @Override
+    public void visit(LogicalConditionNormal logicalConditionNormal) {
+        System.out.println("ast LogicalConditionNormal");
+        visit((BooleanExpression)logicalConditionNormal.condition);
+        if(logicalConditionNormal.ifTrue instanceof Expression)
+            visit((Expression)logicalConditionNormal.ifTrue);
+        if(logicalConditionNormal.ifTrue instanceof LogicalCondition)
+            visit((LogicalCondition)logicalConditionNormal.ifTrue);
+        if(logicalConditionNormal.ifFalse instanceof Expression)
+            visit((Expression)logicalConditionNormal.ifFalse);
+        if(logicalConditionNormal.ifFalse instanceof LogicalCondition)
+            visit((LogicalCondition)logicalConditionNormal.ifFalse);
+    }
+
+    @Override
+    public void visit(LogicalConditionInParenth logicalConditionInParenth) {
+        System.out.println("ast LogicalConditionInParenth");
+        visit((LogicalCondition)logicalConditionInParenth.logicalCondition);
+    }
+
+    @Override
+    public void visit(VariableAssignmentValue variableAssignmentValue) {
+        System.out.println("ast VariableAssignmentValue");
+        if(variableAssignmentValue.Value instanceof Expression)
+            visit((Expression)variableAssignmentValue.Value);
+        if(variableAssignmentValue.Value instanceof ArrayIdentification)
+            visit((ArrayIdentification)variableAssignmentValue.Value);
+        if(variableAssignmentValue.Value instanceof JsonObject)
+            visit((JsonObject) variableAssignmentValue.Value);
+        if(variableAssignmentValue.Value instanceof LogicalCondition)
+            visit((LogicalCondition)variableAssignmentValue.Value);
+    }
+
+    @Override
+    public void visit(Assignment assignment) {
+        System.out.println("ast Assignment");
+        visit((AssignmentOperator)assignment.assignmentOperator);
+        visit((VariableAssignmentValue)assignment.variableAssignmentValue);
+    }
+
     @Override
     public void visit(True t) {
         System.out.println("ast True");
@@ -215,11 +276,29 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(ArrayIdentification arrayIdentification) {
         System.out.println("ast ArrayIdentification ");
+        if(arrayIdentification.arrayElementasExpr.size()!=0)
+        {
+            for(int i=0;i<arrayIdentification.arrayElementasExpr.size();i++)
+            {
+                visit((Expression)arrayIdentification.arrayElementasExpr.get(i));
+            }
+        }
+        if(arrayIdentification.arrayElementasArray.size()!=0)
+        {
+            for(int i=0;i<arrayIdentification.arrayElementasArray.size();i++)
+            {
+                visit((ArrayIdentification)arrayIdentification.arrayElementasArray.get(i));
+            }
+        }
     }
 
     @Override
     public void visit(JsonObject jsonObject) {
         System.out.println("ast JsonObject ");
+        for(int i=0;i<jsonObject.element.size();i++)
+        {
+            visit((Element)jsonObject.element.get(i));
+        }
     }
 
     @Override
@@ -228,13 +307,25 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(VariableAssignment variableAssignment) {
+    public void visit(VariableAssignment variableAssignment)
+    {
         System.out.println("ast VariableAssignment ");
+        visit((Variable)variableAssignment.variable);
+        if(variableAssignment.assignments.size()!=0)
+            for(int i=0;i<variableAssignment.assignments.size();i++)
+            {
+                visit((Assignment)variableAssignment.assignments.get(i));
+            }
     }
 
     @Override
-    public void visit(VariableDeclaration variableIdentification) {
+    public void visit(VariableDeclaration variableDeclaration)
+    {
         System.out.println("ast VariableDeclaration ");
+        for(int i=0;i<variableDeclaration.variableAssignments.size();i++)
+        {
+            visit((VariableAssignment)variableDeclaration.variableAssignments.get(i));
+        }
     }
 
     @Override
@@ -322,6 +413,13 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(Element element) {
         System.out.println("ast Element ");
+        System.out.println(element.objName);
+        if(element.obj instanceof Value)
+            visit((Value)element.obj);
+        if(element.obj instanceof ArrayIdentification)
+            visit((ArrayIdentification)element.obj);
+        if(element.obj instanceof JsonObject)
+            visit((JsonObject)element.obj);
     }
 
     @Override
@@ -353,6 +451,10 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(LogicalCondition logicalCondition) {
         System.out.println("ast LogicalCondition ");
+        if(logicalCondition.logicalCondition instanceof LogicalConditionNormal)
+            visit((LogicalConditionNormal)logicalCondition.logicalCondition);
+        if(logicalCondition.logicalCondition instanceof LogicalConditionInParenth)
+            visit((LogicalConditionInParenth)logicalCondition.logicalCondition);
     }
 
 //    @Override
