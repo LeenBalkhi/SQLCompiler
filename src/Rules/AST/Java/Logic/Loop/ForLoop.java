@@ -1,5 +1,10 @@
 package Rules.AST.Java.Logic.Loop;
 
-public class ForLoop extends LoopStmt {
+import Rules.AST.Node;
 
+public class ForLoop extends Node {
+    public Node variableDeclaration;
+    public Node booleanExpression;
+    public Node mathExpresion;
+    public Node block;
 }

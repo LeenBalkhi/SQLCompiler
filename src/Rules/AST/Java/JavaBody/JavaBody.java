@@ -7,6 +7,4 @@ import java.util.ArrayList;
 
 public class JavaBody extends Node {
     public Node command;
-    public ArrayList<JavaBody> bodyInScopes;
-    public String suddenCommand;
 }

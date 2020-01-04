@@ -1,4 +1,8 @@
 package Rules.AST.Java.Logic.Loop;
 
-public class DoWhileLoop extends LoopStmt {
+import Rules.AST.Node;
+
+public class DoWhileLoop extends Node {
+    public Node booleanExpression;
+    public Node block;
 }

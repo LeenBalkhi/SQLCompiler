@@ -7,6 +7,9 @@ import Rules.AST.Java.Logic.Conditional.ElseIfStmt;
 import Rules.AST.Java.Logic.Conditional.ElseStmt;
 import Rules.AST.Java.Logic.Conditional.IfStmt;
 import Rules.AST.Java.Logic.Loop.*;
+import Rules.AST.Java.Logic.Switch.SwitchCase;
+import Rules.AST.Java.Logic.Switch.SwitchDefault;
+import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
 import Rules.generated.SqlBaseVisitor;
@@ -54,9 +57,12 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public HigherOrderFunctionCall visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx)
     {
         HigherOrderFunctionCall higherOrderFunctionCall = new HigherOrderFunctionCall();
-        for(int i=0 ; i < ctx.argument_list().size() ; i ++)
+        if(ctx.argument_list().size()!=0)
         {
-            higherOrderFunctionCall.argumentLists.add(visitArgument_list(ctx.argument_list().get(i)));
+            for(int i=0 ; i < ctx.argument_list().size() ; i ++)
+            {
+                higherOrderFunctionCall.argumentLists.add(visitArgument_list(ctx.argument_list().get(i)));
+            }
         }
         higherOrderFunctionCall.higherOrderFunction = visitHo_java_function(ctx.ho_java_function());
         return higherOrderFunctionCall;
@@ -66,10 +72,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     {
         HigherOrderFunction higherOrderFunction = new HigherOrderFunction();
         higherOrderFunction.argumentList = visitArgument_list(ctx.argument_list());
-        for(int i=0 ; i < ctx.block().size(); i ++)
-        {
-            higherOrderFunction.blocks.add(visitBlock(ctx.block().get(i)));
-        }
+        higherOrderFunction.block = visitBlock(ctx.block());
         return higherOrderFunction;
     }
     @Override
@@ -111,18 +114,41 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         VariableDeclaration variableDeclaration = new VariableDeclaration();
         for(int i=0 ; i <ctx.variable_assignment().size(); i ++)
         {
-           // variableDeclaration.variableAssignments.add();
+           variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i)));
         }
         return variableDeclaration;
     }
+
     @Override
     public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx)
     {
         VariableAssignment variableAssignment = new VariableAssignment();
-        variableAssignment.operator = ctx.variable().getText();
-       // variableAssignment.variableAssignmentValue =
+        variableAssignment.variable = visitVariable(ctx.variable());
+        if(ctx.assginment().size()!=0)
+        {
+            for(int i=0;i<ctx.assginment().size();i++)
+            {
+                variableAssignment.assignments.add(visitAssginment(ctx.assginment(i)));
+            }
+        }
         return variableAssignment;
     }
+
+    @Override
+    public Assignment visitAssginment(SqlParser.AssginmentContext ctx) {
+        Assignment assignment = new Assignment();
+        assignment.assignmentOperator = visitAssignment_operator(ctx.assignment_operator());
+        assignment.variableAssignmentValue = visitVariable_assignment_value(ctx.variable_assignment_value());
+        return assignment;
+    }
+
+
+    @Override  public AssignmentOperator visitAssignment_operator(SqlParser.Assignment_operatorContext ctx) {
+        AssignmentOperator assignmentOperator = new AssignmentOperator();
+        assignmentOperator.op=ctx.getText();
+        return assignmentOperator;
+    }
+
     @Override
     public VariableAssignmentValue visitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx)
     {
@@ -135,14 +161,17 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             variableAssignmentValue.Value = visitJson_object(ctx.json_object());
         if(ctx.logical_condition() != null)
             variableAssignmentValue.Value = visitLogical_condition(ctx.logical_condition());
-            return variableAssignmentValue;
+        return variableAssignmentValue;
     }
     @Override
     public Block visitBlock(SqlParser.BlockContext ctx)
     {
         Block block = new Block();
-        for(int i=0; i < ctx.java_body().size() ; i++)
-            block.javaBodies.add(visitJava_body(ctx.java_body().get(i)));
+        if(ctx.java_body().size()!=0)
+        {
+            for(int i=0; i < ctx.java_body().size() ; i++)
+                block.javaBodies.add(visitJava_body(ctx.java_body().get(i)));
+        }
         if(ctx.return_stmt() != null)
             block.returnStmt = visitReturn_stmt(ctx.return_stmt());
         return block;
@@ -156,43 +185,177 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         oneLineBlock.returnStmt = visitReturn_stmt(ctx.return_stmt());
         return oneLineBlock;
     }
-    @Override
+
     public JavaBody visitJava_body(SqlParser.Java_bodyContext ctx)
     {
         JavaBody javaBody = new JavaBody();
-        if(ctx.conditional_stmt()!= null)
-            javaBody.command = visitConditional_stmt(ctx.conditional_stmt());
-        if(ctx.increment() != null)
-            javaBody.command = visitIncrement(ctx.increment());
-        if(ctx.java_function_call() != null)
-            javaBody.command = visitJava_function_call(ctx.java_function_call());
-        if(ctx.increment() != null)
-            javaBody.command = visitIncrement(ctx.increment());
-        if(ctx.loop_stmt() != null)
-            javaBody.command = visitLoop_stmt(ctx.loop_stmt());
-        if(ctx.print() != null)
-            javaBody.command = visitPrint(ctx.print());
-        if(ctx.switch_stmt() != null)
-            javaBody.command = visitSwitch_stmt(ctx.switch_stmt());
-        for(int i=0 ; i < ctx.java_body().size() ; i ++)
-            javaBody.bodyInScopes.add(visitJava_body(ctx.java_body().get(i)));
-        if(ctx.variable_assignment() != null)
-            javaBody.command = visitVariable_assignment(ctx.variable_assignment());
-        if(ctx.variable_declaration() != null)
-            javaBody.command = visitVariable_declaration(ctx.variable_declaration());
-        if(ctx.K_BREAK() != null)
-            javaBody.suddenCommand = ctx.K_BREAK().getSymbol().getText();
-        if(ctx.K_CONTINUE() != null)
-            javaBody.suddenCommand = ctx.K_CONTINUE().getSymbol().getText();
+        Node temp = visit(ctx);
+        if(temp instanceof ConditionalStmt)
+            javaBody.command=(ConditionalStmt)temp;
+        if(temp instanceof Comment)
+            javaBody.command=(Comment)temp;
+        if(temp instanceof Increment)
+            javaBody.command=(Increment)temp;
+        if(temp instanceof FunctionCall)
+            javaBody.command=(FunctionCall)temp;
+        if(temp instanceof LoopStmt)
+            javaBody.command =(LoopStmt)temp;
+        if(temp instanceof Print)
+            javaBody.command = (Print)temp;
+        if(temp instanceof SwitchStmt)
+            javaBody.command = (SwitchStmt)temp;
+        if(temp instanceof Scope)
+            javaBody.command = (Scope)temp;
+        if(temp instanceof VariableAssignment)
+            javaBody.command = (VariableAssignment)temp;
+        if(temp instanceof VariableDeclaration)
+            javaBody.command = (VariableDeclaration)temp;
+        if(temp instanceof Break)
+            javaBody.command = (Break)temp;
+        if(temp instanceof Continue)
+            javaBody.command = (Continue)temp;
         return javaBody;
     }
-    @Override
-    public Increment visitIncrement (SqlParser.IncrementContext ctx)
-    {
-        Increment increment = new Increment();
 
+    @Override
+    public ConditionalStmt visitCondBody(SqlParser.CondBodyContext ctx) {
+        return visitConditional_stmt(ctx.conditional_stmt());
+    }
+
+    @Override
+    public Continue visitContimueBody(SqlParser.ContimueBodyContext ctx) {
+       return new Continue();
+    }
+
+    @Override
+    public Break visitBreakBody(SqlParser.BreakBodyContext ctx) {
+        return new Break();
+    }
+
+    @Override
+    public VariableDeclaration visitVarDecBody(SqlParser.VarDecBodyContext ctx) {
+        return visitVariable_declaration(ctx.variable_declaration());
+    }
+
+    @Override
+    public VariableAssignment visitVarAssignBody(SqlParser.VarAssignBodyContext ctx) {
+        return visitVariable_assignment(ctx.variable_assignment());
+    }
+
+    @Override
+    public Scope visitScopeBody(SqlParser.ScopeBodyContext ctx) {
+        Scope scope = new Scope();
+        if(ctx.java_body().size()!=0)
+        {
+            for(int i=0;i<ctx.java_body().size();i++)
+            {
+                scope.bodies.add(visitJava_body(ctx.java_body(i)));
+            }
+        }
+        return scope;
+    }
+
+    @Override
+    public SwitchStmt visitSwitchBody(SqlParser.SwitchBodyContext ctx) {
+        return visitSwitch_stmt(ctx.switch_stmt());
+    }
+
+    @Override
+    public SwitchStmt visitSwitch_stmt(SqlParser.Switch_stmtContext ctx) {
+        SwitchStmt switchStmt= new SwitchStmt();
+        switchStmt.var = visitVariable(ctx.variable());
+        for(int i=0;i<ctx.switch_case().size();i++)
+        {
+            switchStmt.cases.add(visitSwitch_case(ctx.switch_case(i)));
+        }
+        if(ctx.switch_default()!=null)
+            switchStmt.def = visitSwitch_default(ctx.switch_default());
+        return switchStmt;
+    }
+
+    @Override
+    public SwitchCase visitSwitch_case(SqlParser.Switch_caseContext ctx) {
+        SwitchCase switchCase = new SwitchCase();
+        switchCase.value = visitValue(ctx.value());
+        if(ctx.block()!=null)
+            switchCase.block = visitBlock(ctx.block());
+        else
+            switchCase.block = visitOne_line_block(ctx.one_line_block());
+        return switchCase;
+    }
+
+    @Override
+    public SwitchDefault visitSwitch_default(SqlParser.Switch_defaultContext ctx) {
+        SwitchDefault switchDefault = new SwitchDefault();
+        if(ctx.block()!=null)
+            switchDefault.block = visitBlock(ctx.block());
+        else
+            switchDefault.block = visitOne_line_block(ctx.one_line_block());
+        return switchDefault;
+    }
+
+    @Override
+    public LoopStmt visitLoopBody(SqlParser.LoopBodyContext ctx) {
+        return visitLoop_stmt(ctx.loop_stmt());
+    }
+
+    @Override
+    public FunctionCall visitJfcBody(SqlParser.JfcBodyContext ctx) {
+        return visitJava_function_call(ctx.java_function_call());
+    }
+
+    @Override
+    public Increment visitIncremetBody(SqlParser.IncremetBodyContext ctx) {
+        return visitIncrement(ctx.increment());
+    }
+
+    public Increment visitIncrement(SqlParser.IncrementContext ctx)
+    {
+        Increment increment=new Increment();
+        Node temp = visit(ctx);
+        if(temp instanceof PostIncrement)
+            increment.increment=(PostIncrement)temp;
+        if(temp instanceof PostDecrement)
+            increment.increment=(PostDecrement)temp;
+        if(temp instanceof PostIncrement)
+            increment.increment=(PreIncrement)temp;
+        if(temp instanceof PreDecrement)
+            increment.increment=(PreDecrement)temp;
         return increment;
     }
+
+    @Override
+    public PostIncrement visitPostInc(SqlParser.PostIncContext ctx) {
+        PostIncrement postIncrement = new PostIncrement();
+        postIncrement.variable = visitVariable(ctx.variable());
+        postIncrement.op=ctx.op.getText();
+        return postIncrement;
+    }
+
+    @Override
+    public PostDecrement visitPostDec(SqlParser.PostDecContext ctx) {
+        PostDecrement postDecrement= new PostDecrement();
+        postDecrement.variable = visitVariable(ctx.variable());
+        postDecrement.op = ctx.op.getText();
+        return postDecrement;
+    }
+
+    @Override
+    public PreIncrement visitPreInc(SqlParser.PreIncContext ctx) {
+        PreIncrement preIncrement = new PreIncrement();
+        preIncrement.variable = visitVariable(ctx.variable());
+        preIncrement.op = ctx.op.getText();
+        return preIncrement;
+    }
+
+    @Override
+    public PreDecrement visitPreDec(SqlParser.PreDecContext ctx) {
+        PreDecrement preDecrement = new PreDecrement();
+        preDecrement.variable = visitVariable(ctx.variable());
+        preDecrement.op = ctx.op.getText();
+        return preDecrement;
+    }
+
     @Override
     public ReturnStmt visitReturn_stmt(SqlParser.Return_stmtContext ctx)
     {
@@ -257,18 +420,23 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             element.obj = visitValue(ctx.value());
         return element;
     }
+
     @Override
     public ConditionalStmt visitConditional_stmt(SqlParser.Conditional_stmtContext ctx)
     {
         ConditionalStmt conditionalStmt = new ConditionalStmt();
         for( int i=0 ; i < ctx.if_stmt().size() ; i++)
             conditionalStmt.ifs.add(visitIf_stmt(ctx.if_stmt().get(i)));
-        for( int i=0 ; i < ctx.else_if_stmt().size(); i++)
-            conditionalStmt.elseifs.add(visitElse_if_stmt(ctx.else_if_stmt().get(i)));
+        if(ctx.else_if_stmt().size()!=0)
+        {
+            for( int i=0 ; i < ctx.else_if_stmt().size(); i++)
+                conditionalStmt.elseifs.add(visitElse_if_stmt(ctx.else_if_stmt().get(i)));
+        }
         if(ctx.else_stmt() != null)
             conditionalStmt.elseStmt = visitElse_stmt(ctx.else_stmt());
         return conditionalStmt;
     }
+
     @Override
     public IfStmt visitIf_stmt(SqlParser.If_stmtContext ctx)
     {
@@ -319,28 +487,50 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ForLoop visitFor_loop(SqlParser.For_loopContext ctx)
     {
         ForLoop  forLoop = new ForLoop();
-
+        forLoop.variableDeclaration = visitVariable_declaration(ctx.variable_declaration());
+        forLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.increment()!=null)
+            forLoop.mathExpresion = visitIncrement(ctx.increment());
+        else
+            forLoop.mathExpresion = visitVariable_assignment(ctx.variable_assignment());
+        if(ctx.block()!=null)
+            forLoop.block = visitBlock(ctx.block());
+        else
+            forLoop.block = visitOne_line_block(ctx.one_line_block());
         return forLoop;
     }
     @Override
     public ForEachLoop visitFor_each_loop(SqlParser.For_each_loopContext ctx)
     {
         ForEachLoop  forEachLoop = new ForEachLoop();
-
+        forEachLoop.variable = visitVariable(ctx.variable());
+        forEachLoop.arrayName = ctx.array_name().getText();
+        if(ctx.block()!=null)
+            forEachLoop.block=visitBlock(ctx.block());
+        else
+            forEachLoop.block=visitOne_line_block(ctx.one_line_block());
         return forEachLoop;
     }
     @Override
     public WhileLoop visitWhile_loop(SqlParser.While_loopContext ctx)
     {
         WhileLoop  whileLoop = new WhileLoop();
-
+        whileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.block()!=null)
+            whileLoop.block = visitBlock(ctx.block());
+        else
+            whileLoop.block = visitOne_line_block(ctx.one_line_block());
         return whileLoop;
     }
     @Override
     public DoWhileLoop visitDo_while_loop(SqlParser.Do_while_loopContext ctx)
     {
         DoWhileLoop  doWhileLoop = new DoWhileLoop();
-
+        doWhileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
+        if(ctx.block()!=null)
+            doWhileLoop.block = visitBlock(ctx.block());
+        else
+            doWhileLoop.block = visitOne_line_block(ctx.one_line_block());
         return doWhileLoop;
     }
     @Override

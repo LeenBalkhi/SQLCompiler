@@ -1,4 +1,8 @@
 package Rules.AST.Java.Logic.Loop;
 
-public class WhileLoop extends LoopStmt {
+import Rules.AST.Node;
+
+public class WhileLoop extends Node {
+    public Node booleanExpression;
+    public Node block;
 }

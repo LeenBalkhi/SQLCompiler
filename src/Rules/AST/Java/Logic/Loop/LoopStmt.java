@@ -5,6 +5,6 @@ import Rules.AST.Node;
 
 import java.util.ArrayList;
 
-public class LoopStmt extends JavaBody {
+public class LoopStmt extends Node {
     public Node loop;
 }

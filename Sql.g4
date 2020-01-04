@@ -52,9 +52,7 @@ method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')
 
  ho_java_function:
   K_FUNCTION OPEN_PAR ( argument_list) CLOSE_PAR
- '{'
- block*
- '}'
+  block
  ;
 
 return_stmt
@@ -92,18 +90,18 @@ java_body
 
 java_body
 :
-(conditional_stmt
-|comments
-|java_function_call';'
-|loop_stmt
-|switch_stmt
-|increment ';'
-|variable_declaration ';'
-|variable_assignment ';'
-|print ';'
-|'{' java_body* '}')
-(K_BREAK ';'
- |K_CONTINUE ';')?
+conditional_stmt #condBody
+|comments    #commBody
+|java_function_call';' #jfcBody
+|loop_stmt #loopBody
+|switch_stmt #switchBody
+|increment ';' #incremetBody
+|variable_declaration ';' #varDecBody
+|variable_assignment ';' #varAssignBody
+|print ';' #printBody
+|'{' java_body* '}' #scopeBody
+|K_BREAK ';' #breakBody
+|K_CONTINUE ';' #contimueBody
 ;
 
 comments:
@@ -129,7 +127,11 @@ variable_declaration
 
 variable_assignment
 :
-variable (assignment_operator variable_assignment_value)*
+variable (assginment)*
+;
+
+assginment:
+assignment_operator variable_assignment_value
 ;
 
 variable_assignment_value
@@ -214,10 +216,10 @@ boolean_expression ('?' (logical_condition | expression) ':' (logical_condition 
 
 increment
 :
-variable '++' #postInc
-| '++' variable #preInc
-| variable '--' #postDec
-| '--' variable #preDec
+variable op='++' #postInc
+| op='++' variable #preInc
+| variable op='--' #postDec
+| op='--' variable #preDec
 ;
 
 assignment_operator
@@ -281,9 +283,9 @@ K_FOR '(' K_VAR? variable ':' array_name ')'
 
 switch_stmt
 :
-K_SWITCH OPEN_PAR value CLOSE_PAR
+K_SWITCH OPEN_PAR variable CLOSE_PAR
 '{'
-switch_case*
+switch_case+
 switch_default?
 '}'
 ;

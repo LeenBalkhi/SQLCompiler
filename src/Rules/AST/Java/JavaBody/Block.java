@@ -5,7 +5,7 @@ import Rules.AST.Node;
 import java.util.ArrayList;
 
 public class Block extends Node {
-    public ArrayList<JavaBody> javaBodies = new ArrayList<>();
-    public ReturnStmt returnStmt;
+    public ArrayList<Node> javaBodies = new ArrayList<>();
+    public Node returnStmt;
 
 }
