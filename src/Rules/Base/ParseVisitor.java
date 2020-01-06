@@ -7,7 +7,7 @@ import Rules.generated.SqlParser;
 import java.util.List;
 
 public class ParseVisitor extends BaseVisitor {
-    @Override public Parse visitParse(SqlParser.ParseContext ctx) {
+    /*@Override public Parse visitParse(SqlParser.ParseContext ctx) {
         System.out.println("visitParse");
         Parse p = new Parse();
         List<Statement> sqlStmts = visitSql_stmt_list(ctx.sql_stmt_list(0));
@@ -16,5 +16,5 @@ public class ParseVisitor extends BaseVisitor {
         p.setCol(ctx.getStart().getCharPositionInLine()); // get col number
 
         return p;
-    }
+    }*/
 }

@@ -91,7 +91,6 @@ java_body
 java_body
 :
 conditional_stmt #condBody
-|comments    #commBody
 |java_function_call';' #jfcBody
 |loop_stmt #loopBody
 |switch_stmt #switchBody
@@ -99,7 +98,7 @@ conditional_stmt #condBody
 |variable_declaration ';' #varDecBody
 |variable_assignment ';' #varAssignBody
 |print ';' #printBody
-|'{' java_body* '}' #scopeBody
+|'{' java_body? '}' #scopeBody
 |K_BREAK ';' #breakBody
 |K_CONTINUE ';' #contimueBody
 ;

@@ -4,7 +4,7 @@ import Rules.AST.Java.Utils.Variable;
 import Rules.AST.Node;
 
 public class ForEachLoop extends Node {
-    public Variable variable;
+    public Node variable;
     public String arrayName;
     public Node block;
 }

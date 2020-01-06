@@ -9,5 +9,5 @@ import java.util.ArrayList;
 
 public class VariableAssignment extends JavaBody {
     public Node variable;
-    public ArrayList<Node> assignments;
+    public ArrayList<Node> assignments=new ArrayList<>();
 }

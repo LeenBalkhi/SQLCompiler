@@ -48,15 +48,15 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
         FunctionDeclaration functionDeclaration = new FunctionDeclaration();
         functionDeclaration.functionName = ctx.method_ID().getText();
-       functionDeclaration.pl = visitParameter_list(ctx.parameter_list());
-        //functionCall.functionName = ctx.method_ID().getText();
-      //  functionCall.argumentList = visitArgument_list(ctx.argument_list());
+        functionDeclaration.pl = visitParameter_list(ctx.parameter_list());
+        functionDeclaration.block = visitBlock(ctx.block());
         return functionDeclaration;
     }
     @Override
     public HigherOrderFunctionCall visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx)
     {
         HigherOrderFunctionCall higherOrderFunctionCall = new HigherOrderFunctionCall();
+        higherOrderFunctionCall.funcName=ctx.method_ID().getText();
         if(ctx.argument_list().size()!=0)
         {
             for(int i=0 ; i < ctx.argument_list().size() ; i ++)
@@ -106,7 +106,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public DefaultParameter visitDefault_parameter(SqlParser.Default_parameterContext ctx)
     {
         DefaultParameter defaultParameter = new DefaultParameter();
-        defaultParameter.variable = ctx.variable().any_name().IDENTIFIER().getSymbol().getText();
+        defaultParameter.variable = visitVariable(ctx.variable());
         defaultParameter.expression = visitExpression(ctx.expression());
         return defaultParameter;
     }
@@ -180,10 +180,11 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public OneLineBlock visitOne_line_block(SqlParser.One_line_blockContext ctx)
     {
-        //fix grammar
         OneLineBlock oneLineBlock = new OneLineBlock();
-        oneLineBlock.javaBodies = visitJava_body(ctx.java_body());
-        oneLineBlock.returnStmt = visitReturn_stmt(ctx.return_stmt());
+        if(ctx.java_body()!=null)
+            oneLineBlock.line = visitJava_body(ctx.java_body());
+        if(ctx.return_stmt()!=null)
+            oneLineBlock.line = visitReturn_stmt(ctx.return_stmt());
         return oneLineBlock;
     }
 
@@ -246,12 +247,9 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public Scope visitScopeBody(SqlParser.ScopeBodyContext ctx) {
         Scope scope = new Scope();
-        if(ctx.java_body().size()!=0)
+        if(ctx.java_body()!=null)
         {
-            for(int i=0;i<ctx.java_body().size();i++)
-            {
-                scope.bodies.add(visitJava_body(ctx.java_body(i)));
-            }
+            scope.body=visitJava_body(ctx.java_body());
         }
         return scope;
     }
@@ -318,7 +316,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             increment.increment=(PostIncrement)temp;
         if(temp instanceof PostDecrement)
             increment.increment=(PostDecrement)temp;
-        if(temp instanceof PostIncrement)
+        if(temp instanceof PreIncrement)
             increment.increment=(PreIncrement)temp;
         if(temp instanceof PreDecrement)
             increment.increment=(PreDecrement)temp;
@@ -507,7 +505,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public ForEachLoop visitFor_each_loop(SqlParser.For_each_loopContext ctx)
     {
-        ForEachLoop  forEachLoop = new ForEachLoop();
+        ForEachLoop forEachLoop = new ForEachLoop();
         forEachLoop.variable = visitVariable(ctx.variable());
         forEachLoop.arrayName = ctx.array_name().getText();
         if(ctx.block()!=null)
@@ -582,6 +580,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             expression.expression = visitBooleanExpression(ctx.boolean_expression());
         if(ctx.math_expression()!=null)
             expression.expression = visitMathExpression(ctx.math_expression());
+        if(ctx.increment()!=null)
+            expression.expression = visitIncrement(ctx.increment());
         return expression;
     }
 
@@ -740,7 +740,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ArrayCall visitArray_call(SqlParser.Array_callContext ctx) {
         ArrayCall arrayCall = new ArrayCall();
         arrayCall.arrayName = ctx.array_name().getText();
-        arrayCall.expression = visitMathExpression(ctx.math_expression());
+        if(ctx.math_expression()!=null)
+            arrayCall.expression = visitMathExpression(ctx.math_expression());
         return arrayCall;
     }
     @Override
