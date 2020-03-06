@@ -1,13 +1,145 @@
 package Rules.Base;
-import Rules.*;
-import Rules.AST.Java.Utils.Increment;
 import Rules.AST.Parse;
-import Rules.AST.QueryStmt.*;
+import Rules.AST.SQL.*;
+import Rules.AST.SQL.DQL.SelectStmt;
 import Rules.generated.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BaseVisitor extends SqlBaseVisitor {
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+//         */
+//        @Override public  Parse visitParse(SqlParser.ParseContext ctx) {
+//                System.out.println("visitParse");
+//                Parse p = new Parse();
+//                List<Statement> sqlStmts = visitSql_stmt_list(ctx.sql_stmt_list(0));
+//             //   p.setSqlStmts(sqlStmts);
+//                p.setLine(ctx.getStart().getLine()); //get line number
+//                p.setCol(ctx.getStart().getCharPositionInLine()); // get col number
+//
+//                return p;
+//        }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public  Object visitError(SqlParser.ErrorContext ctx) { return visitChildren(ctx); }
+
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public List<Statement> visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx) {
+
+                System.out.println("visitSql_stmt_list");
+
+                List<Statement> sqlStmt = new ArrayList<Statement>();
+                for (int i =0; i < ctx.sql_stmt().size() ; i++){
+                        sqlStmt.add(visitSql_stmt(ctx.sql_stmt(i)));
+                }
+
+                return sqlStmt;
+//        return visitChildren(ctx);
+
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public Statement visitSql_stmt(SqlParser.Sql_stmtContext ctx) {
+
+                System.out.println("visitSql_stmt   ");
+                Statement s = new Statement();
+                if(ctx.factored_select_stmt() != null){
+                      //  s = visitFactored_select_stmt(ctx.factored_select_stmt());
+                }
+
+                return s;
+//        return visitChildren(ctx);
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public  Object visitSelect_stmt(SqlParser.Select_stmtContext ctx) {
+                System.out.println("visitSelect_stmt");
+
+                return visitChildren(ctx); }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public SelectStmt visitFactored_select_stmt(SqlParser.Factored_select_stmtContext ctx)
+        {
+                System.out.println("visitFactored_select_stmt");
+
+                SelectStmt select = new SelectStmt();
+                //select.setFromItem( visitTable_or_subquery(ctx.select_core().table_or_subquery(0)));
+               // select.setName("Select");
+                return select;
+//        return visitChildren(ctx);
+
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public  Object visitSelect_or_values(SqlParser.Select_or_valuesContext ctx) {
+                return visitChildren(ctx);
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        @Override public  Object visitOrdering_term(SqlParser.Ordering_termContext ctx) { return visitChildren(ctx); }
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+        /**
+         * {@inheritDoc}
+         *
+         * <p>The default implementation returns the result of calling
+         * {@link #visitChildren} on {@code ctx}.</p>
+         */
+
         /**
          * {@inheritDoc}
          *

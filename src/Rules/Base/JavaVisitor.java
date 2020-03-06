@@ -12,15 +12,14 @@ import Rules.AST.Java.Logic.Switch.SwitchDefault;
 import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
-import Rules.generated.SqlBaseVisitor;
-import Rules.generated.SqlParser;
-
-import java.awt.image.LookupOp;
-import java.rmi.server.LoaderHandler;
-import java.util.ArrayList;
-import java.util.jar.JarFile;
+import Rules.generated.*;
 
 public class JavaVisitor extends SqlBaseVisitor<Node> {
+
+    @Override
+    public Print visitPrintBody(SqlParser.PrintBodyContext ctx) {
+        return visitPrint(ctx.print());
+    }
 
     @Override
     public JavaStatment visitJava_stmt(SqlParser.Java_stmtContext ctx) {
@@ -137,6 +136,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
+    public JavaString visitStr(SqlParser.StrContext ctx)
+    {
+        JavaString string = new JavaString();
+        string = visitString(ctx.string());
+        return string;
+    }
+    @Override
     public Assignment visitAssginment(SqlParser.AssginmentContext ctx) {
         Assignment assignment = new Assignment();
         assignment.assignmentOperator = visitAssignment_operator(ctx.assignment_operator());
@@ -249,7 +255,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         Scope scope = new Scope();
         if(ctx.java_body()!=null)
         {
-            scope.body=visitJava_body(ctx.java_body());
+           // scope.body=visitJava_body(ctx.java_body());
         }
         return scope;
     }
@@ -381,7 +387,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         javaString.string ="";
         ////fix grammar
         for(int i=0 ; i < ctx.expression().size(); i ++)
-            javaString.string+= visitExpression(ctx.expression().get(i));
+            javaString.string+= ctx.expression().get(i).getText();
         for(int i=0 ; i < ctx.any_name().size(); i ++)
             javaString.string+=ctx.any_name().get(i).getText();
         for(int i=0 ; i < ctx.SPACES().size() ; i++)
@@ -394,8 +400,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         Print print = new Print();
         for(int i=0 ; i < ctx.expression().size(); i ++)
             print.expressions.add(visitExpression(ctx.expression().get(i)));
-        for(int i=0 ; i < ctx.string().size(); i ++)
-            print.strings.add(visitString(ctx.string().get(i)));
         return print;
     }
     @Override
@@ -684,6 +688,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         Node temp = visit(ctx);
         if(temp instanceof Variable)
             value.value = (Variable)temp;
+        if(temp instanceof JavaString)
+            value.value = (JavaString) temp;
         if(temp instanceof FunctionCall)
             value.value = (FunctionCall)temp;
         if(temp instanceof SimpleLiteralValue)
@@ -728,7 +734,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         if(ctx.any_name()!=null)
         {
             SimpleVariable s = new SimpleVariable();
-            s.VariableName=ctx.any_name().getText();
+            for(int i=0 ; i < ctx.any_name().size(); i++)
+                s.VariableName.add(ctx.any_name().get(i).getText());
             variable.variable = s;
         }
         else
@@ -805,6 +812,10 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         if(temp instanceof LoopStmt)
             return (LoopStmt)temp;
         if(temp instanceof Increment)
+
+
+
+
             return (Increment)temp;
         if(temp instanceof VariableDeclaration)
             return (VariableDeclaration)temp;

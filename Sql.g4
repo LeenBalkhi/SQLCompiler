@@ -68,7 +68,7 @@ expression
 ;
 
 string:
-'"'(expression|any_name|SPACES)* '"'
+'"'(expression|SPACES|any_name|SPACES)* '"'
 ;
 
 java_function_declaration
@@ -111,7 +111,7 @@ JAVA_SINGLE_LINE_COMMENT
 ;
 
 variable:
-any_name
+any_name ('.' any_name)*
 |array_call
 ;
 
@@ -156,7 +156,7 @@ element
 IDENTIFIER ':'
  (value
  | json_object
- |'"' value '"'
+// |'"' value '"'=
  |'\'' value '\''
  |array_identification
  )
@@ -171,11 +171,12 @@ json_object
 
 print
 :
-K_PRINT '(' (expression | string)? ('+' ( expression| string))*')'
+K_PRINT '(' (expression )? ('+' ( expression))*')'
 ;
 
 value:
   variable #varVal
+| string #str
 | java_function_call #jfcVal
 | literal_value #lvVal
 | '(' value ')' #parenthVal
@@ -292,6 +293,7 @@ switch_default?
 switch_case
 :
 (K_CASE (value) ':'(block | one_line_block) )
+((K_BREAK|K_CONTINUE)';')?
 ;
 
 switch_default
@@ -511,15 +513,15 @@ ordering_term
  : expr  ( K_ASC | K_DESC )?
  ;
 
-pragma_value
- : signed_number
- | name
- | STRING_LITERAL
- ;
-
-common_table_expression
- : table_name ( '(' column_name ( ',' column_name )* ')' )? K_AS '(' select_stmt ')'
- ;
+//pragma_value
+// : signed_number
+// | name
+// | STRING_LITERAL
+// ;
+//
+//common_table_expression
+// : table_name ( '(' column_name ( ',' column_name )* ')' )? K_AS '(' select_stmt ')'
+// ;
 
 result_column
  : '*'
@@ -558,9 +560,9 @@ select_core
  | K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
  ;
 
-cte_table_name
- : table_name ( '(' column_name ( ',' column_name )* ')' )?
- ;
+//cte_table_name
+// : table_name ( '(' column_name ( ',' column_name )* ')' )?
+// ;
 
 signed_number
  : ( ( '+' | '-' )? NUMERIC_LITERAL | '*' )

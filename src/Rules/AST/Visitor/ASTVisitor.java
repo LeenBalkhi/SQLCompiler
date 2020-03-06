@@ -1,5 +1,6 @@
 package Rules.AST.Visitor;
 
+import Rules.AST.AnyName;
 import Rules.AST.Java.ArgumentList;
 import Rules.AST.Java.FunctionDeclaration;
 import Rules.AST.Java.*;
@@ -16,10 +17,18 @@ import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
 import Rules.AST.Parse;
-import Rules.AST.QueryStmt.SelectStmt;
-import Rules.AST.QueryStmt.Statement;
+import Rules.AST.SQL.*;
+import Rules.AST.SQL.Constraints.*;
+import Rules.AST.SQL.DDL.*;
+import Rules.AST.SQL.DQL.*;
+import Rules.AST.SQL.Database.ColumnDef;
+import Rules.AST.SQL.Database.QualifiedTableName;
+import Rules.AST.SQL.Database.ResultColumn;
+import Rules.AST.SQL.Database.TypeName;
+import Rules.AST.SQL.Expression.*;
 
 public interface ASTVisitor {
+
     //Java
     public void visit(Continue c);
     public void visit(Break b);
@@ -45,6 +54,7 @@ public interface ASTVisitor {
     public void visit(SimpleVariable simpleVariable);
     public void visit(Parse p);
     public void visit(Node n);
+    public void visit(JavaString string);
     public void visit(Value value);
     public void visit(JavaStatment javaStmt);
     public void visit(ArgumentList argumentList);
@@ -104,4 +114,55 @@ public interface ASTVisitor {
     //sql
     public void visit(Statement stmt);
     public void visit(SelectStmt selectStmt);
+    public void visit(SqlStatment sqlStatment);
+    public void visit(AnyName anyName);
+    public void visit(AlterTableStatement alterTableStatement);
+    public void visit(AlterTableAdd alterTableAdd);
+    public void visit(TableConstraint tableConstraint);
+    public void visit(TableConstraintKey tableConstraintKey);
+    public void visit(TableConstraintUnique tableConstraintUnique);
+    public void visit(TableConstraintForeignKey tableConstraintForeignKey);
+    public void visit(TableConstraintPrimaryKey tableConstraintPrimaryKey);
+    public void visit(indexedColumn indexedColumn);
+    public void visit(ColumnDef columnDef);
+    public void visit(ColumnConstraint columnConstraint);
+    public void visit(ColumnConstraintPrimaryKey columnConstraintPrimaryKey);
+    public void visit(ColumnConstraintForeignKey columnConstraintForeignKey);
+    public void visit(ColumnConstraintNotNull columnConstraintNotNull);
+    public void visit(ColumnConstraintNull columnConstraintNull);
+    public void visit(foreignKeyClause foreignKeyClause);
+    public void visit(SqlExpression sqlExpression);
+    public void visit(SqlExpressionCase1 sqlExpressionCase1);
+    public void visit(SqlExpressionCase2 sqlExpressionCase2);
+    public void visit(SqlExpressionCase3 sqlExpressionCase3);
+    public void visit(SqlExpressionCase4 sqlExpressionCase4);
+    public void visit(SqlExpressionCase5 sqlExpressionCase5);
+    public void visit(SqlExpressionCase6 sqlExpressionCase6);
+    public void visit(SqlExpressionCase7 sqlExpressionCase7);
+    public void visit(SqlExpressionCase8 sqlExpressionCase8);
+    public void visit(SqlExpressionCase9 sqlExpressionCase9);
+    public void visit(SqlExpressionCase10 sqlExpressionCase10);
+    public void visit(SqlExpressionCase11 sqlExpressionCase11);
+    public void visit(SqlExpressionCase12 sqlExpressionCase12);
+    public void visit(SqlExpressionCase13 sqlExpressionCase13);
+    public void visit(SqlExpressionCase14 sqlExpressionCase14);
+    public void visit(SqlExpressionCase15 sqlExpressionCase15);
+    public void visit(TypeName typeName);
+    public void visit(CreateTableStatement createTableStatement);
+    public void visit(DeleteStatement deleteStatement);
+    public void visit(QualifiedTableName qualifiedTableName);
+    public void visit(DropTableStatement dropTableStatement);
+    public void visit(FactoredSelectStatement factoredSelectStatement);
+    public void visit(SelectCore selectCore);
+    public void visit(JoinClause joinClause);
+    public void visit(JoinConstraint joinConstraint);
+    public void visit(JoinOperator joinOperator);
+    public void visit(TableOrSubquery tableOrSubquery);
+    public void visit(OrderingTerm orderingTerm);
+    public void visit(SelectOrValue selectOrValue);
+    public void visit(ResultColumn resultColumn);
+    public void visit(InsertStatement insertStatement);
+    public void visit(UpdateStatement updateStatement);
+
+
 }
