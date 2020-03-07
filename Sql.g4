@@ -315,6 +315,20 @@ sql_stmt
   | update_stmt
  ;
 
+/*
+alter_table_stmt
+ : K_ALTER K_TABLE ( database_name '.' )? source_table_name
+   ( K_RENAME K_TO new_table_name
+   | alter_table_add
+   | alter_table_add_constraint
+   | alter_table_add_column
+   )
+ ;
+
+alter_table_add_column:
+K_ADD K_COLUMN? column_def
+;
+*/
 alter_table_stmt
  : K_ALTER K_TABLE ( database_name '.' )? source_table_name
    ( K_RENAME K_TO new_table_name
@@ -332,6 +346,22 @@ alter_table_add
  : K_ADD table_constraint
  ;
 
+/*
+create_table_stmt
+ : K_CREATE  K_TABLE ( K_IF K_NOT K_EXISTS )? ( database_name '.' )? table_name
+   ( create_table_def
+     |create_table_as_select
+   )
+ ;
+
+ create_table_def:
+ '(' column_def ( ',' table_constraint | ',' column_def )* ')'
+ ;
+
+ create_table_as_select:
+ K_AS select_stmt
+ ;
+*/
 create_table_stmt
  : K_CREATE  K_TABLE ( K_IF K_NOT K_EXISTS )?
    ( database_name '.' )? table_name
@@ -340,6 +370,15 @@ create_table_stmt
    )
  ;
 
+/*
+delete_stmt
+ :  K_DELETE K_FROM qualified_table_name
+   condition?
+ ;
+ condition:
+ K_WHERE expr
+ ;
+*/
 delete_stmt
  :  K_DELETE K_FROM qualified_table_name
    ( K_WHERE expr )?
@@ -349,14 +388,45 @@ drop_table_stmt
  : K_DROP K_TABLE ( K_IF K_EXISTS )? ( database_name '.' )? table_name
  ;
 
+/*
+factored_select_stmt
+ :
+   select_core
+   select_ordered?
+   select_limit?
+ ;
+select_ordered:
+ K_ORDER K_BY ordering_term ( ',' ordering_term )*
+;
 
+select_limit:
+K_LIMIT expr ( ( K_OFFSET | ',' ) expr )?
+;
+
+*/
 factored_select_stmt
  :
    select_core
    ( K_ORDER K_BY ordering_term ( ',' ordering_term )* )?
    ( K_LIMIT expr ( ( K_OFFSET | ',' ) expr )? )?
  ;
+/*
+insert_stmt
+   :   K_INSERT  K_INTO
+   ( database_name '.' )? table_name ( '(' column_name ( ',' column_name )* ')' )?
+   ( insert_values
+   | select_stmt
+   | default_values
+   )
+ ;
 
+ insert_values:
+ K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
+ ;
+ dafault_values:
+ K_DEFAULT K_VALUES
+ ;
+*/
 insert_stmt
    :   K_INSERT  K_INTO
    ( database_name '.' )? table_name ( '(' column_name ( ',' column_name )* ')' )?
@@ -365,13 +435,38 @@ insert_stmt
    | K_DEFAULT K_VALUES
    )
  ;
+/*
+select_stmt
+ :  select_or_values
+   select_ordered?
+   select_limit?
+ ;
 
+*/
 select_stmt
  :  select_or_values
    ( K_ORDER K_BY ordering_term ( ',' ordering_term )* )?
    ( K_LIMIT expr ( ( K_OFFSET | ',' ) expr )? )?
  ;
 
+/*
+select_or_values
+ : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
+   select_from?
+   condition?
+   group_by?
+   sql_values
+ |
+ ;
+
+ group_by:
+ K_GROUP K_BY expr ( ',' expr )* ( K_HAVING expr )?
+ ;
+
+ sql_values:
+ K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
+ ;
+*/
 select_or_values
  : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
@@ -394,6 +489,9 @@ type_name
          | '(' signed_number (any_name)? ',' signed_number (any_name)? ')' )?
  ;
 
+/*
+????
+*/
 column_constraint
  : ( K_CONSTRAINT name )?
    ( column_constraint_primary_key
@@ -431,6 +529,81 @@ column_default_value
  : ( signed_number | literal_value )
  ;
 
+
+/*
+expr
+ : literal_value  #case1
+ | sql_column_name #case2
+ |operator_expr #case3
+ | or_expr #case4
+ | f_op_expr  #case5
+ | s_op_expr #case6
+ |  binary_expr #case7
+ | compare_expr #case8
+ | bool_expr #case9
+ | k_and_expr #case10
+ | k_or_expr #case11
+ | function_expr #case12
+ | '(' expr ')' #case13
+ | exists_expr  #case14
+ | select_expr #case15
+ ;
+ sql_column_name:
+ ( ( database_name '.' )? table_name '.' )? column_name
+ ;
+
+ operator_expr:
+  unary_operator expr
+ ;
+
+ or_expr:
+ expr op='||' expr
+ ;
+
+ f_op_expr:
+ expr op=( '*' | '/' | '%' ) expr
+ ;
+
+ s_op_expr:
+  expr op=( '+' | '-' ) expr
+ ;
+
+ binary_expr:
+ expr op=( '<<' | '>>' | '&' | '|' ) expr
+ ;
+
+ compare_expr:
+  expr op=( '<' | '<=' | '>' | '>=' ) expr
+ ;
+
+ bool_expr:
+ expr ( op=( '=' | '==' | '!=' | '<>') | (K_IS | K_IS K_NOT | K_IN | K_LIKE | K_GLOB | K_MATCH | K_REGEXP) ) expr
+ ;
+
+ k_and_expr:
+  expr K_AND expr
+ ;
+
+ k_or_expr:
+ expr K_OR expr
+ ;
+
+ function_expr:
+ function_name '(' ( K_DISTINCT? expr ( ',' expr )* | op='*' )? ')'
+ ;
+
+exists_expr:
+ expr K_NOT? K_IN ( '(' ( select_stmt
+                          | expr ( ',' expr )*
+                          )?
+                      ')'
+                    | ( database_name '.' )? table_name )
+ ;
+
+ select_expr:
+ ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')'
+ ;
+*/
 expr
  : literal_value  #case1
  | ( ( database_name '.' )? table_name '.' )? column_name  #case2
@@ -453,6 +626,10 @@ expr
  | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')' #case15
  ;
 
+
+/*
+???
+*/
 foreign_key_clause
  : K_REFERENCES ( database_name '.' )? foreign_table ( '(' fk_target_column_name ( ',' fk_target_column_name )* ')' )?
    ( ( K_ON ( K_DELETE | K_UPDATE ) ( K_SET K_NULL
@@ -529,6 +706,15 @@ result_column
  | expr ( K_AS? column_alias )?
  ;
 
+/*
+table_or_subquery
+ :
+ (( database_name '.' )? table_name ( K_AS? table_alias )? ( K_INDEXED K_BY index_name | K_NOT K_INDEXED )? #indexed ) #table
+ | '(' ( table_or_subquery ( ',' table_or_subquery )* | join_clause )  ')' ( K_AS? table_alias )? #join
+ | '(' select_stmt ')' ( K_AS? table_alias )? #select
+ ;
+
+*/
 table_or_subquery
  : ( database_name '.' )? table_name ( K_AS? table_alias )?
    ( K_INDEXED K_BY index_name
@@ -551,7 +737,15 @@ join_operator
 join_constraint
    : ( K_ON expr)
  ;
-
+/*
+select_core
+ : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
+    select_from?
+    condition?
+    group_by?
+    sql_values
+ ;
+*/
 select_core
  : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
