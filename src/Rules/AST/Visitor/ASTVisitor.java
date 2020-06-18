@@ -82,9 +82,9 @@ public interface ASTVisitor {
 
     //javaLogicConditional
     public void visit(ConditionalStmt conditionalStmt);
-    public void visit(ElseIfStmt elseIfStmt);
-    public void visit(ElseStmt elseStmt);
-    public void visit(IfStmt ifStmt);
+    public void visit(ElseIfStmt elseIfStmt , Boolean bool);
+    public void visit(ElseStmt elseStmt , Boolean bool);
+    public void visit(IfStmt ifStmt , Boolean bool);
 
     //javaLogicLoop
     public void visit(DoWhileLoop doWhileLoop);
@@ -163,6 +163,5 @@ public interface ASTVisitor {
     public void visit(ResultColumn resultColumn);
     public void visit(InsertStatement insertStatement);
     public void visit(UpdateStatement updateStatement);
-
 
 }

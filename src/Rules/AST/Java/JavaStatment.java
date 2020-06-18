@@ -4,5 +4,4 @@ import Rules.AST.Node;
 
 public class JavaStatment extends Node {
     public Node javaStatment;
-
 }

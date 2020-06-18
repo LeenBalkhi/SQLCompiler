@@ -199,7 +199,7 @@ value #valueMath
 boolean_expression
 :
 value #valBool
-|math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #compareBool
+| math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #compareBool
 | boolean_expression op=( '||' | '&&' )boolean_expression #multipleBool
 | K_TRUE #trueBool
 | K_FALSE #falseBool
@@ -210,7 +210,6 @@ logical_condition
 :
 boolean_expression ('?' (logical_condition | expression) ':' (logical_condition | expression)) #normalLog
 | '(' logical_condition ')' #parenthLog
-
 ;
 
 

@@ -12,9 +12,14 @@ import Rules.AST.Java.Logic.Switch.SwitchDefault;
 import Rules.AST.Java.Logic.Switch.SwitchStmt;
 import Rules.AST.Java.Utils.*;
 import Rules.AST.Node;
+import Rules.SymbolTableMu.FunctionSymbol;
+import Rules.SymbolTableMu.*;
+import Rules.SymbolTableMu.Scope;
+import Rules.SymbolTableMu.SymbolTable;
 import Rules.generated.*;
 
 public class JavaVisitor extends SqlBaseVisitor<Node> {
+    public SymbolTable symbolTable = new SymbolTable();
 
     @Override
     public Print visitPrintBody(SqlParser.PrintBodyContext ctx) {
@@ -24,20 +29,24 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public JavaStatment visitJava_stmt(SqlParser.Java_stmtContext ctx) {
         JavaStatment javaStatment=new JavaStatment();
-
-        if(ctx.variable_declaration() != null)
-            javaStatment.javaStatment=visitVariable_declaration(ctx.variable_declaration());
-         if (ctx.higher_order_java_function_call()!= null)
-            javaStatment.javaStatment=visitHigher_order_java_function_call(ctx.higher_order_java_function_call());
-        else if(ctx.java_function_call()!=null)
+        if(ctx.variable_declaration() != null) {
+            javaStatment.javaStatment = visitVariable_declaration(ctx.variable_declaration());
+        }
+        if (ctx.higher_order_java_function_call()!= null) {
+            javaStatment.javaStatment = visitHigher_order_java_function_call(ctx.higher_order_java_function_call());
+        }
+        else if(ctx.java_function_call()!=null){
             javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
-        else if(ctx.java_function_declaration()!= null)
+        }
+        else if(ctx.java_function_declaration()!= null){
             javaStatment.javaStatment=visitJava_function_declaration(ctx.java_function_declaration());
+        }
         return javaStatment;
     }
 
     @Override
     public FunctionCall visitJava_function_call(SqlParser.Java_function_callContext ctx) {
+
         FunctionCall functionCall = new FunctionCall();
         functionCall.functionName = ctx.method_ID().getText();
         functionCall.argumentList = visitArgument_list(ctx.argument_list());
@@ -45,12 +54,28 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
     @Override
     public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
+        symbolTable.pushScope();
+        FunctionSymbol functionSymbol = new FunctionSymbol();
+        //--
         FunctionDeclaration functionDeclaration = new FunctionDeclaration();
         functionDeclaration.functionName = ctx.method_ID().getText();
         functionDeclaration.pl = visitParameter_list(ctx.parameter_list());
         functionDeclaration.block = visitBlock(ctx.block());
+        functionDeclaration.scope = symbolTable.scopeStack.peek();
+        //--
+        symbolTable.popScope();
+        functionSymbol.name = functionDeclaration.functionName;
+        for(int i=0;i<((ParameterList)functionDeclaration.pl).list.size();i++)
+        {
+            Symbol symbol = new Symbol();
+            symbol.name = ((ParameterList)functionDeclaration.pl).list.get(i);
+            functionSymbol.parameters.add(symbol);
+        }
+        functionSymbol.value = functionDeclaration.block;
+        symbolTable.scopeStack.peek().symbolMap.put(functionSymbol.name,functionSymbol);
         return functionDeclaration;
     }
+
     @Override
     public HigherOrderFunctionCall visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx)
     {
@@ -66,6 +91,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         higherOrderFunctionCall.higherOrderFunction = visitHo_java_function(ctx.ho_java_function());
         return higherOrderFunctionCall;
     }
+
     @Override
     public HigherOrderFunction visitHo_java_function(SqlParser.Ho_java_functionContext ctx)
     {
@@ -74,6 +100,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         higherOrderFunction.block = visitBlock(ctx.block());
         return higherOrderFunction;
     }
+
     @Override
     public ParameterList visitParameter_list(SqlParser.Parameter_listContext ctx)
     {
@@ -88,6 +115,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         }
         return parameterList;
     }
+
     @Override
     public ArgumentList visitArgument_list(SqlParser.Argument_listContext ctx) {
         ArgumentList argumentList = new ArgumentList();
@@ -113,8 +141,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public VariableDeclaration visitVariable_declaration(SqlParser.Variable_declarationContext ctx)
     {
         VariableDeclaration variableDeclaration = new VariableDeclaration();
-        for(int i=0 ; i <ctx.variable_assignment().size(); i ++)
-        {
+        for(int i=0 ; i <ctx.variable_assignment().size(); i ++) {
            variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i)));
         }
         return variableDeclaration;
@@ -123,15 +150,20 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx)
     {
+        Symbol symbol = new Symbol();
         VariableAssignment variableAssignment = new VariableAssignment();
         variableAssignment.variable = visitVariable(ctx.variable());
+        symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
         if(ctx.assginment().size()!=0)
         {
-            for(int i=0;i<ctx.assginment().size();i++)
-            {
+            for(int i=0;i<ctx.assginment().size();i++) {
                 variableAssignment.assignments.add(visitAssginment(ctx.assginment(i)));
+                symbol.type = ((VariableAssignmentValue)
+                        ((Assignment)variableAssignment.assignments.get(i))
+                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
             }
         }
+        symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
         return variableAssignment;
     }
 
@@ -212,8 +244,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             javaBody.command = (Print)temp;
         if(temp instanceof SwitchStmt)
             javaBody.command = (SwitchStmt)temp;
-        if(temp instanceof Scope)
-            javaBody.command = (Scope)temp;
+        if(temp instanceof Rules.AST.Java.Utils.Scope)
+            javaBody.command = (Rules.AST.Java.Utils.Scope)temp;
         if(temp instanceof VariableAssignment)
             javaBody.command = (VariableAssignment)temp;
         if(temp instanceof VariableDeclaration)
@@ -251,8 +283,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
-    public Scope visitScopeBody(SqlParser.ScopeBodyContext ctx) {
-        Scope scope = new Scope();
+    public Rules.AST.Java.Utils.Scope visitScopeBody(SqlParser.ScopeBodyContext ctx) {
+        Rules.AST.Java.Utils.Scope scope = new Rules.AST.Java.Utils.Scope();
         if(ctx.java_body()!=null)
         {
            // scope.body=visitJava_body(ctx.java_body());
@@ -300,7 +332,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     }
 
     @Override
-    public LoopStmt visitLoopBody(SqlParser.LoopBodyContext ctx) {
+    public LoopStmt visitLoopBody(SqlParser.LoopBodyContext ctx)
+    {
         return visitLoop_stmt(ctx.loop_stmt());
     }
 
@@ -443,23 +476,29 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public IfStmt visitIf_stmt(SqlParser.If_stmtContext ctx)
     {
+        symbolTable.pushScope();
         IfStmt ifStmt = new IfStmt();
         ifStmt.condition = visitBooleanExpression(ctx.boolean_expression());
         if(ctx.one_line_block() != null )
             ifStmt.body = visitOne_line_block(ctx.one_line_block());
         if(ctx.block() != null)
             ifStmt.body = visitBlock(ctx.block());
+        ifStmt.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return ifStmt;
     }
     @Override
     public ElseIfStmt visitElse_if_stmt(SqlParser.Else_if_stmtContext ctx)
     {
         ElseIfStmt elseIfStmt = new ElseIfStmt();
+        symbolTable.pushScope();
         elseIfStmt.condition = visitBooleanExpression(ctx.boolean_expression());
         if(ctx.one_line_block() != null )
             elseIfStmt.body = visitOne_line_block(ctx.one_line_block());
         if(ctx.block() != null)
             elseIfStmt.body = visitBlock(ctx.block());
+        elseIfStmt.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return elseIfStmt;
     }
 
@@ -467,10 +506,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ElseStmt visitElse_stmt(SqlParser.Else_stmtContext ctx)
     {
         ElseStmt elseStmt = new ElseStmt();
+        symbolTable.pushScope();
         if(ctx.one_line_block() != null )
             elseStmt.body = visitOne_line_block(ctx.one_line_block());
         if(ctx.block() != null)
             elseStmt.body = visitBlock(ctx.block());
+        elseStmt.scope=symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return elseStmt;
     }
 

@@ -1,9 +1,8 @@
-select alies.id , name
-from (select id,name from table11)
- left outer join leftTable
- on s.id = d.id
-where x in  (select c_id from fee )
-group by columns
-having s(e)< 2
-order by id
-
+func(){
+    var i=10;
+    var j=10;
+    if(true){
+        var m = 8;
+    }
+    var x = 9;
+}
