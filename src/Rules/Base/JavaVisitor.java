@@ -312,22 +312,28 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
 
     @Override
     public SwitchCase visitSwitch_case(SqlParser.Switch_caseContext ctx) {
+        symbolTable.pushScope();
         SwitchCase switchCase = new SwitchCase();
         switchCase.value = visitValue(ctx.value());
         if(ctx.block()!=null)
             switchCase.block = visitBlock(ctx.block());
         else
             switchCase.block = visitOne_line_block(ctx.one_line_block());
+        switchCase.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return switchCase;
     }
 
     @Override
     public SwitchDefault visitSwitch_default(SqlParser.Switch_defaultContext ctx) {
+        symbolTable.pushScope();
         SwitchDefault switchDefault = new SwitchDefault();
         if(ctx.block()!=null)
             switchDefault.block = visitBlock(ctx.block());
         else
             switchDefault.block = visitOne_line_block(ctx.one_line_block());
+        switchDefault.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return switchDefault;
     }
 
@@ -534,6 +540,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public ForLoop visitFor_loop(SqlParser.For_loopContext ctx)
     {
+        symbolTable.pushScope();
         ForLoop  forLoop = new ForLoop();
         forLoop.variableDeclaration = visitVariable_declaration(ctx.variable_declaration());
         forLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
@@ -545,6 +552,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             forLoop.block = visitBlock(ctx.block());
         else
             forLoop.block = visitOne_line_block(ctx.one_line_block());
+        forLoop.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return forLoop;
     }
 
@@ -564,24 +573,30 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public WhileLoop visitWhile_loop(SqlParser.While_loopContext ctx)
     {
+        symbolTable.pushScope();
         WhileLoop  whileLoop = new WhileLoop();
         whileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
         if(ctx.block()!=null)
             whileLoop.block = visitBlock(ctx.block());
         else
             whileLoop.block = visitOne_line_block(ctx.one_line_block());
+        whileLoop.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return whileLoop;
     }
 
     @Override
     public DoWhileLoop visitDo_while_loop(SqlParser.Do_while_loopContext ctx)
     {
+        symbolTable.pushScope();
         DoWhileLoop  doWhileLoop = new DoWhileLoop();
         doWhileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
         if(ctx.block()!=null)
             doWhileLoop.block = visitBlock(ctx.block());
         else
             doWhileLoop.block = visitOne_line_block(ctx.one_line_block());
+        doWhileLoop.scope = symbolTable.scopeStack.peek();
+        symbolTable.popScope();
         return doWhileLoop;
     }
 

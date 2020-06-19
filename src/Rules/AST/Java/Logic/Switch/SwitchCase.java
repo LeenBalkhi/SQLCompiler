@@ -6,6 +6,7 @@ import Rules.SymbolTableMu.Scope;
 public class SwitchCase extends Node {
     public Node value;
     public Node block;
+    public Scope scope;
 
     public String getType(Scope scope){
 

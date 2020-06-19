@@ -585,7 +585,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(DoWhileLoop doWhileLoop) {
         System.out.println("ast DoWhileLoop ");
         //visit((BooleanExpression)doWhileLoop.booleanExpression);
-        currentScope = ;
+        currentScope = doWhileLoop.scope;
         do{
             if(doWhileLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock)doWhileLoop.block);
@@ -593,7 +593,7 @@ public class BaseASTVisitor implements ASTVisitor {
                 visit((Block)doWhileLoop.block);
         } while (((BooleanExpression)(doWhileLoop.booleanExpression)).getValue(currentScope));
 
-        currentScope = ;
+        currentScope = doWhileLoop.scope.parent;
     }
 
     @Override
@@ -611,7 +611,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(ForLoop forLoop) {
         System.out.println("ast ForLoop");
         String variableName;
-        currentScope = ;
+        currentScope = forLoop.scope;
         visit((VariableDeclaration)forLoop.variableDeclaration);
         visit((BooleanExpression)forLoop.booleanExpression);
         while (!((BooleanExpression)forLoop.booleanExpression).getValue(currentScope)){
@@ -625,7 +625,7 @@ public class BaseASTVisitor implements ASTVisitor {
             if(forLoop.mathExpresion instanceof Increment)
                 visit((Increment)forLoop.mathExpresion);
         }
-        currentScope = ;
+        currentScope = forLoop.scope.parent;
     }
 
     @Override
@@ -644,21 +644,21 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(WhileLoop whileLoop) {
         System.out.println("ast WhileLoop ");
-        currentScope = ;
+        currentScope = whileLoop.scope;
         while (((BooleanExpression)whileLoop.booleanExpression).getValue(currentScope)){
             if(whileLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock)whileLoop.block);
             if(whileLoop.block instanceof Block)
                 visit((Block)whileLoop.block);
         }
-        currentScope = ;
+        currentScope = whileLoop.scope.parent;
         //visit((BooleanExpression)whileLoop.booleanExpression);
     }
 
     @Override
     public void visit(SwitchCase switchCase) {
         System.out.println("ast SwitchCase ");
-        currentScope = ;
+        currentScope = switchCase.scope;
 
         visit((Value)switchCase.value);
         if(switchCase.block instanceof Block)
@@ -666,20 +666,20 @@ public class BaseASTVisitor implements ASTVisitor {
         if(switchCase.block instanceof OneLineBlock)
             visit((OneLineBlock)switchCase.block);
 
-        currentScope = ;
+        currentScope = switchCase.scope.parent;
     }
 
     @Override
     public void visit(SwitchDefault switchDefault) {
         System.out.println("ast SwitchDefault ");
-        currentScope = ;
+        currentScope = switchDefault.scope;
 
         if (switchDefault.block instanceof Block)
             visit((Block)switchDefault.block);
         if(switchDefault.block instanceof OneLineBlock)
             visit((OneLineBlock)switchDefault.block);
 
-        currentScope = ;
+        currentScope = switchDefault.scope.parent;
     }
 
     @Override
