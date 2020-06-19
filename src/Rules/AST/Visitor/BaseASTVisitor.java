@@ -21,6 +21,7 @@ import Rules.AST.SQL.Database.QualifiedTableName;
 import Rules.AST.SQL.Database.ResultColumn;
 import Rules.AST.SQL.Database.TypeName;
 import Rules.AST.SQL.Expression.*;
+import Rules.SymbolTableMu.FunctionSymbol;
 import Rules.SymbolTableMu.Symbol;
 import Rules.SymbolTableMu.SymbolTable;
 
@@ -278,8 +279,12 @@ public class BaseASTVisitor implements ASTVisitor {
     {
         System.out.println("ast FunctionCall ");
         System.out.println(funcCall.functionName);
+        FunctionSymbol functionSymbol = ((FunctionSymbol)currentScope.symbolMap.get(funcCall.functionName));
+        currentScope = functionSymbol.
+        for()
         if(funcCall.argumentList!=null)
             visit((ArgumentList)funcCall.argumentList);
+
     }
 
     @Override

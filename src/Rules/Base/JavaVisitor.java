@@ -71,7 +71,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             symbol.name = ((ParameterList)functionDeclaration.pl).list.get(i);
             functionSymbol.parameters.add(symbol);
         }
-        functionSymbol.value = functionDeclaration.block;
+        functionSymbol.value = functionDeclaration;
         symbolTable.scopeStack.peek().symbolMap.put(functionSymbol.name,functionSymbol);
         return functionDeclaration;
     }
