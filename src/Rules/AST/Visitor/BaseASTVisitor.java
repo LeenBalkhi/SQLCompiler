@@ -280,10 +280,16 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast FunctionCall ");
         System.out.println(funcCall.functionName);
         FunctionSymbol functionSymbol = ((FunctionSymbol)currentScope.symbolMap.get(funcCall.functionName));
-        currentScope = functionSymbol.
-        for()
-        if(funcCall.argumentList!=null)
-            visit((ArgumentList)funcCall.argumentList);
+        for(int i = 0 ; i < ((ArgumentList)funcCall.argumentList).argumentList.size() ; i++){
+            functionSymbol.parameters.get(i).type = ((Expression)((ArgumentList)funcCall.argumentList)
+                    .argumentList.get(i)).getType(currentScope);
+            functionSymbol.parameters.get(i).value = ((Expression)((ArgumentList)funcCall.argumentList)
+                    .argumentList.get(i)).getValue(currentScope);
+        }
+        currentScope = ((FunctionDeclaration)functionSymbol.value).scope;
+        visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
+//        if(funcCall.argumentList!=null)
+//            visit((ArgumentList)funcCall.argumentList);
 
     }
 
@@ -292,7 +298,6 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast FunctionDeclaration ");
         System.out.println(funcDec.functionName);
         currentScope = funcDec.scope;
-        System.out.println("The Symbols are: " + currentScope.symbolMap.keySet());
         if(funcDec.pl!=null)
             visit((ParameterList) funcDec.pl);
         visit((Block)funcDec.block);
