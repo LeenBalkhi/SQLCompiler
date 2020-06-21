@@ -29,10 +29,15 @@ import java.sql.SQLSyntaxErrorException;
 
 public class BaseASTVisitor implements ASTVisitor {
 
-    public Rules.SymbolTableMu.Scope currentScope;
+    public SymbolTable symbolTable;
 
-    public BaseASTVisitor(Rules.SymbolTableMu.Scope scope){
-        currentScope = scope;
+
+    public BaseASTVisitor( SymbolTable symbolTable){
+        this.symbolTable = symbolTable;
+    }
+
+    public Rules.SymbolTableMu.Scope currentScope(){
+        return symbolTable.scopeStack.peek();
     }
 
 
@@ -279,25 +284,25 @@ public class BaseASTVisitor implements ASTVisitor {
     {
         System.out.println("ast FunctionCall ");
         System.out.println(funcCall.functionName);
-        FunctionSymbol functionSymbol = ((FunctionSymbol)currentScope.symbolMap.get(funcCall.functionName));
+        FunctionSymbol functionSymbol = ((FunctionSymbol)currentScope().symbolMap.get(funcCall.functionName));
         for(int i = 0 ; i < ((ArgumentList)funcCall.argumentList).argumentList.size() ; i++){
             functionSymbol.parameters.get(i).type = ((Expression)((ArgumentList)funcCall.argumentList)
-                    .argumentList.get(i)).getType(currentScope);
+                    .argumentList.get(i)).getType(currentScope());
             functionSymbol.parameters.get(i).value = ((Expression)((ArgumentList)funcCall.argumentList)
-                    .argumentList.get(i)).getValue(currentScope);
+                    .argumentList.get(i)).getValue(currentScope());
         }
-        currentScope = ((FunctionDeclaration)functionSymbol.value).scope;
+        symbolTable.pushScope( ((FunctionDeclaration)functionSymbol.value).scope );
         visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
 //        if(funcCall.argumentList!=null)
 //            visit((ArgumentList)funcCall.argumentList);
-
+        symbolTable.popScope();
     }
 
     @Override
     public void visit(FunctionDeclaration funcDec) {
         System.out.println("ast FunctionDeclaration ");
         System.out.println(funcDec.functionName);
-        currentScope = funcDec.scope;
+        symbolTable.pushScope( funcDec.scope );
         if(funcDec.pl!=null)
             visit((ParameterList) funcDec.pl);
         visit((Block)funcDec.block);
@@ -431,16 +436,14 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(JsonObject jsonObject) {
         System.out.println("ast JsonObject ");
-        for(int i=0;i<jsonObject.element.size();i++)
-        {
+        for(int i=0;i<jsonObject.element.size();i++) {
             visit((Element)jsonObject.element.get(i));
         }
     }
 
     @Override
     public void visit(Print print) {
-
-        System.out.println("ast Print ");
+        System.out.println("ast Print");
         for(int i=0 ; i < print.expressions.size();i++)
             visit((Expression) print.expressions.get(i));
     }
@@ -448,77 +451,91 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(VariableAssignment variableAssignment)
     {
-        System.out.println("ast VariableAssignment ");
+        System.out.println("ast VariableAssignment");
         //visit((Variable)variableAssignment.variable);
-        Symbol symbol = currentScope.symbolMap.get(((SimpleVariable)
-                ((Variable)variableAssignment.variable).variable).VariableName);
+        Symbol symbol = currentScope().findSymbol(((SimpleVariable)
+                ((Variable)variableAssignment.variable).variable).VariableName.get(0));
         Object assignmentValue = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
-                .variableAssignmentValue).getValue(currentScope);
+                .variableAssignmentValue).getValue(currentScope());
         String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
 
         switch (op){
             case "=": {
                 symbol.value = assignmentValue;
+                System.out.println( symbol.value );
+                break;
             }
             case "+=": {
                 switch (symbol.type){
                     case "Long":{
                         assignmentValue = (long)symbol.value + (long)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                     case "Double":{
                         assignmentValue = (double)symbol.value + (double)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                     case "Stirng":{
                         assignmentValue = (String)symbol.value + (String) assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                 }
+                break;
             }
             case "-=": {
                 switch (symbol.type){
                     case "Long":{
                         assignmentValue = (long)symbol.value - (long)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                     case "Double":{
                         assignmentValue = (double)symbol.value - (double)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                 }
+                break;
             }
             case "*=": {
                 switch (symbol.type){
                     case "Long":{
                         assignmentValue = (long)symbol.value * (long)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                     case "Double":{
                         assignmentValue = (double)symbol.value * (double)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                 }
+                break;
             }
             case "/=": {
                 switch (symbol.type){
                     case "Long":{
                         assignmentValue = (long)symbol.value / (long)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                     case "Double":{
                         assignmentValue = (double)symbol.value / (double)assignmentValue;
                         symbol.value = assignmentValue;
+                        break;
                     }
                 }
+                break;
             }
         }
-
-        if(variableAssignment.assignments.size()!=0)
-            for(int i=0;i<variableAssignment.assignments.size();i++)
-            {
-                visit((Assignment)variableAssignment.assignments.get(i));
-            }
+//        if(variableAssignment.assignments.size()!=0)
+//            for(int i=0;i<variableAssignment.assignments.size();i++)
+//            {
+//                visit((Assignment)variableAssignment.assignments.get(i));
+//            }
     }
 
     @Override
@@ -554,7 +571,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(ElseIfStmt elseIfStmt , Boolean bool) {
         System.out.println("ast ElseIfStmt ");
         visit((BooleanExpression)elseIfStmt.condition);
-        if(((BooleanExpression)elseIfStmt.condition).getValue(currentScope)){
+        if(((BooleanExpression)elseIfStmt.condition).getValue(currentScope())){
             bool = true;
             if(elseIfStmt.body instanceof Block)
                 visit((Block)elseIfStmt.body);
@@ -575,30 +592,31 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(IfStmt ifStmt , Boolean bool) {
         System.out.println("ast IfStmt ");
-        currentScope = ifStmt.scope;
+        symbolTable.pushScope( ifStmt.scope );
         visit((BooleanExpression)ifStmt.condition);
-        if(((BooleanExpression)ifStmt.condition).getValue(currentScope)) {
+        if(((BooleanExpression)ifStmt.condition).getValue(currentScope())) {
             bool = true;
             if (ifStmt.body instanceof Block)
                 visit((Block) ifStmt.body);
             if (ifStmt.body instanceof OneLineBlock)
                 visit((OneLineBlock) ifStmt.body);
         }
+        symbolTable.popScope();
     }
 
     @Override
     public void visit(DoWhileLoop doWhileLoop) {
         System.out.println("ast DoWhileLoop ");
         //visit((BooleanExpression)doWhileLoop.booleanExpression);
-        currentScope = doWhileLoop.scope;
+        symbolTable.pushScope( doWhileLoop.scope );
         do{
             if(doWhileLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock)doWhileLoop.block);
             if(doWhileLoop.block instanceof Block)
                 visit((Block)doWhileLoop.block);
-        } while (((BooleanExpression)(doWhileLoop.booleanExpression)).getValue(currentScope));
+        } while (((BooleanExpression)(doWhileLoop.booleanExpression)).getValue(currentScope()));
 
-        currentScope = doWhileLoop.scope.parent;
+        symbolTable.popScope();
     }
 
     @Override
@@ -615,22 +633,20 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(ForLoop forLoop) {
         System.out.println("ast ForLoop");
-        String variableName;
-        currentScope = forLoop.scope;
+        symbolTable.pushScope( forLoop.scope );
         visit((VariableDeclaration)forLoop.variableDeclaration);
         visit((BooleanExpression)forLoop.booleanExpression);
-        while (!((BooleanExpression)forLoop.booleanExpression).getValue(currentScope)){
+        while (!((BooleanExpression)forLoop.booleanExpression).getValue(currentScope())){
             if(forLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock) forLoop.block);
             if(forLoop.block instanceof Block)
                 visit((Block)forLoop.block);
-
             if(forLoop.mathExpresion instanceof VariableAssignment)
                 visit((VariableAssignment)forLoop.mathExpresion);
             if(forLoop.mathExpresion instanceof Increment)
                 visit((Increment)forLoop.mathExpresion);
         }
-        currentScope = forLoop.scope.parent;
+        symbolTable.popScope();
     }
 
     @Override
@@ -649,21 +665,23 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(WhileLoop whileLoop) {
         System.out.println("ast WhileLoop ");
-        currentScope = whileLoop.scope;
-        while (((BooleanExpression)whileLoop.booleanExpression).getValue(currentScope)){
+        symbolTable.pushScope( whileLoop.scope );
+        //visit((BooleanExpression)whileLoop.booleanExpression);
+        System.out.println( ((BooleanExpression)whileLoop.booleanExpression).getValue(currentScope()) );
+        while ( ((BooleanExpression)whileLoop.booleanExpression).getValue(currentScope()) ){
+            System.out.println("In while");
             if(whileLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock)whileLoop.block);
             if(whileLoop.block instanceof Block)
                 visit((Block)whileLoop.block);
         }
-        currentScope = whileLoop.scope.parent;
-        //visit((BooleanExpression)whileLoop.booleanExpression);
+        symbolTable.popScope();
     }
 
     @Override
     public void visit(SwitchCase switchCase) {
         System.out.println("ast SwitchCase ");
-        currentScope = switchCase.scope;
+        symbolTable.pushScope( switchCase.scope );
 
         visit((Value)switchCase.value);
         if(switchCase.block instanceof Block)
@@ -671,20 +689,21 @@ public class BaseASTVisitor implements ASTVisitor {
         if(switchCase.block instanceof OneLineBlock)
             visit((OneLineBlock)switchCase.block);
 
-        currentScope = switchCase.scope.parent;
+        symbolTable.popScope();
     }
 
     @Override
     public void visit(SwitchDefault switchDefault) {
         System.out.println("ast SwitchDefault ");
-        currentScope = switchDefault.scope;
+        symbolTable.pushScope( switchDefault.scope );
+
 
         if (switchDefault.block instanceof Block)
             visit((Block)switchDefault.block);
         if(switchDefault.block instanceof OneLineBlock)
             visit((OneLineBlock)switchDefault.block);
 
-        currentScope = switchDefault.scope.parent;
+        symbolTable.popScope();
     }
 
     @Override
@@ -693,8 +712,8 @@ public class BaseASTVisitor implements ASTVisitor {
         String varName = ((SimpleVariable)((Variable)switchStmt.var).variable).VariableName.get(0);
         visit((Variable)switchStmt.var);
         for(int i=0;i<switchStmt.cases.size();i++) {
-            if(currentScope.symbolMap.get(varName).value ==
-                    ((Value)(((SwitchCase)switchStmt.cases.get(i)).value)).getValue(currentScope)){
+            if(currentScope().symbolMap.get(varName).value ==
+                    ((Value)(((SwitchCase)switchStmt.cases.get(i)).value)).getValue(currentScope())){
                 visit((SwitchCase)switchStmt.cases.get(i));
                 switchStmt.catched = true;
                 break;

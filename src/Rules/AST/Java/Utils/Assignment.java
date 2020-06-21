@@ -8,7 +8,7 @@ public class Assignment extends Node {
     public Node variableAssignmentValue;
     public Node assignmentOperator;
 
-    public Object getValue(Scope scope){
-
-    }
+//    public Object getValue(Scope scope){
+//
+//    }
 }

@@ -13,6 +13,12 @@ public class SymbolTable {
         pushScope();
     }
 
+    public void pushScope(Scope scope){
+        Scope parent = (scopeStack.size()==0 ? null : scopeStack.peek());
+        scope.parent = parent;
+        scopeStack.push(scope);
+    }
+
     public void pushScope(){
         Scope parent = (scopeStack.size()==0 ? null : scopeStack.peek());
         Scope newScope = new Scope(parent);
@@ -39,5 +45,4 @@ public class SymbolTable {
         }
         return null;
     }
-
 }

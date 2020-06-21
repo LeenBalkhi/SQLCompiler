@@ -25,8 +25,9 @@ public class Main {
             CommonTokenStream token  = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(token);
             ParseTree tree = parser.parse();
-            Node n =  new MainVisitor().visit(tree);
-            new BaseASTVisitor().visit((Parse) n);
+            MainVisitor m = new MainVisitor();
+            Node n =  m.visit(tree);
+            new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {
             e.printStackTrace();
         }

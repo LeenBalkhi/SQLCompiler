@@ -7,6 +7,14 @@ public class MathExpression extends Node {
     public Node expression;
 
     public Object getValue(Scope scope){
+        if(expression instanceof Value)
+        {
+            return ((Value)expression).getValue(scope);
+        }
+        if(expression instanceof ArithmeticOperation)
+            return ((ArithmeticOperation)expression).getValue(scope);
+        if(expression instanceof MathInParenth)
+            return ((MathInParenth)expression).getValue(scope);
         return null;
     }
 

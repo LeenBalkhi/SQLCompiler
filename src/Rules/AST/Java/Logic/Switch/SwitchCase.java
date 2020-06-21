@@ -8,7 +8,7 @@ public class SwitchCase extends Node {
     public Node block;
     public Scope scope;
 
-    public String getType(Scope scope){
-
-    }
+//    public String getType(Scope scope){
+//
+//    }
 }

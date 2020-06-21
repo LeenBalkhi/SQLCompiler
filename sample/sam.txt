@@ -1,8 +1,7 @@
 func(){
     var i=10;
     var j=10;
-    if(true){
-        var m = 8;
+    while(i!=5){
+         i -= 1;
     }
-    var x = 9;
 }

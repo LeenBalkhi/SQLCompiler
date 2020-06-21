@@ -143,7 +143,18 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     {
         VariableDeclaration variableDeclaration = new VariableDeclaration();
         for(int i=0 ; i <ctx.variable_assignment().size(); i ++) {
-           variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i)));
+            Symbol symbol = new Symbol();
+            //
+            variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i)));
+            //
+            VariableAssignment variableAssignment = ((VariableAssignment)variableDeclaration.variableAssignments.get(i));
+            symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+            for(int j=0;j< variableAssignment.assignments.size();j++) {
+                symbol.type = ((VariableAssignmentValue)
+                        ((Assignment)variableAssignment.assignments.get(j))
+                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
+            }
+            symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
         }
         return variableDeclaration;
     }
@@ -151,20 +162,20 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx)
     {
-        Symbol symbol = new Symbol();
+        //Symbol symbol = new Symbol();
         VariableAssignment variableAssignment = new VariableAssignment();
         variableAssignment.variable = visitVariable(ctx.variable());
-        symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+        //symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
         if(ctx.assginment().size()!=0)
         {
             for(int i=0;i<ctx.assginment().size();i++) {
                 variableAssignment.assignments.add(visitAssginment(ctx.assginment(i)));
-                symbol.type = ((VariableAssignmentValue)
-                        ((Assignment)variableAssignment.assignments.get(i))
-                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
+//                symbol.type = ((VariableAssignmentValue)
+//                        ((Assignment)variableAssignment.assignments.get(i))
+//                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
             }
         }
-        symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
+        //symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
         return variableAssignment;
     }
 
@@ -425,7 +436,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     {
         JavaString javaString = new JavaString();
         javaString.string ="";
-        ////fix grammar
         for(int i=0 ; i < ctx.expression().size(); i ++)
             javaString.string+= ctx.expression().get(i).getText();
         for(int i=0 ; i < ctx.any_name().size(); i ++)

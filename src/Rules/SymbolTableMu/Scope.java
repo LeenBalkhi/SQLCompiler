@@ -11,6 +11,17 @@ public class Scope {
     public Scope(Scope parent) {
         this.parent = parent;
     }
+
+    public Symbol findSymbol(String name){
+        Scope current = this;
+        while (current != null){
+            if(current.symbolMap.containsKey(name))
+                return current.symbolMap.get(name);
+            current = current.parent;
+        }
+        return null;
+    }
+
 }
 
 

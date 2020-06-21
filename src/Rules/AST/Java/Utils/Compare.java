@@ -9,22 +9,23 @@ public class Compare extends Node {
     public String op;
 
     public Boolean getValue(Scope scope){
-        switch (((MathExpression)left).getType(scope)){
+        switch ( ((MathExpression)left).getType(scope) ){
             case "Long":{
                 long valueLeft = ((long)((MathExpression)left).getValue(scope)) ;
                 long valueRight = ((long)((MathExpression)right).getValue(scope)) ;
-                if(op == "<")
+                if(op.equals("<"))
                     return valueLeft < valueRight;
-                if(op == "<=")
+                if(op.equals("<="))
                     return valueLeft <= valueRight;
-                if(op == ">")
+                if(op.equals(">"))
                     return valueLeft > valueRight;
-                if(op == ">=")
+                if(op.equals(">="))
                     return valueLeft >= valueRight;
-                if(op == "==")
+                if(op.equals("=="))
                     return valueLeft == valueRight;
-                if(op == "!=")
+                if(op.equals("!="))
                     return valueLeft != valueRight;
+                break;
             }
             case "Double":{
                 double valueLeft = ((double)((MathExpression)left).getValue(scope)) ;
@@ -41,6 +42,7 @@ public class Compare extends Node {
                     return valueLeft == valueRight;
                 if(op == "!=")
                     return valueLeft != valueRight;
+                break;
             }
             case "String":{
                 String valueLeft = ((String)((MathExpression)left).getValue(scope)) ;
@@ -49,6 +51,7 @@ public class Compare extends Node {
                     return valueLeft == valueRight;
                 if(op == "!=")
                     return valueLeft != valueRight;
+                break;
             }
         }
         return null;
