@@ -4,6 +4,7 @@ package Rules.AST.Java.Utils;
 import Rules.AST.Node;
 import Rules.SymbolTableMu.Scope;
 import Rules.SymbolTableMu.SymbolTable;
+import Rules.Utils.Error;
 
 public class Value extends Node {
     public Node value;
@@ -16,7 +17,7 @@ public class Value extends Node {
         return null;
     }
 
-    public String getType(Scope scope){
+    public String getType(Scope scope)throws Error {
         if(value instanceof Variable)
             return ((Variable)value).getType(scope);
         if(value instanceof SimpleLiteralValue)

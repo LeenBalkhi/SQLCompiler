@@ -27,7 +27,13 @@ public class Main {
             ParseTree tree = parser.parse();
             MainVisitor m = new MainVisitor();
             Node n =  m.visit(tree);
-            new BaseASTVisitor(m.symbolTable).visit((Parse) n);
+            if(m.errors.size()!=0){
+                for(int i=0;i<m.errors.size();i++){
+                    m.errors.get(i).printError();
+                }
+            }
+            else
+                new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {
             e.printStackTrace();
         }

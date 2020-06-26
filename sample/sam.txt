@@ -1,6 +1,6 @@
 func(){
     var i=10;
-    var j=20;
+    var i=11;
     while(i!=j){
 
     }

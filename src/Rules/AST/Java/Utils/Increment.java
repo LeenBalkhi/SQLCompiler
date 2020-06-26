@@ -3,11 +3,12 @@ package Rules.AST.Java.Utils;
 import Rules.AST.Java.JavaBody.JavaBody;
 import Rules.AST.Node;
 import Rules.SymbolTableMu.Scope;
+import Rules.Utils.Error;
 
 public class Increment extends Node {
     public Node increment;
 
-    public Object getValue(Scope scope) {
+    public Object getValue(Scope scope) throws Error {
         if(increment instanceof PostIncrement)
             return ((PostIncrement)increment).getValue(scope);
         if(increment instanceof PostDecrement)
@@ -19,7 +20,7 @@ public class Increment extends Node {
         return null;
     }
 
-    public String getType(Scope scope){
+    public String getType(Scope scope) throws Error{
         if(increment instanceof PostIncrement)
             return ((PostIncrement)increment).getType(scope);
         if(increment instanceof PostDecrement)

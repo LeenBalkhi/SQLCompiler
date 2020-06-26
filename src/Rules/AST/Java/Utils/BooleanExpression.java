@@ -2,11 +2,12 @@ package Rules.AST.Java.Utils;
 
 import Rules.AST.Node;
 import Rules.SymbolTableMu.Scope;
+import Rules.Utils.Error;
 
 public class BooleanExpression extends Node {
     public Node booleanExpression;
 
-    public Boolean getValue(Scope scope){
+    public Boolean getValue(Scope scope)throws Error{
         if(booleanExpression instanceof MultipleBooleanExpression)
             return ((MultipleBooleanExpression)booleanExpression).getValue(scope);
         if(booleanExpression instanceof Compare)
@@ -22,7 +23,7 @@ public class BooleanExpression extends Node {
         return null;
     }
 
-    public String getType(Scope scope){
+    public String getType(Scope scope)throws Error {
         if(booleanExpression instanceof MultipleBooleanExpression)
             return ((MultipleBooleanExpression)booleanExpression).getType(scope);
         if(booleanExpression instanceof Compare)
@@ -31,7 +32,7 @@ public class BooleanExpression extends Node {
             return ((BooleanInParenth) booleanExpression).getType(scope);
         if(booleanExpression instanceof Value){
             if( ((Value)booleanExpression).getType(scope)!="Boolean" )
-                return "ERROR";
+                throw new Error(0,0,"Expression Is Not Of Type Boolean");
             return "Boolean";
         }
         if(booleanExpression instanceof True)

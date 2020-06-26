@@ -2,13 +2,14 @@ package Rules.AST.Java.Utils;
 
 import Rules.AST.Node;
 import Rules.SymbolTableMu.Scope;
+import Rules.Utils.Error;
 
 public class Compare extends Node {
     public Node left;
     public Node right;
     public String op;
 
-    public Boolean getValue(Scope scope){
+    public Boolean getValue(Scope scope) throws Error{
         switch ( ((MathExpression)left).getType(scope) ){
             case "Long":{
                 long valueLeft = ((long)((MathExpression)left).getValue(scope)) ;
@@ -57,9 +58,9 @@ public class Compare extends Node {
         return null;
     }
 
-    public String getType(Scope scope){
+    public String getType(Scope scope)throws Error {
         if(((MathExpression)left).getType(scope) != ((MathExpression)right).getType(scope))
-            return "ERROR";
+            throw new Error(0,0,"Cannot Compare " + ((MathExpression)left).getType(scope) + " With " + ((MathExpression)right).getType(scope));
         return "Boolean";
     }
 }

@@ -16,10 +16,14 @@ import Rules.SymbolTableMu.FunctionSymbol;
 import Rules.SymbolTableMu.*;
 import Rules.SymbolTableMu.Scope;
 import Rules.SymbolTableMu.SymbolTable;
+import Rules.Utils.Error;
 import Rules.generated.*;
+
+import java.util.ArrayList;
 
 public class JavaVisitor extends SqlBaseVisitor<Node> {
     public SymbolTable symbolTable = new SymbolTable();
+    public ArrayList<Error> errors = new ArrayList<>();
 
     @Override
     public Print visitPrintBody(SqlParser.PrintBodyContext ctx) {
@@ -138,44 +142,77 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         defaultParameter.expression = visitExpression(ctx.expression());
         return defaultParameter;
     }
-    @Override
+
+
+
     public VariableDeclaration visitVariable_declaration(SqlParser.Variable_declarationContext ctx)
     {
         VariableDeclaration variableDeclaration = new VariableDeclaration();
         for(int i=0 ; i <ctx.variable_assignment().size(); i ++) {
             Symbol symbol = new Symbol();
             //
-            variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i)));
+            variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i),true));
             //
             VariableAssignment variableAssignment = ((VariableAssignment)variableDeclaration.variableAssignments.get(i));
             symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
             for(int j=0;j< variableAssignment.assignments.size();j++) {
-                symbol.type = ((VariableAssignmentValue)
-                        ((Assignment)variableAssignment.assignments.get(j))
-                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
+                try {
+                    symbol.type = ((VariableAssignmentValue)
+                            ((Assignment)variableAssignment.assignments.get(j))
+                                    .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
+                } catch (Error error) {
+                    errors.add(error);
+                }
             }
-            symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
+            if(!symbolTable.scopeStack.peek().symbolMap.containsKey(symbol.name))
+                symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
+            else {
+                Error error = new Error(ctx.variable_assignment(i).start.getLine(),
+                        ctx.variable_assignment(i).start.getCharPositionInLine(),
+                        "Variable " + symbol.name + " Already Defined In This Scope");
+                errors.add(error);
+            }
         }
         return variableDeclaration;
     }
 
-    @Override
-    public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx)
+    public VariableAssignment visitVariable_assignment(SqlParser.Variable_assignmentContext ctx, boolean fromVarDec)
     {
-        //Symbol symbol = new Symbol();
         VariableAssignment variableAssignment = new VariableAssignment();
         variableAssignment.variable = visitVariable(ctx.variable());
-        //symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+        if(fromVarDec == false){
+            if( symbolTable.getSymbol(((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0)) == null ){
+                Error error = new Error(ctx.start.getLine(),
+                    ctx.start.getCharPositionInLine(),
+                        "Variable " +
+                                ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0) +
+                                " Does Not Exist");
+                errors.add(error);
+            }
+        }
         if(ctx.assginment().size()!=0)
         {
             for(int i=0;i<ctx.assginment().size();i++) {
                 variableAssignment.assignments.add(visitAssginment(ctx.assginment(i)));
-//                symbol.type = ((VariableAssignmentValue)
-//                        ((Assignment)variableAssignment.assignments.get(i))
-//                                .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
+                if(fromVarDec == false){
+                    Symbol symbol = symbolTable.getSymbol(((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0));
+                    try {
+                        String temp = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(i)).variableAssignmentValue)
+                                .getType(symbolTable.scopeStack.peek());
+                        if(temp!=null && !symbol.type.equals(temp)){
+                            Error error = new Error(ctx.assginment(i).variable_assignment_value().start.getLine(),
+                                    ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine(),
+                                    "Variable " + symbol.name + " Already Has Type " + symbol.type + " And Cannot Be Assigned To A" + temp);
+                            errors.add(error);
+                        }
+                    } catch (Error error) {
+                        error.line = ctx.assginment(i).variable_assignment_value().start.getLine();
+                        error.col = ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine();
+                        errors.add(error);
+                    }
+                }
             }
         }
-        //symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
         return variableAssignment;
     }
 
@@ -186,11 +223,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         string = visitString(ctx.string());
         return string;
     }
+
     @Override
     public Assignment visitAssginment(SqlParser.AssginmentContext ctx) {
         Assignment assignment = new Assignment();
         assignment.assignmentOperator = visitAssignment_operator(ctx.assignment_operator());
         assignment.variableAssignmentValue = visitVariable_assignment_value(ctx.variable_assignment_value());
+
         return assignment;
     }
 
@@ -291,7 +330,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
 
     @Override
     public VariableAssignment visitVarAssignBody(SqlParser.VarAssignBodyContext ctx) {
-        return visitVariable_assignment(ctx.variable_assignment());
+        return visitVariable_assignment(ctx.variable_assignment(),false);
     }
 
     @Override
