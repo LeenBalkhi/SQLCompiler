@@ -488,7 +488,7 @@ public class sqlVisitor extends JavaVisitor {
             SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
             sqlTypeEntry.type = ctx.type(i).getText();
             sqlTypeEntry.name = ctx.any_name(i+1).getText();
-            if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
+            if( symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
                     || sqlTypeEntry.type.equals("String")
                     || sqlTypeEntry.type.equals("Long")
                     || sqlTypeEntry.type.equals("Boolean")
