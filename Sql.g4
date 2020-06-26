@@ -255,7 +255,6 @@ for_loop
 | for_each_loop
 ;
 
-
 for_loop
 :
 (K_FOR '(' variable_declaration ';' boolean_expression ';' (increment|variable_assignment) ')')
@@ -314,6 +313,8 @@ sql_stmt
   | update_stmt
  ;
 
+
+
 /*
 alter_table_stmt
  : K_ALTER K_TABLE ( database_name '.' )? source_table_name
@@ -336,6 +337,19 @@ alter_table_stmt
    | K_ADD K_COLUMN? column_def
    )
  ;
+
+create_aggregation_function
+: K_CREATE K_AGGREGATION K_FUNCTION any_name '(' (type any_name)* ')'
+;
+
+create_type:
+    K_CREATE K_TYPE any_name '(' (type any_name)* ')'
+;
+
+type:
+any_name
+;
+
 
 alter_table_add_constraint
  : K_ADD K_CONSTRAINT any_name table_constraint
@@ -799,6 +813,7 @@ keyword
  | K_ACTION
  | K_ADD
  | K_AFTER
+ | K_AGGREGATION_FUNCTION
  | K_ALL
  | K_ALTER
  | K_ANALYZE
@@ -907,6 +922,7 @@ keyword
  | K_THEN
  | K_TO
  | K_TRANSACTION
+ | K_TYPE
  | K_TRIGGER
  | K_UNION
  | K_UNIQUE
@@ -1051,6 +1067,7 @@ K_ABORT : A B O R T;
 K_ACTION : A C T I O N;
 K_ADD : A D D;
 K_AFTER : A F T E R;
+K_AGGREGATION : A G G R E G A T I O N;
 K_ALL : A L L;
 K_ALTER : A L T E R;
 K_ANALYZE : A N A L Y Z E;
@@ -1169,6 +1186,7 @@ K_THEN : T H E N;
 K_TO : T O;
 K_TRANSACTION : T R A N S A C T I O N;
 K_TRIGGER : T R I G G E R;
+K_TYPE : T Y P E;
 K_UNION : U N I O N;
 K_UNIQUE : U N I Q U E;
 K_UPDATE : U P D A T E;

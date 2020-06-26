@@ -10,6 +10,10 @@ import Rules.AST.SQL.DQL.*;
 import Rules.AST.SQL.Database.*;
 import Rules.AST.SQL.Constraints.*;
 import Rules.AST.SQL.Expression.*;
+import Rules.SymbolTableMu.ColumnSymbol;
+import Rules.SymbolTableMu.SqlType;
+import Rules.SymbolTableMu.SqlTypeEntry;
+import Rules.SymbolTableMu.TableSymbol;
 import Rules.generated.*;
 import Rules.Main;
 
@@ -53,11 +57,11 @@ public class sqlVisitor extends JavaVisitor {
     {
         AnyName anyName = new AnyName();
         if(ctx.any_name()!= null)
-            anyName.name = visitAny_name(ctx.any_name());
+            anyName.name = ctx.any_name().getText();
         if(ctx.IDENTIFIER() != null)
-            anyName.id = ctx.IDENTIFIER().getSymbol().getText();
+            anyName.name = ctx.IDENTIFIER().getSymbol().getText();
          if(ctx.STRING_LITERAL() != null)
-             anyName.id = ctx.STRING_LITERAL().getSymbol().getText();
+             anyName.name = ctx.STRING_LITERAL().getSymbol().getText();
         return anyName;
     }
     @Override
@@ -135,7 +139,6 @@ public class sqlVisitor extends JavaVisitor {
     public TableConstraintPrimaryKey visitTable_constraint_primary_key(SqlParser.Table_constraint_primary_keyContext ctx)
     {
         TableConstraintPrimaryKey tableConstraintPrimaryKey = new TableConstraintPrimaryKey();
-
         for(int i=0 ; i < ctx.indexed_column().size(); i++)
             tableConstraintPrimaryKey.indexedColumns.add(visitIndexed_column(ctx.indexed_column().get(i)));
         return tableConstraintPrimaryKey;
@@ -475,9 +478,37 @@ public class sqlVisitor extends JavaVisitor {
              typeName.names.put(ctx.signed_number().get(i).getText(), visitAny_name(ctx.any_name().get(i)));
          return typeName;
      }
+
+    @Override
+    public Node visitCreate_type(SqlParser.Create_typeContext ctx) {
+        SqlType sqlType = new SqlType();
+        boolean err = false;
+        sqlType.name = ctx.any_name(0).getText();
+        for (int i = 0 ; i < ctx.type().size() ; i++){
+            SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+            sqlTypeEntry.type = ctx.type(i).getText();
+            sqlTypeEntry.name = ctx.any_name(i+1).getText();
+            if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
+                    || sqlTypeEntry.type.equals("String")
+                    || sqlTypeEntry.type.equals("Long")
+                    || sqlTypeEntry.type.equals("Boolean")
+                    || sqlTypeEntry.type.equals("Double") ){
+                sqlType.entries.add(sqlTypeEntry);
+            }
+            else {
+                err = true;
+                break;
+            }
+        }
+        if(!err)
+            symbolTable.sqlTypes.put(sqlType.name , sqlType);
+        return null;
+    }
+
     @Override
     public CreateTableStatement visitCreate_table_stmt(SqlParser.Create_table_stmtContext ctx)
     {
+        TableSymbol tableSymbol = new TableSymbol();
         CreateTableStatement createTableStatement = new CreateTableStatement();
         if(ctx.K_IF()!= null)
         createTableStatement.ifNotExists = true;
@@ -486,13 +517,29 @@ public class sqlVisitor extends JavaVisitor {
             if(ctx.database_name()!=null)
                 createTableStatement.dataBaseName = visitAny_name(ctx.database_name().any_name());
             createTableStatement.tableName = visitAny_name(ctx.table_name().any_name());
-            for(int i=0 ; i < ctx.column_def().size() ; i++)
+            for(int i=0 ; i < ctx.column_def().size() ; i++){
                 createTableStatement.columnDefs.add(visitColumn_def(ctx.column_def().get(i)));
+                ColumnDef columnDef = ((ColumnDef)createTableStatement.columnDefs.get(i));
+                ColumnSymbol columnSymbol = new ColumnSymbol();
+                columnSymbol.name = columnDef.name.name;
+                String type = ((TypeName)columnDef.columnConstraintsTypeNames.get(0)).name.name;
+                if(symbolTable.sqlTypes.containsKey(type)
+                || type.equals("String")
+                || type.equals("Long")
+                || type.equals("Boolean")
+                || type.equals("Double")
+                || (symbolTable.scopeStack.peek().symbolMap.containsKey(type)
+                        && symbolTable.scopeStack.peek().symbolMap.get(type) instanceof TableSymbol) ){
+                    columnSymbol.type = type;
+                }
+                ((ArrayList<ColumnSymbol>)tableSymbol.value).add(columnSymbol);
+            }
             for(int i=0 ; i < ctx.table_constraint().size(); i++)
                 createTableStatement.tableConstraintsColumnDefs.add(visitTable_constraint(ctx.table_constraint().get(i)));
         }
         if(ctx.select_stmt()!= null)
             createTableStatement.selectStmt = visitSelect_stmt(ctx.select_stmt());
+        symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name,tableSymbol);
         return createTableStatement;
     }
     @Override

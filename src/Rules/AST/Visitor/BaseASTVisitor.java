@@ -458,7 +458,6 @@ public class BaseASTVisitor implements ASTVisitor {
         Object assignmentValue = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
                 .variableAssignmentValue).getValue(currentScope());
         String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
-
         switch (op){
             case "=": {
                 symbol.value = assignmentValue;

@@ -30,26 +30,26 @@ public class Compare extends Node {
             case "Double":{
                 double valueLeft = ((double)((MathExpression)left).getValue(scope)) ;
                 double valueRight = ((double)((MathExpression)right).getValue(scope)) ;
-                if(op == "<")
+                if(op.equals("<"))
                     return valueLeft < valueRight;
-                if(op == "<=")
+                if(op.equals("<="))
                     return valueLeft <= valueRight;
-                if(op == ">")
+                if(op.equals(">"))
                     return valueLeft > valueRight;
-                if(op == ">=")
+                if(op.equals(">="))
                     return valueLeft >= valueRight;
-                if(op == "==")
+                if(op.equals("=="))
                     return valueLeft == valueRight;
-                if(op == "!=")
+                if(op.equals("!="))
                     return valueLeft != valueRight;
                 break;
             }
             case "String":{
                 String valueLeft = ((String)((MathExpression)left).getValue(scope)) ;
                 String valueRight = ((String)((MathExpression)right).getValue(scope)) ;
-                if(op == "==")
+                if(op.equals("=="))
                     return valueLeft == valueRight;
-                if(op == "!=")
+                if(op.equals("!="))
                     return valueLeft != valueRight;
                 break;
             }

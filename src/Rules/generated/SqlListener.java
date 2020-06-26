@@ -1,4 +1,4 @@
-// Generated from C:/Users/Dell/Desktop/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -809,6 +809,36 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAlter_table_stmt(SqlParser.Alter_table_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SqlParser#create_aggregation_function}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreate_aggregation_function(SqlParser.Create_aggregation_functionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#create_aggregation_function}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreate_aggregation_function(SqlParser.Create_aggregation_functionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SqlParser#create_type}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreate_type(SqlParser.Create_typeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#create_type}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreate_type(SqlParser.Create_typeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SqlParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterType(SqlParser.TypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitType(SqlParser.TypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#alter_table_add_constraint}.
 	 * @param ctx the parse tree

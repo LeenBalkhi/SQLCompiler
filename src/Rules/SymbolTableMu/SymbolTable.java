@@ -7,9 +7,11 @@ import java.util.Stack;
 
 public class SymbolTable {
     public Stack<Scope> scopeStack;
+    public HashMap<String,SqlType> sqlTypes;
 
     public SymbolTable(){
         scopeStack = new Stack<>();
+        sqlTypes = new HashMap<>();
         pushScope();
     }
 

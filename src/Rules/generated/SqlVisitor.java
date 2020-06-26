@@ -1,4 +1,4 @@
-// Generated from C:/Users/Dell/Desktop/SQLCompiler\Sql.g4 by ANTLR 4.7.2
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -485,6 +485,24 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAlter_table_stmt(SqlParser.Alter_table_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#create_aggregation_function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreate_aggregation_function(SqlParser.Create_aggregation_functionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#create_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreate_type(SqlParser.Create_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType(SqlParser.TypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#alter_table_add_constraint}.
 	 * @param ctx the parse tree

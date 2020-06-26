@@ -8,5 +8,4 @@ import java.util.HashMap;
 public class TypeName extends SqlStatment {
    public AnyName name;
    public HashMap<String,AnyName> names = new HashMap();
-
 }
