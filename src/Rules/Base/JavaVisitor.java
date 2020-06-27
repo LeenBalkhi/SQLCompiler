@@ -199,10 +199,10 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
                     try {
                         String temp = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(i)).variableAssignmentValue)
                                 .getType(symbolTable.scopeStack.peek());
-                        if(temp!=null && !symbol.type.equals(temp)){
+                        if(symbol.type!=null && !symbol.type.equals(temp)){
                             Error error = new Error(ctx.assginment(i).variable_assignment_value().start.getLine(),
                                     ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine(),
-                                    "Variable " + symbol.name + " Already Has Type " + symbol.type + " And Cannot Be Assigned To A" + temp);
+                                    "Variable " + symbol.name + " Already Has Type " + symbol.type + " And Cannot Be Assigned To A " + temp);
                             errors.add(error);
                         }
                     } catch (Error error) {

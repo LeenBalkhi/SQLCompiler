@@ -21,7 +21,7 @@ public class Variable extends Node {
             if( symbol == null)
                 throw new Error(0,0,"Variable " + ((SimpleVariable)variable).VariableName.get(0) + " Does Not Exist");
             else if(symbol.type == null){
-                throw new Error(0,0,"Variable " + ((SimpleVariable)variable).VariableName.get(0) + " Is Not Defined Yet");
+                throw new Error(0,0,"Variable " + ((SimpleVariable)variable).VariableName.get(0) + " Has Not Been Given A Value Yet");
             }
             else return symbol.type;
         }

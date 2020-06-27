@@ -50,7 +50,7 @@ public class ArithmeticOperation extends MathExpression {
     public String getType(Scope scope)throws Error {
         if( (left.getType(scope) != right.getType(scope)) || left.getType(scope)== null || left.getType(scope)=="Boolean" )
             throw new Error(0,0,
-                    "Arithmetic Operation " + op + "Cannot Be Done Between " + left.getType(scope) + " And " + right.getType(scope));
+                    "Arithmetic Operation " + op + " Cannot Be Done Between " + left.getType(scope) + " And " + right.getType(scope));
         else return left.getType(scope);
     }
 }

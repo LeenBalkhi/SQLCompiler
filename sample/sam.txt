@@ -1,7 +1,5 @@
 func(){
-    var i=10;
-    var i=11;
-    while(i!=j){
-
-    }
+    var j = 5;
+    i = 5 + "Yo";
+    j = true;
 }
