@@ -1,3 +1,4 @@
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -521,12 +522,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitType_name(SqlParser.Type_nameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_default}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_default(SqlParser.Column_defaultContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#column_default_value}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -651,18 +646,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCase10(SqlParser.Case10Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#indexed_column}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexed_column(SqlParser.Indexed_columnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#qualified_table_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQualified_table_name(SqlParser.Qualified_table_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#ordering_term}.
 	 * @param ctx the parse tree

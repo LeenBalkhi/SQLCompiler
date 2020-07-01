@@ -1011,16 +1011,15 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(ColumnDef columnDef) {
         System.out.println("AST ColumnDef");
-
-        if(columnDef.name != null)
-            visit((AnyName) columnDef.name);
-        for(int i=0 ; i <columnDef.columnConstraintsTypeNames.size(); i++)
-        {
-            if(columnDef.columnConstraintsTypeNames.get(i) instanceof ColumnConstraint)
-                visit((ColumnConstraint) columnDef.columnConstraintsTypeNames.get(i) );
-            if(columnDef.columnConstraintsTypeNames.get(i) instanceof TypeName)
-                visit((TypeName) columnDef.columnConstraintsTypeNames.get(i) );
-        }
+//        if(columnDef.name != null)
+//            visit((AnyName) columnDef.name);
+//        for(int i=0 ; i <columnDef.columnConstraintsTypeNames.size(); i++)
+//        {
+//            if(columnDef.columnConstraintsTypeNames.get(i) instanceof ColumnConstraint)
+//                visit((ColumnConstraint) columnDef.columnConstraintsTypeNames.get(i) );
+//            if(columnDef.columnConstraintsTypeNames.get(i) instanceof TypeName)
+//                visit((TypeName) columnDef.columnConstraintsTypeNames.get(i) );
+//        }
     }
 
     @Override

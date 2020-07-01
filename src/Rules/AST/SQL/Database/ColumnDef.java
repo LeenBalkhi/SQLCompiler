@@ -8,5 +8,5 @@ import java.util.ArrayList;
 
 public class ColumnDef extends SqlStatment {
     public AnyName name;
-    public ArrayList<Node> columnConstraintsTypeNames = new ArrayList<>();
+    public TypeName typeName;
 }

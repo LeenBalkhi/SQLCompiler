@@ -1,3 +1,4 @@
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -869,16 +870,6 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitType_name(SqlParser.Type_nameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SqlParser#column_default}.
-	 * @param ctx the parse tree
-	 */
-	void enterColumn_default(SqlParser.Column_defaultContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#column_default}.
-	 * @param ctx the parse tree
-	 */
-	void exitColumn_default(SqlParser.Column_defaultContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SqlParser#column_default_value}.
 	 * @param ctx the parse tree
 	 */
@@ -1092,26 +1083,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCase10(SqlParser.Case10Context ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#indexed_column}.
-	 * @param ctx the parse tree
-	 */
-	void enterIndexed_column(SqlParser.Indexed_columnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#indexed_column}.
-	 * @param ctx the parse tree
-	 */
-	void exitIndexed_column(SqlParser.Indexed_columnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#qualified_table_name}.
-	 * @param ctx the parse tree
-	 */
-	void enterQualified_table_name(SqlParser.Qualified_table_nameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#qualified_table_name}.
-	 * @param ctx the parse tree
-	 */
-	void exitQualified_table_name(SqlParser.Qualified_table_nameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#ordering_term}.
 	 * @param ctx the parse tree

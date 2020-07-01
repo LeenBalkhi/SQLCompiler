@@ -36,9 +36,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         if(ctx.variable_declaration() != null) {
             javaStatment.javaStatment = visitVariable_declaration(ctx.variable_declaration());
         }
-        if (ctx.higher_order_java_function_call()!= null) {
-            javaStatment.javaStatment = visitHigher_order_java_function_call(ctx.higher_order_java_function_call());
-        }
         else if(ctx.java_function_call()!=null){
             javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
         }
@@ -81,30 +78,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         return functionDeclaration;
     }
 
-    @Override
-    public HigherOrderFunctionCall visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx)
-    {
-        HigherOrderFunctionCall higherOrderFunctionCall = new HigherOrderFunctionCall();
-        higherOrderFunctionCall.funcName=ctx.method_ID().getText();
-        if(ctx.argument_list().size()!=0)
-        {
-            for(int i=0 ; i < ctx.argument_list().size() ; i ++)
-            {
-                higherOrderFunctionCall.argumentLists.add(visitArgument_list(ctx.argument_list().get(i)));
-            }
-        }
-        higherOrderFunctionCall.higherOrderFunction = visitHo_java_function(ctx.ho_java_function());
-        return higherOrderFunctionCall;
-    }
-
-    @Override
-    public HigherOrderFunction visitHo_java_function(SqlParser.Ho_java_functionContext ctx)
-    {
-        HigherOrderFunction higherOrderFunction = new HigherOrderFunction();
-        higherOrderFunction.argumentList = visitArgument_list(ctx.argument_list());
-        higherOrderFunction.block = visitBlock(ctx.block());
-        return higherOrderFunction;
-    }
 
     @Override
     public ParameterList visitParameter_list(SqlParser.Parameter_listContext ctx)
@@ -245,10 +218,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         VariableAssignmentValue variableAssignmentValue = new VariableAssignmentValue();
         if(ctx.expression()!= null)
             variableAssignmentValue.Value = visitExpression(ctx.expression());
-        if(ctx.array_identification()!= null)
-            variableAssignmentValue.Value = visitArray_identification(ctx.array_identification());
-        if(ctx.json_object()!=null)
-            variableAssignmentValue.Value = visitJson_object(ctx.json_object());
         if(ctx.logical_condition() != null)
             variableAssignmentValue.Value = visitLogical_condition(ctx.logical_condition());
         return variableAssignmentValue;
@@ -490,27 +459,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         for(int i=0 ; i < ctx.expression().size(); i ++)
             print.expressions.add(visitExpression(ctx.expression().get(i)));
         return print;
-    }
-    @Override
-    public JsonObject visitJson_object(SqlParser.Json_objectContext ctx)
-    {
-        JsonObject jsonObject = new JsonObject();
-        for(int i=0 ; i < ctx.element().size(); i++)
-        jsonObject.element.add(visitElement(ctx.element().get(i)));
-        return jsonObject;
-    }
-    @Override
-    public Element visitElement(SqlParser.ElementContext ctx)
-    {
-        Element element = new Element();
-        element.objName = ctx.IDENTIFIER().getSymbol().getText();
-        if(ctx.array_identification() != null)
-            element.obj = visitArray_identification(ctx.array_identification());
-        if(ctx.json_object() != null)
-            element.obj = visitJson_object(ctx.json_object());
-        if(ctx.value() != null)
-            element.obj = visitValue(ctx.value());
-        return element;
     }
 
     @Override
@@ -845,35 +793,10 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
                 s.VariableName.add(ctx.any_name().get(i).getText());
             variable.variable = s;
         }
-        else
-            variable.variable = visitArray_call(ctx.array_call());
         return variable;
     }
 
-    @Override
-    public ArrayCall visitArray_call(SqlParser.Array_callContext ctx) {
-        ArrayCall arrayCall = new ArrayCall();
-        arrayCall.arrayName = ctx.array_name().getText();
-        if(ctx.math_expression()!=null)
-            arrayCall.expression = visitMathExpression(ctx.math_expression());
-        return arrayCall;
-    }
-    @Override
-    public ArrayIdentification visitArray_identification(SqlParser.Array_identificationContext ctx)
-    {
-        ArrayIdentification arrayIdentification = new ArrayIdentification();
-        if(ctx.expression().size()!=0)
-        {
-            for( int i=0 ; i < ctx.expression().size() ; i ++)
-                arrayIdentification.arrayElementasExpr.add(visitExpression(ctx.expression().get(i)));
-        }
-        if(ctx.array_identification().size()!=0)
-        {
-            for (int i=0 ; i < ctx.array_identification().size(); i++)
-                arrayIdentification.arrayElementasArray.add(visitArray_identification(ctx.array_identification().get(i)));
-        }
-        return arrayIdentification;
-    }
+
     /*
 
     @Override

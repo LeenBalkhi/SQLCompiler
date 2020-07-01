@@ -114,7 +114,6 @@ any_name ('.' any_name)*
 //|array_call
 ;
 
-
 variable_declaration
 :
  K_VAR variable_assignment
@@ -148,6 +147,22 @@ expression
 //array_name '[' math_expression? ']'
 //;
 
+param_array
+:
+ '[' type (',' type)*']'
+;
+
+create_agg_fun:
+K_CREATE  K_AGGREGATION K_FUNCTION
+function_name
+'('
+ jar_path ','
+  class_name /*classname*/ ','
+  method_name/*MethodName*/ ','
+  type/*return type*/  ','
+  param_array
+ ')'
+;
 
 element
 :
@@ -307,8 +322,7 @@ sql_stmt
  create_table_stmt
 | create_type
 | create_agg_fun
-  | factored_select_stmt
-
+| factored_select_stmt
  ;
 
 /*
@@ -381,24 +395,12 @@ create_type
 :
 K_CREATE  K_TYPE
    type_name
-   ( '(' type ( variable) ( ',' type  ( variable) )* ')' )
+   ( '(' type (any_name) ( ',' type  (any_name) )* ')' )
 ;
 
-
-create_agg_fun:
-K_CREATE  K_AGGREGATION K_FUNCTION
-function_name
-'('
- jar_path ','
-  class_name /*classname*/ ','
-  method_name/*MethodName*/ ','
-  type/*return type*/  ','
-  parameter_list
- ')'
-;
 
 type:
-K_STRING | K_BOOLEAN | K_NUMBER | type_name
+type_name
 ;
 /*
 delete_stmt
@@ -515,8 +517,7 @@ column_def
  ;
 
 type_name
- : name ( '(' signed_number (any_name)? ')'
-         | '(' signed_number (any_name)? ',' signed_number (any_name)? ')' )?
+ : name
  ;
 
 /*
@@ -551,9 +552,6 @@ type_name
 // : K_NULL
 // ;
 
-column_default
- : K_DEFAULT (column_default_value | '(' expr ')' | K_NEXTVAL '(' expr ')' | any_name )  ( '::' any_name+ )?
- ;
 
 column_default_value
  : ( signed_number | literal_value )
@@ -680,9 +678,6 @@ expr
 // : name
 // ;
 
-indexed_column
- : column_name ( K_COLLATE collation_name )? (desc=( K_ASC | K_DESC ))?
- ;
 
 //table_constraint
 // : ( K_CONSTRAINT name )?
@@ -714,10 +709,6 @@ indexed_column
 // : column_name
 // ;
 
-qualified_table_name
- : ( database_name '.' )? table_name ( K_INDEXED K_BY index_name
-                                     | K_NOT K_INDEXED )?
- ;
 
 ordering_term
  : expr  ( K_ASC | K_DESC )?

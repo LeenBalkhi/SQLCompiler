@@ -24,7 +24,6 @@ import java.util.List;
 
 public class sqlVisitor extends JavaVisitor {
 
-
 @Override
     public Statement visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx)
     {
@@ -58,24 +57,13 @@ public class sqlVisitor extends JavaVisitor {
         return anyName;
     }
 
-    @Override
-    public indexedColumn visitIndexed_column(SqlParser.Indexed_columnContext ctx)
-    {
-        indexedColumn inxColumn = new indexedColumn();
-        inxColumn.columnName = visitAny_name(ctx.column_name().any_name());
-        if(ctx.collation_name()!= null)
-            inxColumn.collationName = visitAny_name(ctx.collation_name().any_name());
-        if(ctx.K_DESC()!=null)
-            inxColumn.desc = ctx.desc.getText();
-        return inxColumn;
-    }
      @Override
      public ColumnDef visitColumn_def(SqlParser.Column_defContext ctx)
      {
          ColumnDef columnDef = new ColumnDef();
          columnDef.name = visitAny_name(ctx.column_name().any_name());
          for(int i=0; i < ctx.type_name().size() ; i ++)
-             columnDef.columnConstraintsTypeNames.add(visitType_name(ctx.type_name().get(i)));
+             columnDef.typeName = visitType_name(ctx.type_name().get(i));
          return columnDef;
      }
 
@@ -521,8 +509,6 @@ public class sqlVisitor extends JavaVisitor {
      {
          TypeName typeName = new TypeName();
          typeName.name = visitAny_name(ctx.name().any_name());
-         for(int i=0 ; i < ctx.signed_number().size(); i++)
-             typeName.names.put(ctx.signed_number().get(i).getText(), visitAny_name(ctx.any_name().get(i)));
          return typeName;
      }
 
@@ -531,11 +517,11 @@ public class sqlVisitor extends JavaVisitor {
 
         SqlType sqlType = new SqlType();
         boolean err = false;
-        sqlType.name = ctx.any_name(0).getText();
+        sqlType.name = visitType_name(ctx.type_name()).name.name;
         for (int i = 0 ; i < ctx.type().size() ; i++){
             SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
             sqlTypeEntry.type = ctx.type(i).getText();
-            sqlTypeEntry.name = ctx.any_name(i+1).getText();
+            sqlTypeEntry.name = visitAny_name(ctx.any_name(i)).name;
             if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
                     || sqlTypeEntry.type.equals("String")
                     || sqlTypeEntry.type.equals("Long")
@@ -573,7 +559,9 @@ public class sqlVisitor extends JavaVisitor {
                 ColumnDef columnDef = ((ColumnDef)createTableStatement.columnDefs.get(i));
                 ColumnSymbol columnSymbol = new ColumnSymbol();
                 columnSymbol.name = columnDef.name.name;
-                String type = ((TypeName)columnDef.columnConstraintsTypeNames.get(0)).name.name;
+                System.out.println( columnDef.name.name );
+                String type = columnDef.typeName.name.name;
+
                 if(symbolTable.sqlTypes.containsKey(type)
                 || type.equals("String")
                 || type.equals("Long")
@@ -599,23 +587,6 @@ public class sqlVisitor extends JavaVisitor {
     }
 
     ////
-    @Override
-    public QualifiedTableName visitQualified_table_name(SqlParser.Qualified_table_nameContext ctx)
-    {
-        QualifiedTableName qualifiedTableName = new QualifiedTableName();
-        if(ctx.database_name() != null)
-            qualifiedTableName.dataBaseName = visitAny_name(ctx.database_name().any_name());
-        qualifiedTableName.tableName = visitAny_name(ctx.table_name().any_name());
-        if(ctx.K_INDEXED() != null)
-        {
-            qualifiedTableName.notIndexed=false;
-            qualifiedTableName.indexName = visitAny_name(ctx.index_name().any_name());
-        }
-        if(ctx.K_NOT() != null)
-            qualifiedTableName.notIndexed=true;
-
-        return qualifiedTableName;
-    }
 
     @Override
     public FactoredSelectStatement visitFactored_select_stmt(SqlParser.Factored_select_stmtContext ctx)
@@ -875,7 +846,7 @@ public class sqlVisitor extends JavaVisitor {
         if(ctx.type().K_STRING() !=  null)
             aggregationFunction.setReturnType (ctx.type().K_STRING().toString());
         else
-            aggregationFunction.setReturnType(visitAny_name(ctx.type().type_name().any_name().get(0)).id);
+            //aggregationFunction.setReturnType(visitAny_name(ctx.type().type_name().any_name().get(0)).id);
         aggregationFunction.setJarPath(visitJar_path(ctx.jar_path()).path);
         aggregationFunction.setJarName(visitJar_path(ctx.jar_path()).filename);
 
