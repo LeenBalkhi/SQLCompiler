@@ -1,4 +1,3 @@
-// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -52,18 +51,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitJava_function_call(SqlParser.Java_function_callContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#higher_order_java_function_call}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHigher_order_java_function_call(SqlParser.Higher_order_java_function_callContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#ho_java_function}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHo_java_function(SqlParser.Ho_java_functionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#return_stmt}.
 	 * @param ctx the parse tree
@@ -214,29 +201,11 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#array_identification}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray_identification(SqlParser.Array_identificationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#array_call}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArray_call(SqlParser.Array_callContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#element}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitElement(SqlParser.ElementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#json_object}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitJson_object(SqlParser.Json_objectContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#print}.
 	 * @param ctx the parse tree
@@ -480,17 +449,29 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSql_stmt(SqlParser.Sql_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#alter_table_stmt}.
+	 * Visit a parse tree produced by {@link SqlParser#create_table_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAlter_table_stmt(SqlParser.Alter_table_stmtContext ctx);
+	T visitCreate_table_stmt(SqlParser.Create_table_stmtContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#create_aggregation_function}.
+	 * Visit a parse tree produced by {@link SqlParser#file}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCreate_aggregation_function(SqlParser.Create_aggregation_functionContext ctx);
+	T visitFile(SqlParser.FileContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#path}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPath(SqlParser.PathContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#jar_path}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJar_path(SqlParser.Jar_pathContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#create_type}.
 	 * @param ctx the parse tree
@@ -498,53 +479,23 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCreate_type(SqlParser.Create_typeContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SqlParser#create_agg_fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SqlParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitType(SqlParser.TypeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#alter_table_add_constraint}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAlter_table_add_constraint(SqlParser.Alter_table_add_constraintContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#alter_table_add}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAlter_table_add(SqlParser.Alter_table_addContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#create_table_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCreate_table_stmt(SqlParser.Create_table_stmtContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#delete_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDelete_stmt(SqlParser.Delete_stmtContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#drop_table_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDrop_table_stmt(SqlParser.Drop_table_stmtContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#factored_select_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFactored_select_stmt(SqlParser.Factored_select_stmtContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#insert_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInsert_stmt(SqlParser.Insert_stmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#select_stmt}.
 	 * @param ctx the parse tree
@@ -558,12 +509,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSelect_or_values(SqlParser.Select_or_valuesContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#update_stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUpdate_stmt(SqlParser.Update_stmtContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#column_def}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -575,36 +520,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitType_name(SqlParser.Type_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_constraint}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_constraint(SqlParser.Column_constraintContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_constraint_primary_key}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_constraint_primary_key(SqlParser.Column_constraint_primary_keyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_constraint_foreign_key}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_constraint_foreign_key(SqlParser.Column_constraint_foreign_keyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_constraint_not_null}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_constraint_not_null(SqlParser.Column_constraint_not_nullContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#column_constraint_null}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitColumn_constraint_null(SqlParser.Column_constraint_nullContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#column_default}.
 	 * @param ctx the parse tree
@@ -737,59 +652,11 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCase10(SqlParser.Case10Context ctx);
 	/**
-	 * Visit a parse tree produced by {@link SqlParser#foreign_key_clause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForeign_key_clause(SqlParser.Foreign_key_clauseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#fk_target_column_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFk_target_column_name(SqlParser.Fk_target_column_nameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SqlParser#indexed_column}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIndexed_column(SqlParser.Indexed_columnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#table_constraint}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_constraint(SqlParser.Table_constraintContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#table_constraint_primary_key}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_constraint_primary_key(SqlParser.Table_constraint_primary_keyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#table_constraint_foreign_key}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_constraint_foreign_key(SqlParser.Table_constraint_foreign_keyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#table_constraint_unique}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_constraint_unique(SqlParser.Table_constraint_uniqueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#table_constraint_key}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_constraint_key(SqlParser.Table_constraint_keyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#fk_origin_column_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFk_origin_column_name(SqlParser.Fk_origin_column_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#qualified_table_name}.
 	 * @param ctx the parse tree
@@ -892,6 +759,18 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitName(SqlParser.NameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#class_name}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClass_name(SqlParser.Class_nameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#method_name}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethod_name(SqlParser.Method_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#function_name}.
 	 * @param ctx the parse tree

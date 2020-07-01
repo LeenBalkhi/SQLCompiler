@@ -12,6 +12,7 @@ import Rules.AST.SQL.Constraints.*;
 import Rules.AST.SQL.Expression.*;
 import Rules.SymbolTableMu.*;
 import Rules.Utils.Error;
+import Rules.Utils.Path;
 import Rules.generated.*;
 import Rules.Main;
 
@@ -38,20 +39,10 @@ public class sqlVisitor extends JavaVisitor {
         SqlStatment sqlStatment = new SqlStatment();
         if(ctx.create_type()!=null)
             sqlStatment.stmt = visitCreate_type(ctx.create_type());
-        if(ctx.alter_table_stmt()!= null)
-            sqlStatment.stmt = visitAlter_table_stmt(ctx.alter_table_stmt());
         if(ctx.create_table_stmt() != null)
             sqlStatment.stmt = visitCreate_table_stmt(ctx.create_table_stmt());
-        if(ctx.delete_stmt() != null)
-            sqlStatment.stmt = visitDelete_stmt(ctx.delete_stmt());
-        if(ctx.drop_table_stmt()!= null)
-            sqlStatment.stmt = visitDrop_table_stmt(ctx.drop_table_stmt());
         if(ctx.factored_select_stmt() != null)
             sqlStatment.stmt = visitFactored_select_stmt(ctx.factored_select_stmt());
-        if(ctx.insert_stmt() != null)
-            sqlStatment.stmt = visitInsert_stmt(ctx.insert_stmt());
-        if(ctx.update_stmt() != null)
-            sqlStatment.stmt = visitUpdate_stmt(ctx.update_stmt());
         return sqlStatment;
     }
     @Override
@@ -66,85 +57,7 @@ public class sqlVisitor extends JavaVisitor {
              anyName.name = ctx.STRING_LITERAL().getSymbol().getText();
         return anyName;
     }
-    @Override
-    public AlterTableStatement visitAlter_table_stmt(SqlParser.Alter_table_stmtContext ctx)
-    {
-        AlterTableStatement alterTableStatement = new AlterTableStatement();
-        if(ctx.database_name()!= null)
-           alterTableStatement.dataBaseName = visitAny_name(ctx.database_name().any_name());
-        if(ctx.source_table_name() != null)
-            alterTableStatement.sourceTableName = visitAny_name(ctx.source_table_name().any_name());
-        if(ctx.alter_table_add()!= null)
-            alterTableStatement.alteration = visitAlter_table_add(ctx.alter_table_add());
-        if(ctx.alter_table_add_constraint() != null)
-            alterTableStatement.alteration = visitAlter_table_add_constraint(ctx.alter_table_add_constraint());
-         if(ctx.new_table_name() != null)
-             alterTableStatement.newTableName = visitAny_name(ctx.new_table_name().any_name());
-         if(ctx.column_def() != null)
-             alterTableStatement.newcolumn = visitColumn_def(ctx.column_def());
-        return alterTableStatement;
-    }
 
-    @Override
-    public  AlterTableAdd visitAlter_table_add(SqlParser.Alter_table_addContext ctx)
-    {
-        AlterTableAdd alterTableAdd = new AlterTableAdd();
-        alterTableAdd.tableConstraint = visitTable_constraint(ctx.table_constraint());
-        return  alterTableAdd;
-    }
-    @Override
-    public TableConstraint visitTable_constraint(SqlParser.Table_constraintContext ctx)
-    {
-        TableConstraint tableConstraint = new TableConstraint();
-        if(ctx.name() != null)
-            tableConstraint.name = ctx.name().getText();
-        if(ctx.table_constraint_foreign_key() != null)
-            tableConstraint.constraint = visitTable_constraint_foreign_key(ctx.table_constraint_foreign_key());
-        if(ctx.table_constraint_key() != null)
-            tableConstraint.constraint = visitTable_constraint_key(ctx.table_constraint_key());
-        if(ctx.table_constraint_unique() != null)
-            tableConstraint.constraint = visitTable_constraint_unique(ctx.table_constraint_unique());
-        if(ctx.table_constraint_primary_key() != null)
-            tableConstraint.constraint = visitTable_constraint_primary_key(ctx.table_constraint_primary_key());
-        return tableConstraint;
-    }
-    @Override
-    public TableConstraintForeignKey visitTable_constraint_foreign_key(SqlParser.Table_constraint_foreign_keyContext ctx)
-    {
-        TableConstraintForeignKey tableConstraintForeignKey = new TableConstraintForeignKey();
-        for(int i=0 ; i < ctx.fk_origin_column_name().size(); i++)
-            tableConstraintForeignKey.fks.add(visitAny_name(ctx.fk_origin_column_name().get(i).column_name().any_name()));
-        tableConstraintForeignKey.foreignKeyClause = visitForeign_key_clause(ctx.foreign_key_clause());
-        return tableConstraintForeignKey;
-    }
-    @Override
-    public TableConstraintKey visitTable_constraint_key(SqlParser.Table_constraint_keyContext ctx)
-    {
-        TableConstraintKey tableConstraintKey = new TableConstraintKey();
-        if(ctx.name()!= null)
-            tableConstraintKey.Name = visitAny_name(ctx.name().any_name());
-        for(int i=0 ; i < ctx.indexed_column().size(); i++)
-            tableConstraintKey.indexedColumns.add(visitIndexed_column(ctx.indexed_column().get(i)));
-        return tableConstraintKey;
-    }
-    @Override
-    public TableConstraintUnique visitTable_constraint_unique(SqlParser.Table_constraint_uniqueContext ctx)
-    {
-        TableConstraintUnique tableConstraintForeignKey = new TableConstraintUnique();
-        if(ctx.name()!= null)
-            tableConstraintForeignKey.name = visitAny_name(ctx.name().any_name());
-        for(int i=0 ; i < ctx.indexed_column().size(); i++)
-            tableConstraintForeignKey.indexedColumns.add(visitIndexed_column(ctx.indexed_column().get(i)));
-        return tableConstraintForeignKey;
-    }
-    @Override
-    public TableConstraintPrimaryKey visitTable_constraint_primary_key(SqlParser.Table_constraint_primary_keyContext ctx)
-    {
-        TableConstraintPrimaryKey tableConstraintPrimaryKey = new TableConstraintPrimaryKey();
-        for(int i=0 ; i < ctx.indexed_column().size(); i++)
-            tableConstraintPrimaryKey.indexedColumns.add(visitIndexed_column(ctx.indexed_column().get(i)));
-        return tableConstraintPrimaryKey;
-    }
     @Override
     public indexedColumn visitIndexed_column(SqlParser.Indexed_columnContext ctx)
     {
@@ -161,85 +74,11 @@ public class sqlVisitor extends JavaVisitor {
      {
          ColumnDef columnDef = new ColumnDef();
          columnDef.name = visitAny_name(ctx.column_name().any_name());
-         for(int i=0 ; i < ctx.column_constraint().size() ; i++)
-             columnDef.columnConstraintsTypeNames.add(visitColumn_constraint(ctx.column_constraint().get(i)));
          for(int i=0; i < ctx.type_name().size() ; i ++)
              columnDef.columnConstraintsTypeNames.add(visitType_name(ctx.type_name().get(i)));
          return columnDef;
      }
-     @Override
-     public ColumnConstraint visitColumn_constraint(SqlParser.Column_constraintContext ctx)
-     {
-         ColumnConstraint columnConstraint = new ColumnConstraint();
-         if(ctx.name()!= null)
-             columnConstraint.name = visitAny_name(ctx.name().any_name());
-         if(ctx.column_constraint_foreign_key()!= null)
-             columnConstraint.constraint = visitColumn_constraint_foreign_key(ctx.column_constraint_foreign_key());
-         if(ctx.column_constraint_not_null() != null)
-              columnConstraint.constraint  = visitColumn_constraint_not_null(ctx.column_constraint_not_null());
-         if(ctx.column_constraint_null() != null)
-             columnConstraint.constraint = visitColumn_constraint_null(ctx.column_constraint_null());
-         if(ctx.column_constraint_primary_key() != null)
-             columnConstraint.constraint  = visitColumn_constraint_primary_key(ctx.column_constraint_primary_key());
-         if(ctx.K_UNIQUE()!= null)
-             columnConstraint.Unique = true;
-         if(ctx.K_CHECK() != null)
-              columnConstraint.constraint = visitExpr(ctx.expr());
-         if(ctx.column_default() != null)
-             columnConstraint.constraint = visitColumn_default(ctx.column_default());
-         if(ctx.collation_name() != null)
-             columnConstraint.constraint = visitAny_name(ctx.collation_name().any_name());
 
-         return columnConstraint;
-     }
-    @Override
-    public ColumnConstraintPrimaryKey visitColumn_constraint_primary_key(SqlParser.Column_constraint_primary_keyContext ctx)
-    {
-        ColumnConstraintPrimaryKey columnConstraintPrimaryKey = new ColumnConstraintPrimaryKey();
-        if(ctx.K_DESC() != null)
-            columnConstraintPrimaryKey.order = ctx.K_DESC().getSymbol().getText();
-        if(ctx.K_ASC() != null)
-            columnConstraintPrimaryKey.order = ctx.K_ASC().getSymbol().getText();
-        if(ctx.K_AUTOINCREMENT() != null)
-            columnConstraintPrimaryKey.autoIncrement = true;
-        return columnConstraintPrimaryKey;
-    }
-     @Override
-     public ColumnConstraintForeignKey visitColumn_constraint_foreign_key(SqlParser.Column_constraint_foreign_keyContext ctx)
-     {
-         ColumnConstraintForeignKey columnConstraintForeignKey = new ColumnConstraintForeignKey();
-         columnConstraintForeignKey.foreignKeyClause = visitForeign_key_clause(ctx.foreign_key_clause());
-         return columnConstraintForeignKey;
-     }
-     @Override
-     public foreignKeyClause visitForeign_key_clause(SqlParser.Foreign_key_clauseContext ctx)
-     {
-         foreignKeyClause FK_Clause = new foreignKeyClause();
-         if(ctx.database_name()!=null)
-             FK_Clause.dataBaseName = visitAny_name(ctx.database_name().any_name());
-         FK_Clause.foreignTableName = visitAny_name(ctx.foreign_table().any_name());
-         for(int i=0 ; i < ctx.fk_target_column_name().size() ; i++)
-             FK_Clause.foreignTableColumnNames.add(visitAny_name(ctx.fk_target_column_name().get(i).name().any_name()));
-         for(int i=0 ; i < ctx.name().size() ; i++)
-             FK_Clause.matchOnNodes.add(visitAny_name(ctx.name().get(i).any_name()));
-         return FK_Clause;
-     }
-
-    @Override
-    public ColumnConstraintNotNull visitColumn_constraint_not_null(SqlParser.Column_constraint_not_nullContext ctx)
-    {
-      ColumnConstraintNotNull columnConstraintNotNull = new ColumnConstraintNotNull();
-      columnConstraintNotNull.notnull = true;
-      return columnConstraintNotNull;
-    }
-
-    @Override
-    public ColumnConstraintNull visitColumn_constraint_null(SqlParser.Column_constraint_nullContext ctx)
-    {
-        ColumnConstraintNull columnConstraintNull = new ColumnConstraintNull();
-        columnConstraintNull.Null = true;
-        return columnConstraintNull;
-    }
     public SqlExpression visitExpr(SqlParser.ExprContext ctx)
      {
          SqlExpression sqlExpression = new SqlExpression();
@@ -727,8 +566,6 @@ public class sqlVisitor extends JavaVisitor {
         createTableStatement.ifNotExists = true;
         if(ctx.table_name() != null)
         {
-            if(ctx.database_name()!=null)
-                createTableStatement.dataBaseName = visitAny_name(ctx.database_name().any_name());
             createTableStatement.tableName = visitAny_name(ctx.table_name().any_name());
             tableSymbol.name = createTableStatement.tableName.name;
             for(int i=0 ; i < ctx.column_def().size() ; i++){
@@ -753,26 +590,14 @@ public class sqlVisitor extends JavaVisitor {
                     break;
                 }
             }
-            for(int i=0 ; i < ctx.table_constraint().size(); i++)
-                createTableStatement.tableConstraintsColumnDefs.add(visitTable_constraint(ctx.table_constraint().get(i)));
         }
-        if(ctx.select_stmt()!= null)
-            createTableStatement.selectStmt = visitSelect_stmt(ctx.select_stmt());
         if(!err){
             tableSymbol.type = tableSymbol.getSqlTypeFromTableSymbol(symbolTable).name;
             symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name , tableSymbol);
         }
         return createTableStatement;
     }
-    @Override
-    public DeleteStatement visitDelete_stmt(SqlParser.Delete_stmtContext ctx)
-    {
-        DeleteStatement deleteStatement = new DeleteStatement();
-        deleteStatement.qualifiedTableName = visitQualified_table_name(ctx.qualified_table_name());
-        if(ctx.expr() != null)
-            deleteStatement.expression = visitExpr(ctx.expr());
-        return deleteStatement;
-    }
+
     ////
     @Override
     public QualifiedTableName visitQualified_table_name(SqlParser.Qualified_table_nameContext ctx)
@@ -791,17 +616,7 @@ public class sqlVisitor extends JavaVisitor {
 
         return qualifiedTableName;
     }
-    @Override
-    public DropTableStatement visitDrop_table_stmt(SqlParser.Drop_table_stmtContext ctx)
-    {
-        DropTableStatement dropTableStatement = new DropTableStatement();
-        if(ctx.K_IF()!= null)
-            dropTableStatement.ifExists = true;
-        if(ctx.database_name()!= null)
-            dropTableStatement.dataBaseName = visitAny_name(ctx.database_name().any_name());
-        dropTableStatement.tableName = visitAny_name(ctx.table_name().any_name());
-        return dropTableStatement;
-    }
+
     @Override
     public FactoredSelectStatement visitFactored_select_stmt(SqlParser.Factored_select_stmtContext ctx)
     {
@@ -1006,32 +821,65 @@ public class sqlVisitor extends JavaVisitor {
         return resultColumn;
     }
     @Override
-    public InsertStatement visitInsert_stmt(SqlParser.Insert_stmtContext ctx)
+    public Path visitPath(SqlParser.PathContext ctx)
     {
-        InsertStatement insertStatement = new InsertStatement();
-        if(ctx.database_name()!= null)
-            insertStatement.dataBaseName = visitAny_name(ctx.database_name().any_name());
-        insertStatement.tableName = visitAny_name(ctx.table_name().any_name());
-        for(int i=0; i < ctx.column_name().size(); i++)
-            insertStatement.columnNamse.add(visitAny_name(ctx.column_name().get(i).any_name()));
-        for(int i=0 ; i < ctx.expr().size(); i++)
-            insertStatement.expressions.add(visitExpr(ctx.expr().get(i)));
-        if(ctx.select_stmt() != null)
-            insertStatement.selectStatement = visitSelect_stmt(ctx.select_stmt());
-        if(ctx.K_DEFAULT()!= null)
-            insertStatement.defaultValues = true;
-        return insertStatement;
+        Path path = new Path();
+        path.append(ctx.IDENTIFIER().toString());
+        path.append(":");
+        for(int i=0 ; i < ctx.any_name().size(); i++)
+        {
+
+            path.append("\\");
+            path.append(visitAny_name(ctx.any_name().get(i)).id);
+        }
+        return path;
     }
-    //select statment
     @Override
-    public UpdateStatement visitUpdate_stmt(SqlParser.Update_stmtContext ctx)
+    public Path visitJar_path(SqlParser.Jar_pathContext ctx)
     {
-        UpdateStatement updateStatement = new UpdateStatement();
-        updateStatement.qualifiedTableName = visitQualified_table_name(ctx.qualified_table_name());
-        for(int i=0 ; i < ctx.column_name().size() ; i++)
-            updateStatement.columnNames.add(visitAny_name(ctx.column_name().get(i).any_name()));
-        for(int i=0 ; i < ctx.expr().size(); i++)
-            updateStatement.expressions.add(visitExpr(ctx.expr().get(i)));
-        return updateStatement;
+        Path path = new Path();
+        path.append(ctx.IDENTIFIER().toString());
+        path.append(":");
+        for(int i=0 ; i < ctx.any_name().size(); i++)
+        {
+
+            path.append("\\");
+            if(i< ctx.any_name().size()-1)
+                path.append(visitAny_name(ctx.any_name().get(i)).id);
+            else
+                path.setFilename(visitAny_name(ctx.any_name().get(i)).id+=".jar");
+        }
+
+        return path;
+    }
+    //    @Override public T visitType(SqlParser.TypeContext ctx)
+//    {
+//
+//    }
+//    @Override public T visitCreate_type(SqlParser.Create_typeContext ctx)
+//    {
+//
+//    }
+    @Override
+    public AggregationFunction visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx)
+    {
+
+        AggregationFunction aggregationFunction = new AggregationFunction();
+        aggregationFunction.setAggregationFunctionName(visitAny_name(ctx.function_name().any_name()).id);
+        aggregationFunction.setClassName(visitAny_name(ctx.class_name().any_name().any_name()).id);
+        aggregationFunction.setMethodName(visitAny_name(ctx.method_name().any_name().any_name()).id);
+        if(ctx.type().K_BOOLEAN() != null)
+            aggregationFunction.setReturnType (ctx.type().K_BOOLEAN().toString());
+        if(ctx.type().K_NUMBER() != null)
+            aggregationFunction.setReturnType (ctx.type().K_NUMBER().toString());
+        if(ctx.type().K_STRING() !=  null)
+            aggregationFunction.setReturnType (ctx.type().K_STRING().toString());
+        else
+            aggregationFunction.setReturnType(visitAny_name(ctx.type().type_name().any_name().get(0)).id);
+        aggregationFunction.setJarPath(visitJar_path(ctx.jar_path()).path);
+        aggregationFunction.setJarName(visitJar_path(ctx.jar_path()).filename);
+
+//param list
+        return  aggregationFunction;
     }
 }

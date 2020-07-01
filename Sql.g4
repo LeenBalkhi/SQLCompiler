@@ -14,10 +14,9 @@ error
 
 java_stmt
 :
-  |variable_declaration ';' (java_stmt)?
-  | java_function_declaration';'* (java_stmt)?
+  variable_declaration ';' (java_stmt)?
+  | java_function_declaration';' (java_stmt)?
   | java_function_call ';' (java_stmt)?
-  | higher_order_java_function_call ';' (java_stmt)?
   |comments
 ;
 
@@ -44,16 +43,16 @@ method_ID  '(' (argument_list)?  ')'
 ;
 
 
-higher_order_java_function_call
-:
-method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')' )
-;
+//higher_order_java_function_call
+//:
+//method_ID ( '(' (argument_list)? ','? (ho_java_function) (',' argument_list)? ')' )
+//;
 
 
- ho_java_function:
-  K_FUNCTION OPEN_PAR ( argument_list) CLOSE_PAR
-  block
- ;
+// ho_java_function:
+//  K_FUNCTION OPEN_PAR ( argument_list) CLOSE_PAR
+//  block
+// ;
 
 return_stmt
 :
@@ -112,7 +111,7 @@ JAVA_SINGLE_LINE_COMMENT
 
 variable:
 any_name ('.' any_name)*
-|array_call
+//|array_call
 ;
 
 
@@ -137,37 +136,35 @@ variable_assignment_value
 :
 expression
 |logical_condition
-|json_object
-|array_identification
+//|array_identification
 ;
 
-array_identification
-:
-'['(expression ','| array_identification ',')* (expression | array_identification)? ']'
-;
+//array_identification
+//:
+//'['(expression ','| array_identification ',')* (expression | array_identification)? ']'
+//;
 
-array_call:
-array_name '[' math_expression? ']'
-;
+//array_call:
+//array_name '[' math_expression? ']'
+//;
 
 
 element
 :
 IDENTIFIER ':'
  (value
- | json_object
 // |'"' value '"'=
  |'\'' value '\''
- |array_identification
+// |array_identification
  )
 ;
 
-json_object
-:
-'{'
- element  (','  element)*
-'}'
-;
+//json_object
+//:
+//'{'
+// element  (','  element)*
+//'}'
+//;
 
 print
 :
@@ -199,7 +196,7 @@ value #valueMath
 boolean_expression
 :
 value #valBool
-| math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #compareBool
+|math_expression op=( '<' | '<=' | '>' | '>='| '==' | '!=' | '<>' ) math_expression #compareBool
 | boolean_expression op=( '||' | '&&' )boolean_expression #multipleBool
 | K_TRUE #trueBool
 | K_FALSE #falseBool
@@ -210,6 +207,7 @@ logical_condition
 :
 boolean_expression ('?' (logical_condition | expression) ':' (logical_condition | expression)) #normalLog
 | '(' logical_condition ')' #parenthLog
+
 ;
 
 
@@ -254,6 +252,7 @@ for_loop
 | do_while_loop
 | for_each_loop
 ;
+
 
 for_loop
 :
@@ -304,17 +303,13 @@ sql_stmt_list
  ;
 
 sql_stmt
-:  alter_table_stmt
-  | create_type
-  | create_table_stmt
-  | delete_stmt
-  | drop_table_stmt
+:
+ create_table_stmt
+| create_type
+| create_agg_fun
   | factored_select_stmt
-  | insert_stmt
-  | update_stmt
+
  ;
-
-
 
 /*
 alter_table_stmt
@@ -330,35 +325,22 @@ alter_table_add_column:
 K_ADD K_COLUMN? column_def
 ;
 */
-alter_table_stmt
- : K_ALTER K_TABLE ( database_name '.' )? source_table_name
-   ( K_RENAME K_TO new_table_name
-   | alter_table_add
-   | alter_table_add_constraint
-   | K_ADD K_COLUMN? column_def
-   )
- ;
-
-create_aggregation_function
-: K_CREATE K_AGGREGATION K_FUNCTION any_name '(' (type any_name)* ')'
-;
-
-create_type:
-    K_CREATE K_TYPE any_name '(' ( type any_name)* ')'
-;
-
-type:
-any_name
-;
-
-
-alter_table_add_constraint
- : K_ADD K_CONSTRAINT any_name table_constraint
- ;
-
-alter_table_add
- : K_ADD table_constraint
- ;
+//alter_table_stmt
+// : K_ALTER K_TABLE ( database_name '.' )? source_table_name
+//   ( K_RENAME K_TO new_table_name
+//   | alter_table_add
+//   | alter_table_add_constraint
+//   | K_ADD K_COLUMN? column_def
+//   )
+// ;
+//
+//alter_table_add_constraint
+// : K_ADD K_CONSTRAINT any_name table_constraint
+// ;
+//
+//alter_table_add
+// : K_ADD table_constraint
+// ;
 
 /*
 create_table_stmt
@@ -378,12 +360,46 @@ create_table_stmt
 */
 create_table_stmt
  : K_CREATE  K_TABLE ( K_IF K_NOT K_EXISTS )?
-   ( database_name '.' )? table_name
-   ( '(' column_def ( ',' table_constraint | ',' column_def )* ')'
-   | K_AS select_stmt
+   table_name
+   ( '(' column_def ( /*',' table_constraint |*/ ',' column_def )* ')'
+//   | K_AS select_stmt
    )
- ;
+  ( K_TYPE '=' file
+   K_PATH '=' path)?
+   ;
+file:
+K_CSV | K_JSON | K_PARQUET
+;
+path:
+(IDENTIFIER ':')? ('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))? (('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))?)*
+;
+jar_path:
+(IDENTIFIER ':')? ('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))? (('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))?)*'.jar'
+;
 
+create_type
+:
+K_CREATE  K_TYPE
+   type_name
+   ( '(' type ( variable) ( ',' type  ( variable) )* ')' )
+;
+
+
+create_agg_fun:
+K_CREATE  K_AGGREGATION K_FUNCTION
+function_name
+'('
+ jar_path ','
+  class_name /*classname*/ ','
+  method_name/*MethodName*/ ','
+  type/*return type*/  ','
+  parameter_list
+ ')'
+;
+
+type:
+K_STRING | K_BOOLEAN | K_NUMBER | type_name
+;
 /*
 delete_stmt
  :  K_DELETE K_FROM qualified_table_name
@@ -393,14 +409,14 @@ delete_stmt
  K_WHERE expr
  ;
 */
-delete_stmt
- :  K_DELETE K_FROM qualified_table_name
-   ( K_WHERE expr )?
- ;
+//delete_stmt
+// :  K_DELETE K_FROM qualified_table_name
+//   ( K_WHERE expr )?
+// ;
 
-drop_table_stmt
- : K_DROP K_TABLE ( K_IF K_EXISTS )? ( database_name '.' )? table_name
- ;
+//drop_table_stmt
+// : K_DROP K_TABLE ( K_IF K_EXISTS )? ( database_name '.' )? table_name
+// ;
 
 /*
 factored_select_stmt
@@ -441,14 +457,14 @@ insert_stmt
  K_DEFAULT K_VALUES
  ;
 */
-insert_stmt
-   :   K_INSERT  K_INTO
-   ( database_name '.' )? table_name ( '(' column_name ( ',' column_name )* ')' )?
-   ( K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
-   | select_stmt
-   | K_DEFAULT K_VALUES
-   )
- ;
+//insert_stmt
+//   :   K_INSERT  K_INTO
+//   ( database_name '.' )? table_name ( '(' column_name ( ',' column_name )* ')' )?
+//   ( K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
+//   | select_stmt
+//   | K_DEFAULT K_VALUES
+//   )
+// ;
 /*
 select_stmt
  :  select_or_values
@@ -460,6 +476,7 @@ select_stmt
 select_stmt
  :  select_or_values
    ( K_ORDER K_BY ordering_term ( ',' ordering_term )* )?
+   ( K_LIMIT expr ( ( K_OFFSET | ',' ) expr )? )?
  ;
 
 /*
@@ -485,15 +502,16 @@ select_or_values
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
    ( K_WHERE expr )?
    ( K_GROUP K_BY expr ( ',' expr )* ( K_HAVING expr )? )?
+ | K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
  ;
 
-update_stmt
-   :  K_UPDATE  qualified_table_name
-   K_SET column_name '=' expr ( ',' column_name '=' expr )* ( K_WHERE expr )?
- ;
+//update_stmt
+//   :  K_UPDATE  qualified_table_name
+//   K_SET column_name '=' expr ( ',' column_name '=' expr )* ( K_WHERE expr )?
+// ;
 
 column_def
- : column_name ( column_constraint | type_name )*
+ : column_name ( /*column_constraint |*/ type_name )*
  ;
 
 type_name
@@ -503,35 +521,35 @@ type_name
 
 /*
 ????
-*/
-column_constraint
- : ( K_CONSTRAINT name )?
-   ( column_constraint_primary_key
-   | column_constraint_foreign_key
-   | column_constraint_not_null
-   | column_constraint_null
-   | K_UNIQUE
-   | K_CHECK '(' expr ')'
-   | column_default
-   | K_COLLATE collation_name
-   )
- ;
-
-column_constraint_primary_key
- : K_PRIMARY K_KEY ( K_ASC | K_DESC )?  K_AUTOINCREMENT?
- ;
-
-column_constraint_foreign_key
- : foreign_key_clause
- ;
-
-column_constraint_not_null
- : K_NOT K_NULL
- ;
-
-column_constraint_null
- : K_NULL
- ;
+//*/
+//column_constraint
+// : ( K_CONSTRAINT name )?
+//   ( column_constraint_primary_key
+//   | column_constraint_foreign_key
+//   | column_constraint_not_null
+//   | column_constraint_null
+//   | K_UNIQUE
+//   | K_CHECK '(' expr ')'
+//   | column_default
+//   | K_COLLATE collation_name
+//   )
+// ;
+//
+//column_constraint_primary_key
+// : K_PRIMARY K_KEY ( K_ASC | K_DESC )?  K_AUTOINCREMENT?
+// ;
+//
+//column_constraint_foreign_key
+// : foreign_key_clause
+// ;
+//
+//column_constraint_not_null
+// : K_NOT K_NULL
+// ;
+//
+//column_constraint_null
+// : K_NULL
+// ;
 
 column_default
  : K_DEFAULT (column_default_value | '(' expr ')' | K_NEXTVAL '(' expr ')' | any_name )  ( '::' any_name+ )?
@@ -640,59 +658,61 @@ expr
  | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')' #case15
  ;
 
+
+
 /*
 ???
 */
-foreign_key_clause
- : K_REFERENCES ( database_name '.' )? foreign_table ( '(' fk_target_column_name ( ',' fk_target_column_name )* ')' )?
-   ( ( K_ON ( K_DELETE | K_UPDATE ) ( K_SET K_NULL
-                                    | K_SET K_DEFAULT
-                                    | K_CASCADE
-                                    | K_RESTRICT
-                                    | K_NO K_ACTION )
-     | K_MATCH name
-     )
-   )*
-   ( K_NOT? K_DEFERRABLE ( K_INITIALLY K_DEFERRED | K_INITIALLY K_IMMEDIATE )? K_ENABLE? )?
- ;
-
-fk_target_column_name
- : name
- ;
+//foreign_key_clause
+// : K_REFERENCES ( database_name '.' )? foreign_table ( '(' fk_target_column_name ( ',' fk_target_column_name )* ')' )?
+//   ( ( K_ON ( K_DELETE | K_UPDATE ) ( K_SET K_NULL
+//                                    | K_SET K_DEFAULT
+//                                    | K_CASCADE
+//                                    | K_RESTRICT
+//                                    | K_NO K_ACTION )
+//     | K_MATCH name
+//     )
+//   )*
+//   ( K_NOT? K_DEFERRABLE ( K_INITIALLY K_DEFERRED | K_INITIALLY K_IMMEDIATE )? K_ENABLE? )?
+// ;
+//
+//fk_target_column_name
+// : name
+// ;
 
 indexed_column
  : column_name ( K_COLLATE collation_name )? (desc=( K_ASC | K_DESC ))?
  ;
 
-table_constraint
- : ( K_CONSTRAINT name )?
-   ( table_constraint_primary_key
-   | table_constraint_key
-   | table_constraint_unique
-   | K_CHECK '(' expr ')'
-   | table_constraint_foreign_key
-   )
- ;
-
-table_constraint_primary_key
- : K_PRIMARY K_KEY '(' indexed_column ( ',' indexed_column )* ')'
- ;
-
-table_constraint_foreign_key
- : K_FOREIGN K_KEY '(' fk_origin_column_name ( ',' fk_origin_column_name )* ')' foreign_key_clause
- ;
-
-table_constraint_unique
- : K_UNIQUE K_KEY? name? '(' indexed_column ( ',' indexed_column )* ')'
- ;
-
-table_constraint_key
- : K_KEY name? '(' indexed_column ( ',' indexed_column )* ')'
- ;
-
-fk_origin_column_name
- : column_name
- ;
+//table_constraint
+// : ( K_CONSTRAINT name )?
+//   ( table_constraint_primary_key
+//   | table_constraint_key
+//   | table_constraint_unique
+//   | K_CHECK '(' expr ')'
+//   | table_constraint_foreign_key
+//   )
+// ;
+//
+//table_constraint_primary_key
+// : K_PRIMARY K_KEY '(' indexed_column ( ',' indexed_column )* ')'
+// ;
+//
+//table_constraint_foreign_key
+// : K_FOREIGN K_KEY '(' fk_origin_column_name ( ',' fk_origin_column_name )* ')' foreign_key_clause
+// ;
+//
+//table_constraint_unique
+// : K_UNIQUE K_KEY? name? '(' indexed_column ( ',' indexed_column )* ')'
+// ;
+//
+//table_constraint_key
+// : K_KEY name? '(' indexed_column ( ',' indexed_column )* ')'
+// ;
+//
+//fk_origin_column_name
+// : column_name
+// ;
 
 qualified_table_name
  : ( database_name '.' )? table_name ( K_INDEXED K_BY index_name
@@ -729,7 +749,7 @@ table_or_subquery
 
 */
 table_or_subquery
- :  table_name ( K_AS? table_alias )?
+ : ( database_name '.' )? table_name ( K_AS? table_alias )?
    ( K_INDEXED K_BY index_name
    | K_NOT K_INDEXED )?
  | '(' ( table_or_subquery ( ',' table_or_subquery )*
@@ -813,7 +833,6 @@ keyword
  | K_ACTION
  | K_ADD
  | K_AFTER
- | K_AGGREGATION_FUNCTION
  | K_ALL
  | K_ALTER
  | K_ANALYZE
@@ -922,7 +941,6 @@ keyword
  | K_THEN
  | K_TO
  | K_TRANSACTION
- | K_TYPE
  | K_TRIGGER
  | K_UNION
  | K_UNIQUE
@@ -949,6 +967,14 @@ unknown
 name
  : any_name
  ;
+
+class_name:
+any_name;
+
+method_name:
+any_name
+;
+
 
 function_name
  : any_name
@@ -1021,6 +1047,8 @@ method_ID
  : any_name
  ;
 
+
+
 /*variable
  :
  ( any_name '.' )* any_name
@@ -1067,7 +1095,6 @@ K_ABORT : A B O R T;
 K_ACTION : A C T I O N;
 K_ADD : A D D;
 K_AFTER : A F T E R;
-K_AGGREGATION : A G G R E G A T I O N;
 K_ALL : A L L;
 K_ALTER : A L T E R;
 K_ANALYZE : A N A L Y Z E;
@@ -1184,9 +1211,9 @@ K_TEMP : T E M P;
 K_TEMPORARY : T E M P O R A R Y;
 K_THEN : T H E N;
 K_TO : T O;
+K_TYPE: T Y P E;
 K_TRANSACTION : T R A N S A C T I O N;
 K_TRIGGER : T R I G G E R;
-K_TYPE : T Y P E;
 K_UNION : U N I O N;
 K_UNIQUE : U N I Q U E;
 K_UPDATE : U P D A T E;
@@ -1203,6 +1230,13 @@ K_WITH : W I T H;
 K_WITHOUT : W I T H O U T;
 K_TRUE : T R U E;
 K_FALSE : F A L S E;
+K_CSV: C S V;
+K_JSON: J S O N;
+K_PARQUET: P A R Q U E T;
+K_NUMBER: N U M B E R;
+K_STRING:  S T R I N G;
+K_BOOLEAN: B O O L E A N;
+K_AGGREGATION: A G G R E G A T I O N;
 IDENTIFIER
  : //'"' (~'"' | '""')* '"'
   // | '`' (~'`' | '``')* '`'
@@ -1234,18 +1268,24 @@ SINGLE_LINE_COMMENT
  ;
 JAVA_SINGLE_LINE_COMMENT
 :
-'//' ~[\r\n]* -> channel (HIDDEN)
+'//' ~[ \r\n ]* -> channel (HIDDEN)
 ;
 MULTILINE_COMMENT
  : '/*' .*? ( '*/' | EOF ) -> channel(HIDDEN)
  ;
 SPACES
- : [ \u000B\t\r\n] -> channel(HIDDEN)
+ : [ \u000B\t\r\n ] -> channel(HIDDEN)
  ;
 
 UNEXPECTED_CHAR
  : .
  ;
+DISK:
+[a-zA-Z_]
+;
+FILEPATH:
+//[-.a-zA-Z0-9:/\]+
+;
 
 fragment DIGIT : [0-9];
 
