@@ -202,6 +202,18 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SqlParser#param_array}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParam_array(SqlParser.Param_arrayContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SqlParser#create_agg_fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SqlParser#element}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -479,12 +491,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCreate_type(SqlParser.Create_typeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#create_agg_fun}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#type}.
 	 * @param ctx the parse tree

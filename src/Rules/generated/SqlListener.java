@@ -330,6 +330,26 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitVariable_assignment_value(SqlParser.Variable_assignment_valueContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SqlParser#param_array}.
+	 * @param ctx the parse tree
+	 */
+	void enterParam_array(SqlParser.Param_arrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#param_array}.
+	 * @param ctx the parse tree
+	 */
+	void exitParam_array(SqlParser.Param_arrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SqlParser#create_agg_fun}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#create_agg_fun}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SqlParser#element}.
 	 * @param ctx the parse tree
 	 */
@@ -799,16 +819,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCreate_type(SqlParser.Create_typeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#create_agg_fun}.
-	 * @param ctx the parse tree
-	 */
-	void enterCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#create_agg_fun}.
-	 * @param ctx the parse tree
-	 */
-	void exitCreate_agg_fun(SqlParser.Create_agg_funContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#type}.
 	 * @param ctx the parse tree

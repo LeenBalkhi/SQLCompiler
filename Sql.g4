@@ -398,7 +398,6 @@ K_CREATE  K_TYPE
    ( '(' type (any_name) ( ',' type  (any_name) )* ')' )
 ;
 
-
 type:
 type_name
 ;
@@ -1224,9 +1223,6 @@ K_FALSE : F A L S E;
 K_CSV: C S V;
 K_JSON: J S O N;
 K_PARQUET: P A R Q U E T;
-K_NUMBER: N U M B E R;
-K_STRING:  S T R I N G;
-K_BOOLEAN: B O O L E A N;
 K_AGGREGATION: A G G R E G A T I O N;
 IDENTIFIER
  : //'"' (~'"' | '""')* '"'

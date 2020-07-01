@@ -834,18 +834,10 @@ public class sqlVisitor extends JavaVisitor {
     @Override
     public AggregationFunction visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx)
     {
-
         AggregationFunction aggregationFunction = new AggregationFunction();
         aggregationFunction.setAggregationFunctionName(visitAny_name(ctx.function_name().any_name()).id);
         aggregationFunction.setClassName(visitAny_name(ctx.class_name().any_name().any_name()).id);
         aggregationFunction.setMethodName(visitAny_name(ctx.method_name().any_name().any_name()).id);
-        if(ctx.type().K_BOOLEAN() != null)
-            aggregationFunction.setReturnType (ctx.type().K_BOOLEAN().toString());
-        if(ctx.type().K_NUMBER() != null)
-            aggregationFunction.setReturnType (ctx.type().K_NUMBER().toString());
-        if(ctx.type().K_STRING() !=  null)
-            aggregationFunction.setReturnType (ctx.type().K_STRING().toString());
-        else
             //aggregationFunction.setReturnType(visitAny_name(ctx.type().type_name().any_name().get(0)).id);
         aggregationFunction.setJarPath(visitJar_path(ctx.jar_path()).path);
         aggregationFunction.setJarName(visitJar_path(ctx.jar_path()).filename);
