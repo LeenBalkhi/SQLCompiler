@@ -1,6 +1,5 @@
 package Rules.SymbolTableMu;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.LinkedHashMap;
 
 public class TableSymbol extends Symbol {
@@ -20,7 +19,7 @@ public class TableSymbol extends Symbol {
     public SqlType getSqlTypeFromTableSymbol(SymbolTable symbolTable){
         LinkedHashMap<String,SqlType> sqlTypes = symbolTable.sqlTypes;
         SqlType newSqlType = new SqlType();
-        newSqlType.name = name+"Type";
+        newSqlType.name = name;
         values.entrySet().forEach(entry ->{
             SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
             sqlTypeEntry.name = entry.getValue().name;

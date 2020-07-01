@@ -319,6 +319,7 @@ public class sqlVisitor extends JavaVisitor {
          if(temp instanceof SqlExpressionCase22)
          {
              sqlExpression.expression = (SqlExpressionCase22)temp;
+             sqlExpression.type = ((SqlExpressionCase22)temp).type;
          }
          return sqlExpression;
      }
@@ -338,79 +339,78 @@ public class sqlVisitor extends JavaVisitor {
 
     @Override
     public SqlExpressionCase2 visitCase2(SqlParser.Case2Context ctx) {
-    boolean err = true;
-       boolean onlyColumn = false;
-       SqlExpressionCase2 sqlExpressionCase2 = new SqlExpressionCase2();
-       if(ctx.table_name()!= null){
-           sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
-           for(int i=0;i<symbolTable.queryManager.size();i++){
-               if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name))
-                   err = false;
-           }
-           if(err){
-               if(symbolTable.queryManager.size()==1){
-                   for(int i=0;i<symbolTable.queryManager.get(0).sqlType.entries.size();i++){
-                       if(symbolTable.queryManager.get(0).sqlType.entries.get(i).name.equals(sqlExpressionCase2.tableName.name))
-                           err = false;
-                   }
-               }
-               if(err){
-                   int line =  ctx.table_name().start.getLine();
-                   int col = ctx.table_name().start.getCharPositionInLine();
-                   String des = "Table " + sqlExpressionCase2.tableName.name + " Does Not Exist In This Context";
-                   Error error = new Error(line , col , des);
-                   errors.add(error);
-               }
-           }
-       }else
-           err = false;
-       sqlExpressionCase2.columnName =visitAny_name(ctx.column_name().any_name());
-       if(!err){
-           err = true;
-           SqlType sqlType = new SqlType();
-           if(sqlExpressionCase2.tableName!=null){
-               for(int i=0;i<symbolTable.queryManager.size();i++){
-                   if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name))
-                       sqlType = symbolTable.queryManager.get(i).sqlType;
-               }
-               if(sqlType.entries.size()==0){
-                   for(int i=0;i<symbolTable.queryManager.get(0).sqlType.entries.size();i++)
-                       if(symbolTable.queryManager.get(0).sqlType.entries.get(i).name.equals(sqlExpressionCase2.tableName.name)){
-                           sqlType = new SqlType();
-                           sqlType.entries.add(symbolTable.queryManager.get(0).sqlType.entries.get(i));
-                       }
-               }
-           }
-           else{
-               onlyColumn = true;
-               if(symbolTable.queryManager.size()==1){
-                   for(int i=0;i<symbolTable.queryManager.get(0).sqlType.entries.size();i++){
-                       if(symbolTable.queryManager.get(0).sqlType.entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
-                           sqlType.entries.add(symbolTable.queryManager.get(0).sqlType.entries.get(i));
-                           err = false;
-                           sqlExpressionCase2.type = symbolTable.queryManager.get(0).sqlType.entries.get(i).type;
-                       }
-                   }
-               }
-           }
-           if(!onlyColumn){
-               for(int i=0;i<sqlType.entries.size();i++){
-                   if(sqlType.entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
-                       err = false;
-                       sqlExpressionCase2.type = sqlType.entries.get(i).type;
-                   }
-               }
-           }
-           if(err){
-               int line = ctx.start.getLine();
-               int col = ctx.start.getCharPositionInLine();
-               String des = sqlExpressionCase2.columnName.name +" Does Not Exist In Current Context";
-               Error error = new Error(line,col,des);
-               errors.add(error);
-           }
-       }
-       System.out.println(sqlExpressionCase2.type);
-       return sqlExpressionCase2;
+        boolean err = true;
+        boolean useTable = false;
+        SqlExpressionCase2 sqlExpressionCase2 = new SqlExpressionCase2();
+        SqlType sqlType = new SqlType();
+        if(ctx.table_name()!= null){
+            sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
+            for(int i=0;i<symbolTable.queryManager.size();i++){
+                if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name)){
+                    sqlType = symbolTable.queryManager.get(i).sqlType;
+                    err = false;
+                    useTable = true;
+                }
+            }
+            if(err){
+                if(symbolTable.queryManager.size()==1){
+                    for(int i=0;i<symbolTable.queryManager.get(0).sqlType.entries.size();i++){
+                        if(symbolTable.queryManager.get(0).sqlType.entries.get(i).name.equals(sqlExpressionCase2.tableName.name)){
+                            err = false;
+                            sqlType.entries.add(symbolTable.queryManager.get(0).sqlType.entries.get(i));
+                        }
+                    }
+                }
+                if(err){
+                    int line =  ctx.table_name().start.getLine();
+                    int col = ctx.table_name().start.getCharPositionInLine();
+                    String des = sqlExpressionCase2.tableName.name + " Does Not Exist In This Context";
+                    Error error = new Error(line , col , des);
+                    errors.add(error);
+                }
+            }
+        }else
+            err = false;
+        sqlExpressionCase2.columnName =visitAny_name(ctx.column_name().any_name());
+        if(!err){
+            err = true;
+            if(ctx.table_name()!=null){
+                if(useTable){
+                    for (int i=0;i<sqlType.entries.size();i++){
+                        if(sqlType.entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
+                            err = false;
+                            sqlExpressionCase2.type = sqlType.entries.get(i).type;
+                        }
+                    }
+                }
+                else {
+                    if(symbolTable.sqlTypes.containsKey(sqlType.entries.get(0).type)) {
+                        for(int i=0; i < symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.size();i++) {
+                            if( symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
+                                err = false;
+                                sqlExpressionCase2.type = symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.get(i).type;
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                for(int j=0;j<symbolTable.queryManager.get(0).sqlType.entries.size();j++){
+                    if(symbolTable.queryManager.get(0).sqlType.entries.get(j).name.equals(sqlExpressionCase2.columnName.name)){
+                        err=false;
+                        sqlExpressionCase2.type = symbolTable.queryManager.get(0).sqlType.entries.get(j).type;
+                    }
+                }
+            }
+            if(err){
+                int line = ctx.start.getLine();
+                int col = ctx.start.getCharPositionInLine();
+                String des = sqlExpressionCase2.columnName.name +" Does Not Exist In Current Context";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }
+        }
+        return sqlExpressionCase2;
     }
 
     @Override
@@ -701,7 +701,9 @@ public class sqlVisitor extends JavaVisitor {
                     || sqlTypeEntry.type.equals("String")
                     || sqlTypeEntry.type.equals("Long")
                     || sqlTypeEntry.type.equals("Boolean")
-                    || sqlTypeEntry.type.equals("Double")){
+                    || sqlTypeEntry.type.equals("Double")
+                    || (symbolTable.scopeStack.peek().symbolMap.containsKey(sqlTypeEntry.type)
+                    && symbolTable.scopeStack.peek().symbolMap.get(sqlTypeEntry.type) instanceof TableSymbol)) {
                 sqlType.entries.add(sqlTypeEntry);
             }
             else {
