@@ -305,6 +305,7 @@ sql_stmt_list
 
 sql_stmt
 :  alter_table_stmt
+  | create_type
   | create_table_stmt
   | delete_stmt
   | drop_table_stmt
@@ -343,7 +344,7 @@ create_aggregation_function
 ;
 
 create_type:
-    K_CREATE K_TYPE any_name '(' (type any_name)* ')'
+    K_CREATE K_TYPE any_name '(' ( type any_name)* ')'
 ;
 
 type:
@@ -459,7 +460,6 @@ select_stmt
 select_stmt
  :  select_or_values
    ( K_ORDER K_BY ordering_term ( ',' ordering_term )* )?
-   ( K_LIMIT expr ( ( K_OFFSET | ',' ) expr )? )?
  ;
 
 /*
@@ -485,7 +485,6 @@ select_or_values
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
    ( K_WHERE expr )?
    ( K_GROUP K_BY expr ( ',' expr )* ( K_HAVING expr )? )?
- | K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
  ;
 
 update_stmt
@@ -619,7 +618,9 @@ exists_expr:
 */
 expr
  : literal_value  #case1
- | ( ( database_name '.' )? table_name '.' )? column_name  #case2
+ | '(' K_VAR expression')' #case16
+ | ( table_name '.' )? column_name  #case2
+ | expr '.' any_name #case22
  | unary_operator expr  #case3
  | expr op='||' expr  #case4
  | expr op=( '*' | '/' | '%' ) expr  #case5
@@ -638,7 +639,6 @@ expr
                     | ( database_name '.' )? table_name )  #case14
  | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')' #case15
  ;
-
 
 /*
 ???
@@ -729,7 +729,7 @@ table_or_subquery
 
 */
 table_or_subquery
- : ( database_name '.' )? table_name ( K_AS? table_alias )?
+ :  table_name ( K_AS? table_alias )?
    ( K_INDEXED K_BY index_name
    | K_NOT K_INDEXED )?
  | '(' ( table_or_subquery ( ',' table_or_subquery )*

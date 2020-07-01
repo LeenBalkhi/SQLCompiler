@@ -1,5 +1,4 @@
-func(){
-    var j = 5;
-    i = 5 + "Yo";
-    j = true;
-}
+create Type x(String k)
+create Table o (o String)
+create Table m (i String , m Boolean , s o ,o String)
+select s from m

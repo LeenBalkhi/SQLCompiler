@@ -1138,6 +1138,18 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitCase8(SqlParser.Case8Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code case16}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCase16(SqlParser.Case16Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code case16}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCase16(SqlParser.Case16Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code case9}
 	 * labeled alternative in {@link SqlParser#expr}.
 	 * @param ctx the parse tree
@@ -1161,6 +1173,18 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCase11(SqlParser.Case11Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code case22}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCase22(SqlParser.Case22Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code case22}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCase22(SqlParser.Case22Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code case12}
 	 * labeled alternative in {@link SqlParser#expr}.

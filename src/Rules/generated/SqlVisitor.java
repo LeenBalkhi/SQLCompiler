@@ -681,6 +681,13 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCase8(SqlParser.Case8Context ctx);
 	/**
+	 * Visit a parse tree produced by the {@code case16}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCase16(SqlParser.Case16Context ctx);
+	/**
 	 * Visit a parse tree produced by the {@code case9}
 	 * labeled alternative in {@link SqlParser#expr}.
 	 * @param ctx the parse tree
@@ -694,6 +701,13 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCase11(SqlParser.Case11Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code case22}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCase22(SqlParser.Case22Context ctx);
 	/**
 	 * Visit a parse tree produced by the {@code case12}
 	 * labeled alternative in {@link SqlParser#expr}.

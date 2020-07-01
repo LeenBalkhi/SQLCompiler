@@ -5,6 +5,7 @@ import Rules.AST.Parse;
 import Rules.AST.Visitor.BaseASTVisitor;
 
 import Rules.Base.MainVisitor;
+import Rules.SymbolTableMu.TableSymbol;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -16,7 +17,6 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 
 public class Main {
-
     public static void main(String[] args){
         try {
             String source = "sample//sam.txt";
@@ -32,13 +32,11 @@ public class Main {
                     m.errors.get(i).printError();
                 }
             }
-            else
+            if(m.errors.size()==0)
                 if(false)
                     new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 }
