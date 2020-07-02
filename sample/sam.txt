@@ -3,4 +3,5 @@ create Type trt(tut j)
 create Table o(i String , p Boolean)
 create Table m(p trt, j Double)
 
-select j from ( select j from (select p from m) )
+select i from o
+        where i=8

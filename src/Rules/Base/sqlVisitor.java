@@ -173,10 +173,12 @@ public class sqlVisitor extends JavaVisitor {
         if(ctx.table_name()!= null){
             sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
             for(int i=0;i<symbolTable.queryManager.size();i++){
-                if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name)){
-                    sqlType = symbolTable.queryManager.get(i).sqlType;
-                    err = false;
-                    useTable = true;
+                if(symbolTable.queryManager.get(i).as!=null){
+                    if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name)){
+                        sqlType = symbolTable.queryManager.get(i).sqlType;
+                        err = false;
+                        useTable = true;
+                    }
                 }
             }
             if(err){
@@ -623,6 +625,9 @@ public class sqlVisitor extends JavaVisitor {
                 selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
             if( ctx.join_clause() !=null)
                 selectCore.joinClause = visitJoin_clause(ctx.join_clause());
+            if( ctx.where!=null){
+                visitExpr(ctx.where);
+            }
             if(ctx.K_GROUP() != null)
             {
                 for(int i=0 ; i < ctx.expr().size(); i++)
