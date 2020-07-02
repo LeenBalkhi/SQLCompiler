@@ -1,4 +1,6 @@
+create Type tut ( String pr )
+create Type trt(tut j)
 create Table o(i String , p Boolean)
-create Table m(p o, j Double)
+create Table m(p trt, j Double)
 
-select k.pp.i from (select p as pp from m) as k
+select j from ( select j from (select p from m) )

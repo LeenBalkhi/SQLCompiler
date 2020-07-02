@@ -170,10 +170,6 @@ public class sqlVisitor extends JavaVisitor {
         boolean useTable = false;
         SqlExpressionCase2 sqlExpressionCase2 = new SqlExpressionCase2();
         SqlType sqlType = new SqlType();
-        System.out.println(symbolTable.queryManager.size()+"EXPR");
-        for(int i=0;i<symbolTable.queryManager.size();i++){
-            symbolTable.queryManager.get(i).printType();
-        }
         if(ctx.table_name()!= null){
             sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
             for(int i=0;i<symbolTable.queryManager.size();i++){
@@ -518,7 +514,6 @@ public class sqlVisitor extends JavaVisitor {
 
     @Override
     public Node visitCreate_type(SqlParser.Create_typeContext ctx) {
-
         SqlType sqlType = new SqlType();
         boolean err = false;
         sqlType.name = visitType_name(ctx.type_name()).name.name;
@@ -541,8 +536,9 @@ public class sqlVisitor extends JavaVisitor {
                 break;
             }
         }
-        if(!err)
+        if(!err){
             symbolTable.sqlTypes.put(sqlType.name , sqlType);
+        }
         return null;
     }
 
@@ -563,7 +559,6 @@ public class sqlVisitor extends JavaVisitor {
                 ColumnDef columnDef = ((ColumnDef)createTableStatement.columnDefs.get(i));
                 ColumnSymbol columnSymbol = new ColumnSymbol();
                 columnSymbol.name = columnDef.name.name;
-                System.out.println( columnDef.name.name );
                 String type = columnDef.typeName.name.name;
                 if(symbolTable.sqlTypes.containsKey(type)
                 || type.equals("String")
@@ -618,23 +613,26 @@ public class sqlVisitor extends JavaVisitor {
             }
         }
         symbolTable.queryManager.clear();
-        for(int i=0;i<selectCore.types.size();i++){
-            symbolTable.queryManager.add(selectCore.types.get(i));
-        }
-        selectCore.types.clear();
-        for(int i=0 ; i < ctx.result_column().size(); i++)
-            selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
-        if( ctx.join_clause() !=null)
-            selectCore.joinClause = visitJoin_clause(ctx.join_clause());
-        if(ctx.K_GROUP() != null)
+        if(selectCore.types.size()!=0)
         {
-            for(int i=0 ; i < ctx.expr().size(); i++)
-                selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
-        }
-        if(ctx.K_HAVING() != null)
-        {
-            for(int i=0 ; i < ctx.expr().size(); i++)
-                selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
+            for(int i=0;i<selectCore.types.size();i++){
+                symbolTable.queryManager.add(selectCore.types.get(i));
+            }
+            selectCore.types.clear();
+            for(int i=0 ; i < ctx.result_column().size(); i++)
+                selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
+            if( ctx.join_clause() !=null)
+                selectCore.joinClause = visitJoin_clause(ctx.join_clause());
+            if(ctx.K_GROUP() != null)
+            {
+                for(int i=0 ; i < ctx.expr().size(); i++)
+                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
+            }
+            if(ctx.K_HAVING() != null)
+            {
+                for(int i=0 ; i < ctx.expr().size(); i++)
+                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
+            }
         }
         return selectCore;
     }
@@ -780,35 +778,39 @@ public class sqlVisitor extends JavaVisitor {
             }
         }
         symbolTable.queryManager.clear();
-        for(int i=0;i<selectOrValue.types.size();i++){
-            symbolTable.queryManager.add(selectOrValue.types.get(i));
-        }
-        selectOrValue.types.clear();
-        for(int i=0 ; i < ctx.result_column().size() ;i++){
-            selectOrValue.resColumns.add(visitResult_column(ctx.result_column().get(i)));
-            String type = ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type;
-            TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-            if(!( type.equals("String") || type.equals("Boolean") || type.equals("Double") || type.equals("Long") )){
-                temp.sqlType = symbolTable.sqlTypes.get(type);
-                if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
-                    temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
-                selectOrValue.types.add(temp);
+        if(selectOrValue.types.size()!=0){
+            for(int i=0;i<selectOrValue.types.size();i++){
+                symbolTable.queryManager.add(selectOrValue.types.get(i));
             }
-            else{
-                SqlType sqlType = new SqlType();
-                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                sqlTypeEntry.type = type;
-                sqlType.entries.add(sqlTypeEntry);
-                temp.sqlType=sqlType;
-                if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
-                    temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
-                selectOrValue.types.add(temp);
+            selectOrValue.types.clear();
+            for(int i=0 ; i < ctx.result_column().size() ;i++){
+                selectOrValue.resColumns.add(visitResult_column(ctx.result_column().get(i)));
+                if( ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type != null){
+                    String type = ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type;
+                    TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
+                    if(!( type.equals("String") || type.equals("Boolean") || type.equals("Double") || type.equals("Long") )){
+                        temp.sqlType = symbolTable.sqlTypes.get(type);
+                        if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
+                            temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
+                        selectOrValue.types.add(temp);
+                    }
+                    else{
+                        SqlType sqlType = new SqlType();
+                        SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+                        sqlTypeEntry.type = type;
+                        sqlType.entries.add(sqlTypeEntry);
+                        temp.sqlType=sqlType;
+                        if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
+                            temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
+                        selectOrValue.types.add(temp);
+                    }
+                }
             }
+            if(ctx.join_clause() != null)
+                selectOrValue.join = visitJoin_clause(ctx.join_clause());
+            for(int i=0 ; i < ctx.expr().size(); i++)
+                selectOrValue.expressions.add(visitExpr(ctx.expr().get(i)));
         }
-        if(ctx.join_clause() != null)
-            selectOrValue.join = visitJoin_clause(ctx.join_clause());
-        for(int i=0 ; i < ctx.expr().size(); i++)
-            selectOrValue.expressions.add(visitExpr(ctx.expr().get(i)));
         return selectOrValue;
     }
 
