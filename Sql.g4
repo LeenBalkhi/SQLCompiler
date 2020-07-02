@@ -15,7 +15,7 @@ error
 java_stmt
 :
   variable_declaration ';' (java_stmt)?
-  | java_function_declaration';' (java_stmt)?
+  | java_function_declaration (java_stmt)?
   | java_function_call ';' (java_stmt)?
   |comments
 ;

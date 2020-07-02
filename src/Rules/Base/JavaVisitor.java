@@ -135,6 +135,8 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
                             ((Assignment)variableAssignment.assignments.get(j))
                                     .variableAssignmentValue).getType(symbolTable.scopeStack.peek());
                 } catch (Error error) {
+                    error.line = ctx.variable_assignment().get(j).start.getLine();
+                    error.col = ctx.variable_assignment().get(j).start.getCharPositionInLine();
                     errors.add(error);
                 }
             }

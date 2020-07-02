@@ -1,4 +1,4 @@
 fun(){
-    var i;
-    j = 8 + 5;
+    var i ;
+    var j = 9 + i;
 };
