@@ -1,4 +1,5 @@
-fin(){
-    var x = 0;
-    x = "DD";
-};
+create Table o(i String , p Boolean)
+create Table m(p String, j Double)
+select k.p, p.k from o as k , m as p
+
+select from (select i from o)

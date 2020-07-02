@@ -17,7 +17,7 @@ public class SelectStmt extends SqlStatment {
    public Node expr1;
    public boolean offset = false;
    public Node expr2;
-   public ArrayList<TableOrSubQueryTypeEntry> types;
+   public ArrayList<TableOrSubQueryTypeEntry> types = new ArrayList<>();
 
     @Override
     public void accept(ASTVisitor astVisitor){

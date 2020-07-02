@@ -561,7 +561,6 @@ public class sqlVisitor extends JavaVisitor {
                 columnSymbol.name = columnDef.name.name;
                 System.out.println( columnDef.name.name );
                 String type = columnDef.typeName.name.name;
-
                 if(symbolTable.sqlTypes.containsKey(type)
                 || type.equals("String")
                 || type.equals("Long")
@@ -631,6 +630,7 @@ public class sqlVisitor extends JavaVisitor {
         }
         return selectCore;
     }
+
     @Override
     public JoinClause visitJoin_clause(SqlParser.Join_clauseContext ctx)
     {
@@ -705,6 +705,7 @@ public class sqlVisitor extends JavaVisitor {
                     }
                 }
                 temp.as = tableOrSubquery.tableAlias;
+                tableOrSubquery.types.add(temp);
             }
             else{
                 for(int i=0;i<tableOrSubquery.tableOrSubqueries.size();i++){
@@ -718,9 +719,18 @@ public class sqlVisitor extends JavaVisitor {
             tableOrSubquery.selectStatment = visitSelect_stmt(ctx.select_stmt());
             if(ctx.table_alias()!=null)
                 tableOrSubquery.tableAlias = ctx.table_alias().getText();
-            //tableOrSubquery.type.sqlType = ((SelectStmt)tableOrSubquery.selectStatment).sqlType;
-//            if(tableOrSubquery.tableAlias !=null)
-//                tableOrSubquery.type.as = tableOrSubquery.tableAlias;
+            if(tableOrSubquery.tableAlias == null){
+                tableOrSubquery.types = ((SelectStmt)tableOrSubquery.selectStatment).types;
+            }
+            else {
+                TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
+                for(int i=0;i<((SelectStmt)tableOrSubquery.selectStatment).types.size();i++){
+                    for(int j=0;j<((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.size();j++){
+                        temp.sqlType.entries.add( ((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.get(j));
+                    }
+                }
+                temp.as = tableOrSubquery.tableAlias;
+            }
         }
         return tableOrSubquery;
     }
@@ -729,6 +739,14 @@ public class sqlVisitor extends JavaVisitor {
     {
         SelectStmt selectStmt = new SelectStmt();
         selectStmt.selectorval = visitSelect_or_values(ctx.select_or_values());
+        for(int i=0;i< ((SelectOrValue)selectStmt.selectorval).resColumns.size();i++){
+            String type = ((SqlExpression)((ResultColumn)((SelectOrValue)selectStmt.selectorval).resColumns.get(i)).expression).type;
+            if(!(type.equals("String") || type.equals("Boolean") || type.equals("Double") || type.equals("Long"))){
+                TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
+                temp.sqlType = symbolTable.sqlTypes.get(type);
+                if( ((ResultColumn)((SelectOrValue)selectStmt.selectorval).resColumns.get(i)).ta )
+            }
+        }
         for(int i=0 ; i < ctx.ordering_term().size(); i++)
             selectStmt.ordering.add(visitOrdering_term(ctx.ordering_term().get(i)));
         return selectStmt;
@@ -772,7 +790,6 @@ public class sqlVisitor extends JavaVisitor {
         ResultColumn resultColumn= new ResultColumn();
         if(ctx.table_name()!= null){
             resultColumn.tableName = visitAny_name(ctx.table_name().any_name());
-
             if( !(symbolTable.getSymbol(resultColumn.tableName.name)!=null
                     && symbolTable.getSymbol(resultColumn.tableName.name) instanceof TableSymbol) ){
                 int line = ctx.table_name().start.getLine();
@@ -799,7 +816,6 @@ public class sqlVisitor extends JavaVisitor {
         path.append(":");
         for(int i=0 ; i < ctx.any_name().size(); i++)
         {
-
             path.append("\\");
             path.append(visitAny_name(ctx.any_name().get(i)).id);
         }
@@ -820,7 +836,6 @@ public class sqlVisitor extends JavaVisitor {
             else
                 path.setFilename(visitAny_name(ctx.any_name().get(i)).id+=".jar");
         }
-
         return path;
     }
     //    @Override public T visitType(SqlParser.TypeContext ctx)
