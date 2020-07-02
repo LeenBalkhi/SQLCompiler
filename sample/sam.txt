@@ -1,7 +1,4 @@
-create Type tut ( String pr )
-create Type trt(tut j, String k)
-create Table o(i String , p Boolean)
-create Table m(p trt, j Double)
-
-select i from o
-        where i=8
+fun(){
+    var i;
+    j = 8 + 5;
+};

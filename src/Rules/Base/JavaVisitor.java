@@ -17,6 +17,7 @@ import Rules.SymbolTableMu.*;
 import Rules.SymbolTableMu.Scope;
 import Rules.SymbolTableMu.SymbolTable;
 import Rules.Utils.Error;
+import Rules.Utils.Warning;
 import Rules.generated.*;
 
 import java.util.ArrayList;
@@ -169,20 +170,21 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
                 variableAssignment.assignments.add(visitAssginment(ctx.assginment(i)));
                 if(fromVarDec == false){
                     Symbol symbol = symbolTable.getSymbol(((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0));
-                    try {
-                        String temp = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(i)).variableAssignmentValue)
-                                .getType(symbolTable.scopeStack.peek());
-                        if(symbol.type!=null && !symbol.type.equals(temp)){
-                            Error error = new Error(ctx.assginment(i).variable_assignment_value().start.getLine(),
-                                    ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine(),
-                                    "Variable " + symbol.name + " Already Has Type " + symbol.type + " And Cannot Be Assigned To A " + temp);
+                    if(symbol!=null)
+                        try {
+                            String temp = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(i)).variableAssignmentValue)
+                                    .getType(symbolTable.scopeStack.peek());
+                            if(symbol.type!=null && !symbol.type.equals(temp)){
+                                Error error = new Error(ctx.assginment(i).variable_assignment_value().start.getLine(),
+                                        ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine(),
+                                        "Variable " + symbol.name + " Already Has Type " + symbol.type + " And Cannot Be Assigned To A " + temp);
+                                errors.add(error);
+                            }
+                        } catch (Error error) {
+                            error.line = ctx.assginment(i).variable_assignment_value().start.getLine();
+                            error.col = ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine();
                             errors.add(error);
                         }
-                    } catch (Error error) {
-                        error.line = ctx.assginment(i).variable_assignment_value().start.getLine();
-                        error.col = ctx.assginment(i).variable_assignment_value().start.getCharPositionInLine();
-                        errors.add(error);
-                    }
                 }
             }
         }
@@ -249,31 +251,34 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public JavaBody visitJava_body(SqlParser.Java_bodyContext ctx)
     {
         JavaBody javaBody = new JavaBody();
-        Node temp = visit(ctx);
-        if(temp instanceof ConditionalStmt)
-            javaBody.command=(ConditionalStmt)temp;
-        if(temp instanceof Comment)
-            javaBody.command=(Comment)temp;
-        if(temp instanceof Increment)
-            javaBody.command=(Increment)temp;
-        if(temp instanceof FunctionCall)
-            javaBody.command=(FunctionCall)temp;
-        if(temp instanceof LoopStmt)
-            javaBody.command =(LoopStmt)temp;
-        if(temp instanceof Print)
-            javaBody.command = (Print)temp;
-        if(temp instanceof SwitchStmt)
-            javaBody.command = (SwitchStmt)temp;
-        if(temp instanceof Rules.AST.Java.Utils.Scope)
-            javaBody.command = (Rules.AST.Java.Utils.Scope)temp;
-        if(temp instanceof VariableAssignment)
-            javaBody.command = (VariableAssignment)temp;
-        if(temp instanceof VariableDeclaration)
-            javaBody.command = (VariableDeclaration)temp;
-        if(temp instanceof Break)
-            javaBody.command = (Break)temp;
-        if(temp instanceof Continue)
-            javaBody.command = (Continue)temp;
+        if(ctx.children.get(0) instanceof SqlParser.Variable_assignmentContext) {
+            javaBody.command = visitVariable_assignment((SqlParser.Variable_assignmentContext) ctx.children.get(0),false);
+        }
+        else{
+            Node temp = visit(ctx);
+            if(temp instanceof ConditionalStmt)
+                javaBody.command=(ConditionalStmt)temp;
+            if(temp instanceof Comment)
+                javaBody.command=(Comment)temp;
+            if(temp instanceof Increment)
+                javaBody.command=(Increment)temp;
+            if(temp instanceof FunctionCall)
+                javaBody.command=(FunctionCall)temp;
+            if(temp instanceof LoopStmt)
+                javaBody.command =(LoopStmt)temp;
+            if(temp instanceof Print)
+                javaBody.command = (Print)temp;
+            if(temp instanceof SwitchStmt)
+                javaBody.command = (SwitchStmt)temp;
+            if(temp instanceof Rules.AST.Java.Utils.Scope)
+                javaBody.command = (Rules.AST.Java.Utils.Scope)temp;
+            if(temp instanceof VariableDeclaration)
+                javaBody.command = (VariableDeclaration)temp;
+            if(temp instanceof Break)
+                javaBody.command = (Break)temp;
+            if(temp instanceof Continue)
+                javaBody.command = (Continue)temp;
+        }
         return javaBody;
     }
 
