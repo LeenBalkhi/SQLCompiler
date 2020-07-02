@@ -1,5 +1,4 @@
 create Table o(i String , p Boolean)
-create Table m(p String, j Double)
-select k.p, p.k from o as k , m as p
+create Table m(p o, j Double)
 
-select from (select i from o)
+select pp.i from (select p from m)
