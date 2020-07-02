@@ -171,6 +171,9 @@ public class sqlVisitor extends JavaVisitor {
         SqlExpressionCase2 sqlExpressionCase2 = new SqlExpressionCase2();
         SqlType sqlType = new SqlType();
         System.out.println(symbolTable.queryManager.size()+"EXPR");
+        for(int i=0;i<symbolTable.queryManager.size();i++){
+            symbolTable.queryManager.get(i).printType();
+        }
         if(ctx.table_name()!= null){
             sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
             for(int i=0;i<symbolTable.queryManager.size();i++){
@@ -614,7 +617,11 @@ public class sqlVisitor extends JavaVisitor {
                 selectCore.types.add(((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).types.get(j));
             }
         }
-        symbolTable.queryManager = selectCore.types;
+        symbolTable.queryManager.clear();
+        for(int i=0;i<selectCore.types.size();i++){
+            symbolTable.queryManager.add(selectCore.types.get(i));
+        }
+        selectCore.types.clear();
         for(int i=0 ; i < ctx.result_column().size(); i++)
             selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
         if( ctx.join_clause() !=null)
@@ -727,10 +734,11 @@ public class sqlVisitor extends JavaVisitor {
                 TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
                 for(int i=0;i<((SelectStmt)tableOrSubquery.selectStatment).types.size();i++){
                     for(int j=0;j<((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.size();j++){
-                        temp.sqlType.entries.add( ((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.get(j));
+                        temp.sqlType.entries.add(((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.get(j));
                     }
                 }
                 temp.as = tableOrSubquery.tableAlias;
+                tableOrSubquery.types.add(temp);
             }
         }
         return tableOrSubquery;
@@ -742,9 +750,6 @@ public class sqlVisitor extends JavaVisitor {
         SelectStmt selectStmt = new SelectStmt();
         selectStmt.selectorval = visitSelect_or_values(ctx.select_or_values());
         selectStmt.types = ((SelectOrValue)selectStmt.selectorval).types;
-        for(int i=0;i<selectStmt.types.size();i++){
-            selectStmt.types.get(i).sqlType.printType();
-        }
         for(int i=0 ; i < ctx.ordering_term().size(); i++)
             selectStmt.ordering.add(visitOrdering_term(ctx.ordering_term().get(i)));
         return selectStmt;
@@ -778,6 +783,7 @@ public class sqlVisitor extends JavaVisitor {
         for(int i=0;i<selectOrValue.types.size();i++){
             symbolTable.queryManager.add(selectOrValue.types.get(i));
         }
+        selectOrValue.types.clear();
         for(int i=0 ; i < ctx.result_column().size() ;i++){
             selectOrValue.resColumns.add(visitResult_column(ctx.result_column().get(i)));
             String type = ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type;
