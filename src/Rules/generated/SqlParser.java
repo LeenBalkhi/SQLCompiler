@@ -5681,6 +5681,7 @@ public class SqlParser extends Parser {
 	}
 
 	public static class Select_or_valuesContext extends ParserRuleContext {
+		public ExprContext where;
 		public TerminalNode K_SELECT() { return getToken(SqlParser.K_SELECT, 0); }
 		public List<Result_columnContext> result_column() {
 			return getRuleContexts(Result_columnContext.class);
@@ -5694,14 +5695,14 @@ public class SqlParser extends Parser {
 		}
 		public TerminalNode K_FROM() { return getToken(SqlParser.K_FROM, 0); }
 		public TerminalNode K_WHERE() { return getToken(SqlParser.K_WHERE, 0); }
+		public TerminalNode K_GROUP() { return getToken(SqlParser.K_GROUP, 0); }
+		public TerminalNode K_BY() { return getToken(SqlParser.K_BY, 0); }
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
 		public ExprContext expr(int i) {
 			return getRuleContext(ExprContext.class,i);
 		}
-		public TerminalNode K_GROUP() { return getToken(SqlParser.K_GROUP, 0); }
-		public TerminalNode K_BY() { return getToken(SqlParser.K_BY, 0); }
 		public TerminalNode K_DISTINCT() { return getToken(SqlParser.K_DISTINCT, 0); }
 		public TerminalNode K_ALL() { return getToken(SqlParser.K_ALL, 0); }
 		public List<Table_or_subqueryContext> table_or_subquery() {
@@ -5841,7 +5842,7 @@ public class SqlParser extends Parser {
 					setState(904);
 					match(K_WHERE);
 					setState(905);
-					expr(0);
+					((Select_or_valuesContext)_localctx).where = expr(0);
 					}
 				}
 

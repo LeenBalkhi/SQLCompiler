@@ -501,7 +501,7 @@ select_or_values
 select_or_values
  : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
-   ( K_WHERE expr )?
+   ( K_WHERE where=expr )?
    ( K_GROUP K_BY expr ( ',' expr )* ( K_HAVING expr )? )?
  | K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
  ;

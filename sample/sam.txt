@@ -1,5 +1,5 @@
 create Type tut ( String pr )
-create Type trt(tut j)
+create Type trt(tut j, String k)
 create Table o(i String , p Boolean)
 create Table m(p trt, j Double)
 

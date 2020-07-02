@@ -516,30 +516,62 @@ public class sqlVisitor extends JavaVisitor {
 
     @Override
     public Node visitCreate_type(SqlParser.Create_typeContext ctx) {
-        SqlType sqlType = new SqlType();
         boolean err = false;
+        boolean colExists = false;
+        SqlType sqlType = new SqlType();
         sqlType.name = visitType_name(ctx.type_name()).name.name;
-        for (int i = 0 ; i < ctx.type().size() ; i++){
-            SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-            sqlTypeEntry.type = ctx.type(i).getText();
-            sqlTypeEntry.name = visitAny_name(ctx.any_name(i)).name;
-            if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
-                    || sqlTypeEntry.type.equals("String")
-                    || sqlTypeEntry.type.equals("Long")
-                    || sqlTypeEntry.type.equals("Boolean")
-                    || sqlTypeEntry.type.equals("Double")
-                    || (symbolTable.scopeStack.peek().symbolMap.containsKey(sqlTypeEntry.type)
-                    && symbolTable.scopeStack.peek().symbolMap.get(sqlTypeEntry.type) instanceof TableSymbol)) {
-                sqlType.entries.add(sqlTypeEntry);
+        if(symbolTable.sqlTypes.containsKey(sqlType.name))
+        {
+            int line = ctx.type_name().start.getLine();
+            int col = ctx.type_name().start.getCharPositionInLine();
+            String des = "Type " + sqlType.name +" Already Exists";
+            Error error = new Error(line,col,des);
+            errors.add(error);
+        } else {
+            for (int i = 0 ; i < ctx.type().size() ; i++){
+                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+                sqlTypeEntry.type = ctx.type(i).getText();
+                sqlTypeEntry.name = visitAny_name(ctx.any_name(i)).name;
+                if (sqlType.entries.size() != 0) {
+                    for(int j = 0; j < sqlType.entries.size(); j++){
+                        if(sqlType.entries.get(j).name.equals(sqlTypeEntry.name)){
+                            colExists = true;
+                            break;
+                        }
+                    }
+                    if(colExists){
+                        err = true;
+                        int line = ctx.any_name().get(i).start.getLine();
+                        int col = ctx.any_name().get(i).start.getCharPositionInLine();
+                        String des = "Column "+ sqlTypeEntry.name + " Is Defined More Than Once";
+                        Error error = new Error(line,col,des);
+                        errors.add(error);
+                        break;
+                    }
+                }
+                if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
+                        || sqlTypeEntry.type.equals("String")
+                        || sqlTypeEntry.type.equals("Long")
+                        || sqlTypeEntry.type.equals("Boolean")
+                        || sqlTypeEntry.type.equals("Double")
+                        || (symbolTable.scopeStack.peek().symbolMap.containsKey(sqlTypeEntry.type)
+                        && symbolTable.scopeStack.peek().symbolMap.get(sqlTypeEntry.type) instanceof TableSymbol)) {
+                    sqlType.entries.add(sqlTypeEntry);
+                }
+                else {
+                    err = true;
+                    sqlType = null;
+                    int line = ctx.type().get(i).start.getLine();
+                    int col = ctx.type().get(i).start.getCharPositionInLine();
+                    String des = "Type "+ sqlTypeEntry.type +" Doesn't Exist";
+                    Error error = new Error(line,col,des);
+                    errors.add(error);
+                    break;
+                }
             }
-            else {
-                err = true;
-                sqlType = null;
-                break;
+            if(!err){
+                symbolTable.sqlTypes.put(sqlType.name , sqlType);
             }
-        }
-        if(!err){
-            symbolTable.sqlTypes.put(sqlType.name , sqlType);
         }
         return null;
     }
@@ -548,6 +580,7 @@ public class sqlVisitor extends JavaVisitor {
     public CreateTableStatement visitCreate_table_stmt(SqlParser.Create_table_stmtContext ctx)
     {
         boolean err = false;
+        boolean colExists = false;
         TableSymbol tableSymbol = new TableSymbol();
         CreateTableStatement createTableStatement = new CreateTableStatement();
         if(ctx.K_IF()!= null)
@@ -556,32 +589,58 @@ public class sqlVisitor extends JavaVisitor {
         {
             createTableStatement.tableName = visitAny_name(ctx.table_name().any_name());
             tableSymbol.name = createTableStatement.tableName.name;
-            for(int i=0 ; i < ctx.column_def().size() ; i++){
-                createTableStatement.columnDefs.add(visitColumn_def(ctx.column_def().get(i)));
-                ColumnDef columnDef = ((ColumnDef)createTableStatement.columnDefs.get(i));
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.name = columnDef.name.name;
-                String type = columnDef.typeName.name.name;
-                if(symbolTable.sqlTypes.containsKey(type)
-                || type.equals("String")
-                || type.equals("Long")
-                || type.equals("Boolean")
-                || type.equals("Double")
-                || (symbolTable.scopeStack.peek().symbolMap.containsKey(type)
-                        && symbolTable.scopeStack.peek().symbolMap.get(type) instanceof TableSymbol)){
-                    columnSymbol.type = type;
-                    tableSymbol.values.put(columnSymbol.name , columnSymbol);
+            if(symbolTable.sqlTypes.containsKey(tableSymbol.name)) {
+                int line = ctx.table_name().start.getLine();
+                int col = ctx.table_name().start.getCharPositionInLine();
+                String des = "Table "+ tableSymbol.name+" Already Exists";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }else {
+                for(int i=0 ; i < ctx.column_def().size() ; i++){
+                    createTableStatement.columnDefs.add(visitColumn_def(ctx.column_def().get(i)));
+                    ColumnDef columnDef = ((ColumnDef)createTableStatement.columnDefs.get(i));
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.name = columnDef.name.name;
+                    if(tableSymbol.values.size()!=0){
+                        if(tableSymbol.values.containsKey(columnSymbol.name))
+                            colExists = true;
+                        if(colExists){
+                            err = true;
+                            int line = ctx.column_def().get(i).start.getLine();
+                            int col = ctx.column_def().get(i).start.getCharPositionInLine();
+                            String des = "Column "+ columnSymbol.name + " Is Defined More Than Once";
+                            Error error = new Error(line,col,des);
+                            errors.add(error);
+                            break;
+                        }
+                    }
+                    String type = columnDef.typeName.name.name;
+                    if(symbolTable.sqlTypes.containsKey(type)
+                            || type.equals("String")
+                            || type.equals("Long")
+                            || type.equals("Boolean")
+                            || type.equals("Double")
+                            || (symbolTable.scopeStack.peek().symbolMap.containsKey(type)
+                            && symbolTable.scopeStack.peek().symbolMap.get(type) instanceof TableSymbol)){
+                        columnSymbol.type = type;
+                        tableSymbol.values.put(columnSymbol.name , columnSymbol);
+                    }
+                    else {
+                        err = true;
+                        tableSymbol = null;
+                        int line = ctx.column_def().get(i).start.getLine();
+                        int col = ctx.column_def().get(i).start.getCharPositionInLine();
+                        String des = "Type "+ type +" Doesn't Exist";
+                        Error error = new Error(line, col, des);
+                        errors.add(error);
+                        break;
+                    }
                 }
-                else {
-                    err = true;
-                    tableSymbol = null;
-                    break;
+                if(!err){
+                    tableSymbol.type = tableSymbol.getSqlTypeFromTableSymbol(symbolTable).name;
+                    symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name , tableSymbol);
                 }
             }
-        }
-        if(!err){
-            tableSymbol.type = tableSymbol.getSqlTypeFromTableSymbol(symbolTable).name;
-            symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name , tableSymbol);
         }
         return createTableStatement;
     }
@@ -621,8 +680,11 @@ public class sqlVisitor extends JavaVisitor {
                 symbolTable.queryManager.add(selectCore.types.get(i));
             }
             selectCore.types.clear();
-            for(int i=0 ; i < ctx.result_column().size(); i++)
+            for(int i=0 ; i < ctx.result_column().size(); i++){
                 selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
+            }
+            if(ctx.where!=null)
+                visitExpr(ctx.where);
             if( ctx.join_clause() !=null)
                 selectCore.joinClause = visitJoin_clause(ctx.join_clause());
             if( ctx.where!=null){
