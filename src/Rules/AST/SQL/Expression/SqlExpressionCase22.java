@@ -7,5 +7,5 @@ public class SqlExpressionCase22 extends Node {
     public Node expression;
     public AnyName anyname;
     public String type;
-
+    public String customName;
 }

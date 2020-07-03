@@ -4,5 +4,5 @@ create Table o(i Long)
 
 create Table s(k test)
 
-select i from o where i in (select bhbh from(select k from s))
+var i = select k from s;
 

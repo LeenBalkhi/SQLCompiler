@@ -1,8 +1,7 @@
 grammar Sql;
 
 parse
- : ( sql_stmt_list | error )* EOF
-  | java_stmt EOF
+ : (java_stmt)  EOF
  ;
 
 error
@@ -18,6 +17,7 @@ java_stmt
   | java_function_declaration (java_stmt)?
   | java_function_call ';' (java_stmt)?
   |comments
+  | sql_stmt (java_stmt)?
 ;
 
 
@@ -98,6 +98,7 @@ conditional_stmt #condBody
 |variable_assignment ';' #varAssignBody
 |print ';' #printBody
 |'{' java_body? '}' #scopeBody
+| sql_stmt #sqlstmt
 |K_BREAK ';' #breakBody
 |K_CONTINUE ';' #contimueBody
 ;
@@ -135,6 +136,7 @@ variable_assignment_value
 :
 expression
 |logical_condition
+|factored_select_stmt
 //|array_identification
 ;
 
@@ -313,9 +315,6 @@ switch_default
 (K_DEFAULT ':' (block | one_line_block) )
 ;
 
-sql_stmt_list
- : ';'* sql_stmt ( ';'+ sql_stmt )* ';'*
- ;
 
 sql_stmt
 :

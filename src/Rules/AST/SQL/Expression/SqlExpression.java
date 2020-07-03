@@ -6,4 +6,5 @@ import Rules.SymbolTableMu.SqlType;
 public class SqlExpression extends Node {
     public Node expression;
     public String type;
+    public String costumName;
 }

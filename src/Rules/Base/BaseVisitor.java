@@ -41,19 +41,19 @@ public class BaseVisitor extends SqlBaseVisitor {
          * <p>The default implementation returns the result of calling
          * {@link #visitChildren} on {@code ctx}.</p>
          */
-        @Override public List<Statement> visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx) {
-
-                System.out.println("visitSql_stmt_list");
-
-                List<Statement> sqlStmt = new ArrayList<Statement>();
-                for (int i =0; i < ctx.sql_stmt().size() ; i++){
-                        sqlStmt.add(visitSql_stmt(ctx.sql_stmt(i)));
-                }
-
-                return sqlStmt;
-//        return visitChildren(ctx);
-
-        }
+//        @Override public List<Statement> visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx) {
+//
+//                System.out.println("visitSql_stmt_list");
+//
+//                List<Statement> sqlStmt = new ArrayList<Statement>();
+//                for (int i =0; i < ctx.sql_stmt().size() ; i++){
+//                        sqlStmt.add(visitSql_stmt(ctx.sql_stmt(i)));
+//                }
+//
+//                return sqlStmt;
+////        return visitChildren(ctx);
+//
+//        }
         /**
          * {@inheritDoc}
          *

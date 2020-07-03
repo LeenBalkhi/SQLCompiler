@@ -152,6 +152,13 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitScopeBody(SqlParser.ScopeBodyContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code sqlstmt}
+	 * labeled alternative in {@link SqlParser#java_body}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSqlstmt(SqlParser.SqlstmtContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code breakBody}
 	 * labeled alternative in {@link SqlParser#java_body}.
 	 * @param ctx the parse tree
@@ -449,12 +456,6 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSwitch_default(SqlParser.Switch_defaultContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SqlParser#sql_stmt_list}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SqlParser#sql_stmt}.
 	 * @param ctx the parse tree

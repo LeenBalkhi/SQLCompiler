@@ -9,4 +9,5 @@ public class SqlExpressionCase2 extends Node {
     public AnyName tableName;
     public AnyName columnName;
     public String type;
+    public String customName;
 }

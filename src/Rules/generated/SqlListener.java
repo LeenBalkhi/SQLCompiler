@@ -246,6 +246,18 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitScopeBody(SqlParser.ScopeBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code sqlstmt}
+	 * labeled alternative in {@link SqlParser#java_body}.
+	 * @param ctx the parse tree
+	 */
+	void enterSqlstmt(SqlParser.SqlstmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code sqlstmt}
+	 * labeled alternative in {@link SqlParser#java_body}.
+	 * @param ctx the parse tree
+	 */
+	void exitSqlstmt(SqlParser.SqlstmtContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code breakBody}
 	 * labeled alternative in {@link SqlParser#java_body}.
 	 * @param ctx the parse tree
@@ -749,16 +761,6 @@ public interface SqlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSwitch_default(SqlParser.Switch_defaultContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SqlParser#sql_stmt_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterSql_stmt_list(SqlParser.Sql_stmt_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SqlParser#sql_stmt_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitSql_stmt_list(SqlParser.Sql_stmt_listContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SqlParser#sql_stmt}.
 	 * @param ctx the parse tree
