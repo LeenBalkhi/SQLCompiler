@@ -1,4 +1,8 @@
-fun(){
-    var i ;
-    var j = 9 + i;
-};
+create Type test(Long bhbh)
+
+create Table o(i Long)
+
+create Table s(k test)
+
+select i from o where i in (select bhbh from(select k from s))
+

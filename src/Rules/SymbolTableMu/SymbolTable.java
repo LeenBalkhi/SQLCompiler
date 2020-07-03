@@ -10,6 +10,7 @@ public class SymbolTable {
     public LinkedHashMap<String, SqlType> sqlTypes;
     public ArrayList<TableOrSubQueryTypeEntry> queryManager = new ArrayList<>();
     public ArrayList<AggregationFunction> aggregationFunctions = new ArrayList<>();
+    public ArrayList<FunctionSymbol> functionSymbols = new ArrayList<>();
 
     public SymbolTable() {
         scopeStack = new Stack<>();

@@ -11,4 +11,6 @@ public class SqlExpressionCase14 extends Node {
     public ArrayList<Node>  expressions;
     public AnyName dataBaseName;
     public AnyName tableName;
+    public String type;
+    public SqlExpression mainExpression;
 }

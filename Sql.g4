@@ -2,7 +2,7 @@ grammar Sql;
 
 parse
  : ( sql_stmt_list | error )* EOF
-  | java_stmt
+  | java_stmt EOF
  ;
 
 error
@@ -642,12 +642,12 @@ expr
  | expr op=( '+' | '-' ) expr  #case6
  | expr op=( '<<' | '>>' | '&' | '|' ) expr  #case7
  | expr op=( '<' | '<=' | '>' | '>=' ) expr  #case8
- | expr ( op=( '=' | '==' | '!=' | '<>') | (K_IS | K_IS K_NOT | K_IN | K_LIKE | K_GLOB | K_MATCH | K_REGEXP) ) expr  #case9
+ | expr ( op=( '=' | '==' | '!=' | '<>') | (K_IS | K_IS K_NOT | K_LIKE | K_GLOB | K_MATCH | K_REGEXP) ) expr  #case9
  | expr K_AND expr  #case10
  | expr K_OR expr  #case11
  | function_name '(' ( K_DISTINCT? expr ( ',' expr )* | op='*' )? ')' #case12
  | '(' expr ')' #case13
- | expr K_NOT? K_IN ( '(' ( select_stmt
+ | exp1=expr K_NOT? K_IN ( '(' ( select_stmt
                           | expr ( ',' expr )*
                           )?
                       ')'

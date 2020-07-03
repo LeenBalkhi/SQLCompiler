@@ -36,46 +36,94 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         JavaStatment javaStatment=new JavaStatment();
         if(ctx.variable_declaration() != null) {
             javaStatment.javaStatment = visitVariable_declaration(ctx.variable_declaration());
+            if(ctx.java_stmt()!=null)
+                javaStatment.javaStatement2 = visitJava_stmt(ctx.java_stmt());
         }
         else if(ctx.java_function_call()!=null){
             javaStatment.javaStatment=visitJava_function_call(ctx.java_function_call());
+            if(ctx.java_stmt()!=null)
+                javaStatment.javaStatement2 = visitJava_stmt(ctx.java_stmt());
         }
         else if(ctx.java_function_declaration()!= null){
             javaStatment.javaStatment=visitJava_function_declaration(ctx.java_function_declaration());
+            if(ctx.java_stmt()!=null)
+                javaStatment.javaStatement2 = visitJava_stmt(ctx.java_stmt());
         }
         return javaStatment;
     }
 
     @Override
     public FunctionCall visitJava_function_call(SqlParser.Java_function_callContext ctx) {
-
+        boolean err = true;
         FunctionCall functionCall = new FunctionCall();
         functionCall.functionName = ctx.method_ID().getText();
         functionCall.argumentList = visitArgument_list(ctx.argument_list());
+        for(int i=0;i<symbolTable.functionSymbols.size();i++){
+            if(symbolTable.functionSymbols.get(i).name.equals(functionCall.functionName)) {
+                err = false;
+                break;
+            }
+        }
+        if(err){
+            int line = ctx.method_ID().start.getLine();
+            int col = ctx.method_ID().start.getCharPositionInLine();
+            String des = "Function "+functionCall.functionName+" Does Not Exist";
+            Error error = new Error(line,col,des);
+            errors.add(error);
+        }
+        else {
+            FunctionSymbol functionSymbol = new FunctionSymbol();
+            for(int i=0;i<symbolTable.functionSymbols.size();i++){
+                if(symbolTable.functionSymbols.get(i).name.equals(functionCall.functionName)) {
+                    functionSymbol = symbolTable.functionSymbols.get(i);
+                    break;
+                }
+            }
+            if(functionSymbol.parameters.size() != ((ArgumentList)functionCall.argumentList).argumentList.size()){
+                int line = ctx.argument_list().start.getLine();
+                int col = ctx.argument_list().start.getCharPositionInLine();
+                String des = "Size Of Argument List Of Call Does Not Match The Number Of Parameters The Function Takes";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }
+        }
         return functionCall;
     }
     @Override
     public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
-        symbolTable.pushScope();
+        boolean err = false;
         FunctionSymbol functionSymbol = new FunctionSymbol();
-        //--
         FunctionDeclaration functionDeclaration = new FunctionDeclaration();
         functionDeclaration.functionName = ctx.method_ID().getText();
         functionDeclaration.pl = visitParameter_list(ctx.parameter_list());
-        functionDeclaration.block = visitBlock(ctx.block());
-        functionDeclaration.scope = symbolTable.scopeStack.peek();
-        //--
-        symbolTable.popScope();
-        functionSymbol.name = functionDeclaration.functionName;
-        for(int i=0;i<((ParameterList)functionDeclaration.pl).list.size();i++)
-        {
-            Symbol symbol = new Symbol();
-            symbol.name = ((ParameterList)functionDeclaration.pl).list.get(i);
-            functionSymbol.parameters.add(symbol);
+        for(int i=0;i<symbolTable.functionSymbols.size();i++){
+            if(functionDeclaration.functionName.equals(symbolTable.functionSymbols.get(i).name)){
+                err = true;
+                int line = ctx.start.getLine();
+                int col = ctx.start.getCharPositionInLine();
+                String des = "Function "+ functionDeclaration.functionName + " Already Exists";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }
         }
-        functionSymbol.value = functionDeclaration;
-        functionSymbol.type = ((Block)functionDeclaration.block).getType(functionDeclaration.scope);
-        symbolTable.scopeStack.peek().symbolMap.put(functionSymbol.name,functionSymbol);
+        if(!err){
+            if( !(ctx.parameter_list().any_name().size()!=0 && ((ParameterList)functionDeclaration.pl).list.size()==0) ){
+                symbolTable.pushScope();
+                functionSymbol.name = functionDeclaration.functionName;
+                for(int i=0;i<((ParameterList)functionDeclaration.pl).list.size();i++) {
+                    Symbol symbol = new Symbol();
+                    symbol.name = ((ParameterList)functionDeclaration.pl).list.get(i);
+                    functionSymbol.parameters.add(symbol);
+                }
+                functionDeclaration.block = visitBlock(ctx.block());
+                functionSymbol.value = functionDeclaration;
+                //functionSymbol.type = ((Block)functionDeclaration.block).getType(functionDeclaration.scope);
+                symbolTable.scopeStack.peek().symbolMap.put(functionSymbol.name,functionSymbol);
+                symbolTable.functionSymbols.add(functionSymbol);
+                functionDeclaration.scope = symbolTable.scopeStack.peek();
+                symbolTable.popScope();
+            }
+        }
         return functionDeclaration;
     }
 
@@ -84,9 +132,26 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public ParameterList visitParameter_list(SqlParser.Parameter_listContext ctx)
     {
         ParameterList parameterList = new ParameterList();
-        for (int i=0;i<ctx.any_name().size();i++)
-        {
-            parameterList.list.add(ctx.any_name(i).IDENTIFIER().getSymbol().getText());
+        Boolean err = false;
+        for (int i=0;i<ctx.any_name().size();i++) {
+            if(parameterList.list.size()!=0){
+                for(int j=0;j<parameterList.list.size();j++){
+                    if(parameterList.list.get(j).equals(ctx.any_name().get(i).getText())){
+                        err = true;
+                        int line = ctx.any_name().get(j).start.getLine();
+                        int col = ctx.any_name().get(j).start.getCharPositionInLine();
+                        String des = "Parameter "+ ctx.any_name().get(i).getText() +" Is Defined More Than Once";
+                        Error error = new Error(line,col,des);
+                        errors.add(error);
+                        break;
+                    }
+                }
+            }
+            if(err){
+                parameterList.list.clear();
+            }
+            else
+                parameterList.list.add(ctx.any_name(i).getText());
         }
         for(int i=0 ; i <ctx.default_parameter().size();i++)
         {
@@ -103,6 +168,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
             for (int i=0;i<ctx.expression().size();i++)
             {
                 argumentList.argumentList.add(visitExpression(ctx.expression().get(i)));
+                try {
+                    ((Expression)argumentList.argumentList.get(i)).getType(symbolTable.scopeStack.peek());
+                } catch (Error error) {
+                    error.line = ctx.expression().get(i).start.getLine();
+                    error.col = ctx.expression().get(i).start.getCharPositionInLine();
+                    errors.add(error);
+                }
             }
         }
         return argumentList;
@@ -116,7 +188,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         defaultParameter.expression = visitExpression(ctx.expression());
         return defaultParameter;
     }
-
 
 
     public VariableDeclaration visitVariable_declaration(SqlParser.Variable_declarationContext ctx)
@@ -328,9 +399,23 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
     public SwitchStmt visitSwitch_stmt(SqlParser.Switch_stmtContext ctx) {
         SwitchStmt switchStmt= new SwitchStmt();
         switchStmt.var = visitVariable(ctx.variable());
+        try {
+            switchStmt.type = ((Variable)switchStmt.var).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.variable().start.getLine();
+            error.col = ctx.variable().start.getCharPositionInLine();
+            errors.add(error);
+        }
         for(int i=0;i<ctx.switch_case().size();i++)
         {
             switchStmt.cases.add(visitSwitch_case(ctx.switch_case(i)));
+            if(!((SwitchCase)switchStmt.cases.get(i)).type.equals(switchStmt.type)){
+                int line = ctx.switch_case().get(i).value().start.getLine();
+                int col = ctx.switch_case().get(i).value().start.getCharPositionInLine();
+                String des = "Type Of The Value Of The Case Statement Has To Be The Same As The Type Of The Switch Statement";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }
         }
         if(ctx.switch_default()!=null)
             switchStmt.def = visitSwitch_default(ctx.switch_default());
@@ -342,6 +427,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         symbolTable.pushScope();
         SwitchCase switchCase = new SwitchCase();
         switchCase.value = visitValue(ctx.value());
+        try {
+            switchCase.type = ((Value)switchCase.value).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.value().start.getLine();
+            error.col = ctx.value().start.getCharPositionInLine();
+            errors.add(error);
+        }
         if(ctx.block()!=null)
             switchCase.block = visitBlock(ctx.block());
         else
@@ -435,8 +527,7 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         return returnStmt;
     }
     @Override
-    public ReturnValue visitReturn_value(SqlParser.Return_valueContext ctx)
-    {
+    public ReturnValue visitReturn_value(SqlParser.Return_valueContext ctx) {
         ReturnValue returnValue = new ReturnValue();
         if(ctx.expression() != null)
             returnValue.value = visitExpression(ctx.expression());
@@ -490,6 +581,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         symbolTable.pushScope();
         IfStmt ifStmt = new IfStmt();
         ifStmt.condition = visitBooleanExpression(ctx.boolean_expression());
+        try {
+            ((BooleanExpression)ifStmt.condition).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.boolean_expression().start.getLine();
+            error.col = ctx.boolean_expression().start.getCharPositionInLine();
+            errors.add(error);
+        }
         if(ctx.one_line_block() != null )
             ifStmt.body = visitOne_line_block(ctx.one_line_block());
         if(ctx.block() != null)
@@ -504,6 +602,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         ElseIfStmt elseIfStmt = new ElseIfStmt();
         symbolTable.pushScope();
         elseIfStmt.condition = visitBooleanExpression(ctx.boolean_expression());
+        try {
+            ((BooleanExpression)elseIfStmt.condition).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.boolean_expression().start.getLine();
+            error.col = ctx.boolean_expression().start.getCharPositionInLine();
+            errors.add(error);
+        }
         if(ctx.one_line_block() != null )
             elseIfStmt.body = visitOne_line_block(ctx.one_line_block());
         if(ctx.block() != null)
@@ -581,6 +686,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         symbolTable.pushScope();
         WhileLoop  whileLoop = new WhileLoop();
         whileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
+        try {
+            ((BooleanExpression)whileLoop.booleanExpression).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.boolean_expression().start.getLine();
+            error.col = ctx.boolean_expression().start.getCharPositionInLine();
+            errors.add(error);
+        }
         if(ctx.block()!=null)
             whileLoop.block = visitBlock(ctx.block());
         else
@@ -596,6 +708,13 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         symbolTable.pushScope();
         DoWhileLoop  doWhileLoop = new DoWhileLoop();
         doWhileLoop.booleanExpression = visitBooleanExpression(ctx.boolean_expression());
+        try {
+            ((BooleanExpression)doWhileLoop.booleanExpression).getType(symbolTable.scopeStack.peek());
+        } catch (Error error) {
+            error.line = ctx.boolean_expression().start.getLine();
+            error.col = ctx.boolean_expression().start.getCharPositionInLine();
+            errors.add(error);
+        }
         if(ctx.block()!=null)
             doWhileLoop.block = visitBlock(ctx.block());
         else
@@ -803,226 +922,6 @@ public class JavaVisitor extends SqlBaseVisitor<Node> {
         return variable;
     }
 
-
-    /*
-
-    @Override
-    public FunctionDeclaration visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) {
-        FunctionDeclaration functionDeclaration = new FunctionDeclaration();
-        functionDeclaration.functionName=ctx.method_ID().getText();
-        functionDeclaration.pl=visitParameter_list(ctx.parameter_list());
-        return functionDeclaration;
-    }
-
-    @Override
-    public ParameterList visitParameter_list(SqlParser.Parameter_listContext ctx) {
-        ParameterList pln =new ParameterList();
-        for(int i=0;i<ctx.any_name().size();i++)
-        {
-            pln.list.add(ctx.any_name(i).getText());
-        }
-        return pln;
-    }
-
-    @Override
-    public Block visitBlock(SqlParser.BlockContext ctx) {
-        Block block=new Block();
-        if(ctx.java_body().size()!=0)
-            for (int i=0;i<ctx.java_body().size();i++)
-            {
-                block.javaBodies.add(visitJava_body(ctx.java_body(i)));
-            }
-        if(ctx.return_stmt()!=null)
-            block.returnStmt=visitReturn_stmt(ctx.return_stmt());
-        return block;
-    }
-
-    @Override
-    public JavaBody visitJava_body(SqlParser.Java_bodyContext ctx) {
-        Node temp = visit(ctx);
-        if(temp instanceof ConditionalStmt)
-            return (ConditionalStmt)temp;
-        if(temp instanceof Comment)
-            return (Comment)temp;
-        if(temp instanceof FunctionCallBody)
-            return (JavaBody) temp;
-        if(temp instanceof LoopStmt)
-            return (LoopStmt)temp;
-        if(temp instanceof Increment)
-
-
-
-
-            return (Increment)temp;
-        if(temp instanceof VariableDeclaration)
-            return (VariableDeclaration)temp;
-        if(temp instanceof VariableAssignment)
-            return (VariableAssignment)temp;
-        if(temp instanceof Break)
-            return (Break)temp;
-        else
-            return (Continue)temp;
-    }
-
-    @Override
-    public ReturnStmt visitReturn_stmt(SqlParser.Return_stmtContext ctx) {
-        ReturnStmt returnStmt = new ReturnStmt();
-        if(ctx.expression()!=null)
-            returnStmt.expression = visitExpression(ctx.expression());
-        return returnStmt;
-    }
-
-    @Override
-    public Expression visitExpression(SqlParser.ExpressionContext ctx) {
-        if(ctx.boolean_expr()!=null)
-            return visitBooleanExpression(ctx.boolean_expr());
-        else
-            return visitNonBooleanExpression(ctx.non_boolean_expression());
-    }
-
-    //Non Boolean Expression
-    public MathExpression visitNonBooleanExpression(SqlParser.Non_boolean_expressionContext ctx)
-    {
-        return (MathExpression)visit(ctx);
-    }
-
-    @Override
-    public Value visitNbeVal(SqlParser.NbeValContext ctx)
-    {
-        return visitValue(ctx.value());
-    }
-
-    @Override
-    public ArithmeticOperation visitNbeDoubleNonBool(SqlParser.NbeDoubleNonBoolContext ctx) {
-        ArithmeticOperation arithmeticOperation = new ArithmeticOperation();
-        arithmeticOperation.left = visitNonBooleanExpression(ctx.non_boolean_expression(0));
-        arithmeticOperation.right = visitNonBooleanExpression(ctx.non_boolean_expression(1));
-        arithmeticOperation.op = ctx.op.getText();
-        return arithmeticOperation;
-    }
-
-    @Override
-    public ParanthesesMath visitNbeParenth(SqlParser.NbeParenthContext ctx)
-    {
-        ParanthesesMath paranthesesNonBoolean= new ParanthesesMath();
-        paranthesesNonBoolean.mathExpression = visitNonBooleanExpression(ctx.non_boolean_expression());
-        return paranthesesNonBoolean;
-    }
-
-    //Boolean Expression
-    public BooleanExpression visitBooleanExpression(SqlParser.Boolean_exprContext ctx)
-    {
-        return (BooleanExpression) visit(ctx);
-    }
-
-    @Override
-    public BooleanValue visitVal(SqlParser.ValContext ctx)
-    {
-        Node temp = visit(ctx);
-        if(temp instanceof VariableCall)
-        {
-            BooleanVariableCall booleanVariableCall= new BooleanVariableCall();
-            booleanVariableCall.variableName=((VariableCall)temp).variableName;
-            return booleanVariableCall;
-        }
-        if(temp instanceof ArrayCall)
-        {
-            BooleanArrayCall booleanArrayCall = new BooleanArrayCall();
-            booleanArrayCall.arrayName=((ArrayCall)temp).arrayName;
-            booleanArrayCall.expression=((ArrayCall)temp).expression;
-            return booleanArrayCall;
-        }
-        if(temp instanceof FunctionCall)
-        {
-            BooleanFunctionCall booleanFunctionCall=new BooleanFunctionCall();
-            booleanFunctionCall.functionName=((FunctionCall)temp).functionName;
-            booleanFunctionCall.argumentList=((FunctionCall)temp).argumentList;
-            return booleanFunctionCall;
-        }
-        return null;
-    }
-
-    @Override
-    public ParenthesesBoolean visitParenth(SqlParser.ParenthContext ctx) {
-        ParenthesesBoolean parenthesesBoolean = new ParenthesesBoolean();
-        parenthesesBoolean.booleanExpression=visitBooleanExpression(ctx.boolean_expr());
-        return parenthesesBoolean;
-    }
-
-    @Override
-    public MultipleBooleanExpression visitDoubleBool(SqlParser.DoubleBoolContext ctx) {
-        MultipleBooleanExpression multipleExpressions=new MultipleBooleanExpression();
-        multipleExpressions.left=visitBooleanExpression(ctx.boolean_expr(0));
-        multipleExpressions.right=visitBooleanExpression(ctx.boolean_expr(1));
-        multipleExpressions.op=ctx.op.getText();
-        return multipleExpressions;
-    }
-
-    @Override
-    public Compare visitDoubleNonBool(SqlParser.DoubleNonBoolContext ctx) {
-        Compare compare= new Compare();
-        return compare;
-    }
-
-
-    //Value
-    public Value visitValue(SqlParser.ValueContext ctx)
-    {
-        Node temp = visit(ctx);
-        if(temp instanceof Variable)
-            return (Variable)temp;
-        if(temp instanceof FunctionCall)
-            return (FunctionCall)temp;
-        else
-            return (LiteralValue)temp;
-    }
-
-    @Override
-    public Variable visitVar(SqlParser.VarContext ctx)
-    {
-        return visitVariable(ctx.variable());
-    }
-
-    @Override
-    public FunctionCall visitJavaFunc(SqlParser.JavaFuncContext ctx) {
-        return visitJava_function_call_as_value(ctx.java_function_call_as_non_bool_value());
-    }
-
-    @Override
-    public LiteralValue visitLiteral_value(SqlParser.Literal_valueContext ctx)
-    {
-        LiteralValue literalValue=new LiteralValue();
-        literalValue.literalValue=ctx.getText();
-        return literalValue;
-    }
-
-    @Override
-    public FunctionCall visitJava_function_call_as_value(SqlParser.Java_function_call_as_non_bool_valueContext ctx) {
-        FunctionCall functionCall = new FunctionCall();
-        functionCall.functionName=ctx.method_ID().getText();
-        functionCall.argumentList=visitArgument_list(ctx.argument_list());
-        return functionCall;
-    }
-
-    //Variable
-    @Override
-    public Variable visitVariable(SqlParser.VariableContext ctx) {
-        if(ctx.any_name()!=null)
-        {
-            VariableCall variableCall = new VariableCall();
-            variableCall.variableName=ctx.getText();
-            return variableCall;
-        }
-        return visitArray_call(ctx.array_call());
-    }
-    @Override
-    public ArrayCall visitArray_call(SqlParser.Array_callContext ctx) {
-        ArrayCall arrayCall =new ArrayCall();
-        arrayCall.arrayName=ctx.array_name().getText();
-        //arrayCall.expression=visitExpression(ctx.expression());
-        return arrayCall;
-    }
-*/
 }
 
 

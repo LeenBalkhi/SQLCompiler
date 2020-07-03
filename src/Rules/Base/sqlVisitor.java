@@ -112,6 +112,7 @@ public class sqlVisitor extends JavaVisitor {
          if(temp instanceof SqlExpressionCase9)
          {
              sqlExpression.expression = (SqlExpressionCase9)temp;
+             sqlExpression.type = ((SqlExpressionCase9)temp).type;
          }
          if(temp instanceof SqlExpressionCase10)
          {
@@ -134,6 +135,7 @@ public class sqlVisitor extends JavaVisitor {
          if(temp instanceof SqlExpressionCase14)
          {
              sqlExpression.expression = (SqlExpressionCase14)temp;
+             sqlExpression.type = ((SqlExpressionCase14)temp).type;
          }
          if(temp instanceof SqlExpressionCase15)
          {
@@ -352,14 +354,13 @@ public class sqlVisitor extends JavaVisitor {
     public SqlExpressionCase9 visitCase9(SqlParser.Case9Context ctx) {
         SqlExpressionCase9 sqlExpressionCase9 = new SqlExpressionCase9();
         sqlExpressionCase9.SqlExpression1 = visitExpr(ctx.expr(0));
-        if(ctx.op != null)
+        if(ctx.op != null){
             sqlExpressionCase9.op = ctx.op.getText();
+        }
         else if(ctx.K_IS()!=null && ctx.K_NOT()!=null)
             sqlExpressionCase9.op = "IS NOT";
         else if(ctx.K_IS()!=null)
             sqlExpressionCase9.op = "IS";
-        else if(ctx.K_IN()!=null)
-            sqlExpressionCase9.op = "IN";
         else if(ctx.K_LIKE()!=null)
             sqlExpressionCase9.op = "LIKE";
         else if(ctx.K_GLOB()!=null)
@@ -369,6 +370,15 @@ public class sqlVisitor extends JavaVisitor {
         else if(ctx.K_REGEXP()!=null)
             sqlExpressionCase9.op = "REGEXP";
         sqlExpressionCase9.SqlExpression2 = visitExpr(ctx.expr(1));
+        if(!((SqlExpression)sqlExpressionCase9.SqlExpression2).type.equals(((SqlExpression)sqlExpressionCase9.SqlExpression1).type)){
+            int line = ctx.start.getLine();
+            int col = ctx.start.getCharPositionInLine();
+            String des = "The Operation "+ sqlExpressionCase9.op +" Has To Take In 2 Expressions Of The Same Type";
+            Error error = new Error(line,col,des);
+            errors.add(error);
+        }
+        else
+            sqlExpressionCase9.type = "Boolean";
         return sqlExpressionCase9;
     }
 
@@ -438,13 +448,58 @@ public class sqlVisitor extends JavaVisitor {
         SqlExpressionCase14 sqlExpressionCase14 = new SqlExpressionCase14();
         if(ctx.K_NOT() != null)
             sqlExpressionCase14.not = true;
-        for(int i=1; i < ctx.expr().size(); i++)
-            sqlExpressionCase14.expressions.add(visitExpr(ctx.expr().get(i)));
+        sqlExpressionCase14.mainExpression = visitExpr(ctx.exp1);
         if(ctx.select_stmt() != null)
             sqlExpressionCase14.selectStmt = visitSelect_stmt(ctx.select_stmt());
-        if(ctx.database_name() != null)
-            sqlExpressionCase14.dataBaseName = visitAny_name(ctx.database_name().any_name());
-        sqlExpressionCase14.tableName = visitAny_name(ctx.table_name().any_name());
+        if(((SelectStmt)sqlExpressionCase14.selectStmt).types.size() == 0){
+            int line = ctx.select_stmt().start.getLine();
+            int col = ctx.select_stmt().start.getCharPositionInLine();
+            String des = "Select Statement Does Not Have Any Type";
+            Error error = new Error(line,col,des);
+            errors.add(error);
+        }else {
+            if( ((SelectStmt)sqlExpressionCase14.selectStmt).types.size() > 1 ){
+                int line = ctx.select_stmt().start.getLine();
+                int col = ctx.select_stmt().start.getCharPositionInLine();
+                String des = "Select Statement Has More Than One Type";
+                Error error = new Error(line,col,des);
+                errors.add(error);
+            }
+            else {
+                if( sqlExpressionCase14.mainExpression.type.equals("String")
+                        || sqlExpressionCase14.mainExpression.type.equals("Boolean")
+                        || sqlExpressionCase14.mainExpression.type.equals("Double")
+                        || sqlExpressionCase14.mainExpression.type.equals("Long")){
+                    if( (((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.size()>1) ){
+                        int line = ctx.select_stmt().start.getLine();
+                        int col = ctx.select_stmt().start.getCharPositionInLine();
+                        String des = "Select Statement Has More Than One Type";
+                        Error error = new Error(line,col,des);
+                        errors.add(error);
+                    }else {
+                        if( !((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.get(0).type.equals(sqlExpressionCase14.mainExpression.type) ){
+                            int line = ctx.select_stmt().start.getLine();
+                            int col = ctx.select_stmt().start.getCharPositionInLine();
+                            String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
+                            Error error = new Error(line,col,des);
+                            errors.add(error);
+                        }
+                        else
+                            sqlExpressionCase14.type = "Boolean";
+                    }
+                }else {
+                    if(!((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.name.equals(sqlExpressionCase14.mainExpression.type)) {
+                        int line = ctx.select_stmt().start.getLine();
+                        int col = ctx.select_stmt().start.getCharPositionInLine();
+                        String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
+                        Error error = new Error(line,col,des);
+                        errors.add(error);
+                    }
+                    else
+                        sqlExpressionCase14.type = "Boolean";
+                }
+            }
+        }
         return sqlExpressionCase14;
     }
 
@@ -683,23 +738,28 @@ public class sqlVisitor extends JavaVisitor {
             for(int i=0 ; i < ctx.result_column().size(); i++){
                 selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
             }
-            if(ctx.where!=null)
-                visitExpr(ctx.where);
             if( ctx.join_clause() !=null)
                 selectCore.joinClause = visitJoin_clause(ctx.join_clause());
             if( ctx.where!=null){
-                visitExpr(ctx.where);
+                SqlExpression sqlExpression = visitExpr(ctx.where);
+                if (sqlExpression.type ==null ||!sqlExpression.type.equals("Boolean")){
+                    int line = ctx.where.start.getLine();
+                    int col = ctx.where.start.getCharPositionInLine();
+                    String des = "Expression Inside Where Is Not Of Type Boolean";
+                    Error error = new Error(line,col,des);
+                    errors.add(error);
+                }
             }
-            if(ctx.K_GROUP() != null)
-            {
-                for(int i=0 ; i < ctx.expr().size(); i++)
-                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
-            }
-            if(ctx.K_HAVING() != null)
-            {
-                for(int i=0 ; i < ctx.expr().size(); i++)
-                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
-            }
+//            if(ctx.K_GROUP() != null)
+//            {
+//                for(int i=0 ; i < ctx.expr().size(); i++)
+//                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
+//            }
+//            if(ctx.K_HAVING() != null)
+//            {
+//                for(int i=0 ; i < ctx.expr().size(); i++)
+//                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
+//            }
         }
         return selectCore;
     }
@@ -875,8 +935,16 @@ public class sqlVisitor extends JavaVisitor {
             }
             if(ctx.join_clause() != null)
                 selectOrValue.join = visitJoin_clause(ctx.join_clause());
-            for(int i=0 ; i < ctx.expr().size(); i++)
-                selectOrValue.expressions.add(visitExpr(ctx.expr().get(i)));
+            if( ctx.where!=null){
+                SqlExpression sqlExpression = visitExpr(ctx.where);
+                if (sqlExpression.type ==null ||!sqlExpression.type.equals("Boolean")){
+                    int line = ctx.where.start.getLine();
+                    int col = ctx.where.start.getCharPositionInLine();
+                    String des = "Expression Inside Where Is Not Of Type Boolean";
+                    Error error = new Error(line,col,des);
+                    errors.add(error);
+                }
+            }
         }
         return selectOrValue;
     }
