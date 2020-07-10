@@ -1,13 +1,21 @@
 func(){
-    if(true){
-        var i = 8;
-        return i+0;
+    var m = 10;
+    m++;
+    print(m);
+    return m;
+}
+
+funcc(){
+    return 1 + func();
+}
+
+fuuu(){
+    var m = 19;
+    while(m<29){
+        m = m+3;
+        funcc();
+        print(m);
     }
-    return 7;
 }
 
-funcm(){
-    print(func());
-}
-
-funcm();
+fuuu();

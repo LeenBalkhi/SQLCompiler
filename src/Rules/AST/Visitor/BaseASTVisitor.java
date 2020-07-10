@@ -72,13 +72,13 @@ public class BaseASTVisitor implements ASTVisitor {
         } catch (Error error) {
             error.printStackTrace();
         }
-        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)postIncrement.variable).variable)).VariableName.get(0) );
+        Symbol symbol = currentScope().findSymbol(((SimpleVariable) (((Variable) postIncrement.variable).variable)).VariableName.get(0));
         if( type.equals("Long") ){
-            symbol.value = ((long)visit((Variable)postIncrement.variable))-1;
+            symbol.value = ((long)visit((Variable)postIncrement.variable))+1;
             return symbol.value;
         }
         if( type.equals("Double") ) {
-            symbol.value = ((double)visit((Variable)postIncrement.variable))-1;
+            symbol.value = ((double)visit((Variable)postIncrement.variable))+1;
             return symbol.value;
         }
         return null;
@@ -92,7 +92,7 @@ public class BaseASTVisitor implements ASTVisitor {
         } catch (Error error) {
             error.printStackTrace();
         }
-        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)postDecrement.variable).variable)).VariableName.get(0) );
+        Symbol symbol = currentScope().findSymbol(((SimpleVariable) (((Variable) postDecrement.variable).variable)).VariableName.get(0));
         if( type.equals("Long") ){
             symbol.value = ((long)visit((Variable)postDecrement.variable))-1;
             return symbol.value;
@@ -112,7 +112,7 @@ public class BaseASTVisitor implements ASTVisitor {
         } catch (Error error) {
             error.printStackTrace();
         }
-        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)preIncrement.variable).variable)).VariableName.get(0) );
+        Symbol symbol = currentScope().findSymbol(((SimpleVariable) (((Variable) preIncrement.variable).variable)).VariableName.get(0));
         if( type.equals("Long") ){
             symbol.value = ((long)visit((Variable)preIncrement.variable))+1;
             return symbol.value;
@@ -132,7 +132,7 @@ public class BaseASTVisitor implements ASTVisitor {
         } catch (Error error) {
             error.printStackTrace();
         }
-        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)preDecrement.variable).variable)).VariableName.get(0) );
+        Symbol symbol = currentScope().findSymbol(((SimpleVariable) (((Variable) preDecrement.variable).variable)).VariableName.get(0));
         if( type.equals("Long") ){
             symbol.value = ((long)visit((Variable)preDecrement.variable))-1;
             return symbol.value;
@@ -182,7 +182,6 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast Assignment");
         visit((AssignmentOperator)assignment.assignmentOperator);
         visit((VariableAssignmentValue)assignment.variableAssignmentValue);
-
 
     }
 
@@ -381,7 +380,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(Parse p) {
-        System.out.println("ast parse ");
         for(int i=0;i<p.sqlStmts.size();i++)
         {
             visit((Statement)p.sqlStmts.get(i));
@@ -400,7 +398,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(JavaStatment javaStmt)
     {
-        System.out.println("ast JavaStatment ");
         if(javaStmt.javaStatment instanceof FunctionCall){
             visit((FunctionCall)javaStmt.javaStatment);
             if(javaStmt.javaStatement2!=null)
@@ -447,9 +444,7 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(FunctionCall funcCall)
     {
-        System.out.println("ast FunctionCall ");
-        System.out.println(funcCall.functionName);
-        FunctionSymbol functionSymbol = (FunctionSymbol) symbolTable.getSymbol(funcCall.functionName);
+        FunctionSymbol functionSymbol = (FunctionSymbol) currentScope().findSymbol(funcCall.functionName);
         for(int i = 0 ; i < ((ArgumentList)funcCall.argumentList).argumentList.size() ; i++){
             try {
                 functionSymbol.parameters.get(i).type = ((Expression)((ArgumentList)funcCall.argumentList)
@@ -461,10 +456,12 @@ public class BaseASTVisitor implements ASTVisitor {
                     .argumentList.get(i));
         }
         symbolTable.pushScope( ((FunctionDeclaration)functionSymbol.value).scope );
+        System.out.println("During "+ functionSymbol.name + symbolTable.scopeStack.peek().symbolMap.keySet() );
         Object object = visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
 //        if(funcCall.argumentList!=null)
 //            visit((ArgumentList)funcCall.argumentList);
         symbolTable.popScope();
+        System.out.println("After "+ functionSymbol.name + symbolTable.scopeStack.peek().symbolMap.keySet() );
         return object;
     }
 
@@ -631,9 +628,9 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(VariableAssignment variableAssignment)
     {
         Symbol symbol = currentScope().findSymbol(((SimpleVariable)
-                ((Variable)variableAssignment.variable).variable).VariableName.get(0));
-        Object assignmentValue = visit((Expression)((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
-                .variableAssignmentValue).Value);
+                ((Variable) variableAssignment.variable).variable).VariableName.get(0));
+        Object assignmentValue = visit( (Expression)((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
+                .variableAssignmentValue).Value );
         String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
         switch (op){
             case "=": {
@@ -984,7 +981,7 @@ public class BaseASTVisitor implements ASTVisitor {
     {
         System.out.println("ast Variable ");
         if(variable.variable instanceof SimpleVariable){
-            return currentScope().findSymbol(((SimpleVariable)variable.variable).VariableName.get(0)).value;
+            return currentScope().findSymbol(((SimpleVariable) variable.variable).VariableName.get(0)).value;
         }
         return null;
     }
