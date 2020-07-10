@@ -33,44 +33,44 @@ public interface ASTVisitor {
     public void visit(Continue c);
     public void visit(Break b);
     public void visit(Scope scope);
-    public void visit(PreIncrement preIncrement);
-    public void visit(PreDecrement preDecrement);
-    public void visit(PostIncrement postIncrement);
-    public void visit(PostDecrement postDecrement);
+    public Object visit(PreIncrement preIncrement);
+    public Object visit(PreDecrement preDecrement);
+    public Object visit(PostIncrement postIncrement);
+    public Object visit(PostDecrement postDecrement);
     public void visit(LogicalConditionInParenth logicalConditionInParenth);
     public void visit(LogicalConditionNormal logicalConditionNormal);
     public void visit(VariableAssignmentValue variableAssignmentValue);
     public void visit(Assignment assignment);
-    public void visit(MathExpression mathExpression);
+    public Object visit(MathExpression mathExpression);
     public void visit(False f);
     public void visit(True t);
-    public void visit(BooleanInParenth booleanInParenth);
-    public void visit(MultipleBooleanExpression multipleBooleanExpression);
-    public void visit(Compare compare);
-    public void visit(ArithmeticOperation arithmeticOperation);
-    public void visit(MathInParenth mathInParenth);
-    public void visit(ValueInParenth valueInParenth);
-    public void visit(SimpleLiteralValue simpleLiteralValue);
+    public Boolean visit(BooleanInParenth booleanInParenth);
+    public Boolean visit(MultipleBooleanExpression multipleBooleanExpression);
+    public Boolean visit(Compare compare);
+    public Object visit(ArithmeticOperation arithmeticOperation);
+    public Object visit(MathInParenth mathInParenth);
+    public Object visit(ValueInParenth valueInParenth);
+    public Object visit(SimpleLiteralValue simpleLiteralValue);
     public void visit(SimpleVariable simpleVariable);
     public void visit(Parse p);
     public void visit(Node n);
-    public void visit(JavaString string);
-    public void visit(Value value);
+    public String visit(JavaString string);
+    public Object visit(Value value);
     public void visit(JavaStatment javaStmt);
     public void visit(ArgumentList argumentList);
     public void visit(Comment comment);
     public void visit(DefaultParameter defaultParameter);
-    public void visit(FunctionCall funcCall);
+    public Object visit(FunctionCall funcCall);
     public void visit(FunctionDeclaration funcDec);
     public void visit(HigherOrderFunction HOfunc);
     public void visit(HigherOrderFunctionCall HOfuncCall);
     public void visit(ParameterList ParamList);
 
     //JavaBody
-    public void visit(Block block);
-    public void visit(JavaBody javaBody);
+    public Object visit(Block block);
+    public Object visit(JavaBody javaBody);
     public void visit(OneLineBlock oneLineBlock);
-    public void visit(ReturnStmt returnStmt);
+    public Object visit(ReturnStmt returnStmt);
 
     //JavaLogic
     public void visit(ArrayCall arrayCall);
@@ -81,17 +81,17 @@ public interface ASTVisitor {
     public void visit(VariableDeclaration variableIdentification);
 
     //javaLogicConditional
-    public void visit(ConditionalStmt conditionalStmt);
-    public void visit(ElseIfStmt elseIfStmt , Boolean bool);
-    public void visit(ElseStmt elseStmt , Boolean bool);
-    public void visit(IfStmt ifStmt , Boolean bool);
+    public Object visit(ConditionalStmt conditionalStmt);
+    public Object visit(ElseIfStmt elseIfStmt , Boolean bool);
+    public Object visit(ElseStmt elseStmt , Boolean bool);
+    public Object visit(IfStmt ifStmt , Boolean bool);
 
     //javaLogicLoop
-    public void visit(DoWhileLoop doWhileLoop);
+    public Object visit(DoWhileLoop doWhileLoop);
     public void visit(ForEachLoop forEachLoop);
-    public void visit(ForLoop forLoop);
-    public void visit(LoopStmt loopStmt);
-    public void visit(WhileLoop whileLoop);
+    public Object visit(ForLoop forLoop);
+    public Object visit(LoopStmt loopStmt);
+    public Object visit(WhileLoop whileLoop);
 
     //javaLogicSwitch
     public void visit(SwitchCase switchCase);
@@ -100,15 +100,15 @@ public interface ASTVisitor {
 
     //javaUtils
     public void visit(AssignmentOperator assignmentOperator);
-    public void visit(BooleanExpression booleanExpression);
+    public Boolean visit(BooleanExpression booleanExpression);
     public void visit(Element element);
-    public void visit(Expression expression);
-    public void visit(Increment increment);
+    public Object visit(Expression expression);
+    public Object visit(Increment increment);
     public void visit(JavaObj javaObj);
     public void visit(LiteralValue literalValue);
     public void visit(LogicalCondition logicalCondition);
     //public void visit(MathExpression mathExpression);
-    public void visit(Variable variable);
+    public Object visit(Variable variable);
 
 
     //sql

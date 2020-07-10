@@ -130,14 +130,21 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     Symbol symbol = new Symbol();
                     symbol.name = ((ParameterList)functionDeclaration.pl).list.get(i);
                     functionSymbol.parameters.add(symbol);
+                    symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
                 }
                 functionDeclaration.block = visitBlock(ctx.block());
                 functionSymbol.value = functionDeclaration;
-                //functionSymbol.type = ((Block)functionDeclaration.block).getType(functionDeclaration.scope);
+                functionDeclaration.scope = symbolTable.scopeStack.peek();
+                try {
+                    functionSymbol.type = ((Block)functionDeclaration.block).getType(functionDeclaration.scope);
+                } catch (Error error) {
+                    error.line = ctx.start.getLine();
+                    error.col = ctx.start.getCharPositionInLine();
+                    errors.add(error);
+                }
+                symbolTable.popScope();
                 symbolTable.scopeStack.peek().symbolMap.put(functionSymbol.name,functionSymbol);
                 symbolTable.functionSymbols.add(functionSymbol);
-                functionDeclaration.scope = symbolTable.scopeStack.peek();
-                symbolTable.popScope();
             }
         }
         return functionDeclaration;
@@ -208,37 +215,39 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
 
     public VariableDeclaration visitVariable_declaration(SqlParser.Variable_declarationContext ctx)
     {
+        boolean fix = false;
         VariableDeclaration variableDeclaration = new VariableDeclaration();
         for(int i=0 ; i <ctx.variable_assignment().size(); i ++) {
             //
             variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i),true));
             //
             VariableAssignment variableAssignment = ((VariableAssignment)variableDeclaration.variableAssignments.get(i));
-            if( ((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0))).variableAssignmentValue).Value
-                    instanceof FactoredSelectStatement ){
-                FactoredSelectStatement factoredSelectStatement = ((FactoredSelectStatement)((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0)))
-                        .variableAssignmentValue).Value);
-                TableSymbol tableSymbol = new TableSymbol();
-                tableSymbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
-                if(symbolTable.scopeStack.peek().symbolMap.containsKey(tableSymbol.name)){
-                    Error error = new Error(ctx.variable_assignment(i).start.getLine(),
-                            ctx.variable_assignment(i).start.getCharPositionInLine(),
-                            "Variable " + tableSymbol.name + " Already Defined In This Scope");
-                    errors.add(error);
-                }
-                else {
-                    if(factoredSelectStatement.sqlType!=null){
-                        factoredSelectStatement.sqlType.name = tableSymbol.name;
-                        symbolTable.sqlTypes.put(factoredSelectStatement.sqlType.name,factoredSelectStatement.sqlType);
-                        tableSymbol.type = tableSymbol.name;
-                        symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name,tableSymbol);
+            Symbol symbol = new Symbol();
+            symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+            for(int j=0;j < variableAssignment.assignments.size();j++) {
+                if( ((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(j))).variableAssignmentValue).Value
+                        instanceof FactoredSelectStatement ){
+                    fix = true;
+                    FactoredSelectStatement factoredSelectStatement = ((FactoredSelectStatement)((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0)))
+                            .variableAssignmentValue).Value);
+                    TableSymbol tableSymbol = new TableSymbol();
+                    tableSymbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+                    if(symbolTable.sqlTypes.containsKey(tableSymbol.name)){
+                        Error error = new Error(ctx.variable_assignment(i).start.getLine(),
+                                ctx.variable_assignment(i).start.getCharPositionInLine(),
+                                "Table " + tableSymbol.name + " Already Exists");
+                        errors.add(error);
+                    }
+                    else {
+                        if(factoredSelectStatement.sqlType!=null){
+                            factoredSelectStatement.sqlType.name = tableSymbol.name;
+                            symbolTable.sqlTypes.put(factoredSelectStatement.sqlType.name,factoredSelectStatement.sqlType);
+                            tableSymbol.type = tableSymbol.name;
+                            symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name,tableSymbol);
+                        }
                     }
                 }
-            }
-            else {
-                Symbol symbol = new Symbol();
-                symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
-                for(int j=0;j < variableAssignment.assignments.size();j++) {
+                else{
                     try {
                         symbol.type = ((VariableAssignmentValue)
                                 ((Assignment)variableAssignment.assignments.get(j))
@@ -249,6 +258,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                         errors.add(error);
                     }
                 }
+            }
+            if(!fix){
                 if(!symbolTable.scopeStack.peek().symbolMap.containsKey(symbol.name))
                     symbolTable.scopeStack.peek().symbolMap.put(symbol.name,symbol);
                 else {
@@ -578,8 +589,16 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public ReturnValue visitReturn_value(SqlParser.Return_valueContext ctx) {
         ReturnValue returnValue = new ReturnValue();
-        if(ctx.expression() != null)
+        if(ctx.expression() != null){
             returnValue.value = visitExpression(ctx.expression());
+            try {
+                ((Expression)returnValue.value).getType(symbolTable.scopeStack.peek());
+            } catch (Error error) {
+                error.line = ctx.expression().start.getLine();
+                error.col = ctx.expression().start.getCharPositionInLine();
+                errors.add(error);
+            }
+        }
         if(ctx.logical_condition() != null)
             returnValue.value = visitLogical_condition(ctx.logical_condition());
         if(ctx.string() != null)
@@ -603,8 +622,17 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public Print visitPrint(SqlParser.PrintContext ctx)
     {
         Print print = new Print();
-        for(int i=0 ; i < ctx.expression().size(); i ++)
+        for(int i=0 ; i < ctx.expression().size(); i ++){
             print.expressions.add(visitExpression(ctx.expression().get(i)));
+            try {
+                (print.expressions.get(i)).getType(symbolTable.scopeStack.peek());
+            } catch (Error error) {
+                error.line = ctx.expression().get(i).start.getLine();
+                error.col = ctx.expression().get(i).start.getCharPositionInLine();
+                errors.add(error);
+            }
+        }
+
         return print;
     }
 
@@ -1563,8 +1591,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                         || sqlTypeEntry.type.equals("Long")
                         || sqlTypeEntry.type.equals("Boolean")
                         || sqlTypeEntry.type.equals("Double")
-                        || (symbolTable.scopeStack.peek().symbolMap.containsKey(sqlTypeEntry.type)
-                        && symbolTable.scopeStack.peek().symbolMap.get(sqlTypeEntry.type) instanceof TableSymbol)) {
+                        || (symbolTable.getSymbol(sqlTypeEntry.type)!=null
+                        && symbolTable.getSymbol(sqlTypeEntry.type) instanceof TableSymbol)) {
                     sqlType.entries.add(sqlTypeEntry);
                 }
                 else {
@@ -1796,8 +1824,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 tableOrSubquery.tableAlias = ctx.table_alias().getText();
             if(ctx.index_name() != null)
                 tableOrSubquery.indexName = visitAny_name(ctx.index_name().any_name());
-            if(!symbolTable.scopeStack.peek().symbolMap.containsKey(tableOrSubquery.tableName.name) ||
-                    ! (symbolTable.scopeStack.peek().symbolMap.get(tableOrSubquery.tableName.name) instanceof TableSymbol)){
+            if(symbolTable.getSymbol(tableOrSubquery.tableName.name) ==null ||
+                    ! (symbolTable.getSymbol(tableOrSubquery.tableName.name) instanceof TableSymbol)){
                 int line = ctx.table_name().start.getLine();
                 int col = ctx.table_name().start.getCharPositionInLine();
                 String des = "Table "+ tableOrSubquery.tableName.name +" Does Not Exist";
@@ -1807,7 +1835,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             else {
                 TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
                 temp.as = tableOrSubquery.tableName.name;
-                temp.sqlType = symbolTable.sqlTypes.get(((TableSymbol)(symbolTable.scopeStack.peek().symbolMap.get(tableOrSubquery.tableName.name))).type);
+                temp.sqlType = symbolTable.sqlTypes.get(((TableSymbol)(symbolTable.getSymbol(tableOrSubquery.tableName.name))).type);
                 if(tableOrSubquery.tableAlias!=null)
                     temp.as = tableOrSubquery.tableAlias;
                 tableOrSubquery.types.add(temp);

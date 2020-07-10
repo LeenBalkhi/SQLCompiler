@@ -24,6 +24,8 @@ public class Value extends Node {
             return ((SimpleLiteralValue)value).getType();
         if(value instanceof JavaString)
             return "String";
+        if(value instanceof FunctionCall)
+            return ((FunctionCall)value).getType(scope);
         return null;
     }
 }

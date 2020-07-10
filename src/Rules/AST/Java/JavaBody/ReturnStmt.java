@@ -9,8 +9,10 @@ public class ReturnStmt extends Node {
     public Node returnValue ;
 
     public String getType(Scope scope)throws Error {
-        if(returnValue instanceof Expression)
-            return ((Expression)returnValue).getType(scope);
+        if(((ReturnValue)returnValue).value instanceof Expression){
+            return ((Expression)((ReturnValue)returnValue).value).getType(scope);
+        }
         return null;
     }
+
 }

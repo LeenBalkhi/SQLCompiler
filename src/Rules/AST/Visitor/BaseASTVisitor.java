@@ -27,6 +27,8 @@ import Rules.SymbolTableMu.SymbolTable;
 import Rules.Utils.Error;
 
 import java.sql.SQLSyntaxErrorException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 public class BaseASTVisitor implements ASTVisitor {
 
@@ -63,31 +65,83 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(PostIncrement postIncrement) {
-        System.out.println("as PostIncrement");
-        visit((Variable) postIncrement.variable);
-        System.out.println(postIncrement.op);
+    public Object visit(PostIncrement postIncrement) {
+        String type="";
+        try {
+            type = ((Variable)postIncrement.variable).getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)postIncrement.variable).variable)).VariableName.get(0) );
+        if( type.equals("Long") ){
+            symbol.value = ((long)visit((Variable)postIncrement.variable))-1;
+            return symbol.value;
+        }
+        if( type.equals("Double") ) {
+            symbol.value = ((double)visit((Variable)postIncrement.variable))-1;
+            return symbol.value;
+        }
+        return null;
     }
 
     @Override
-    public void visit(PostDecrement postDecrement) {
-        System.out.println("ast PostDecrement");
-        visit((Variable)postDecrement.variable);
-        System.out.println(postDecrement.op);
+    public Object visit(PostDecrement postDecrement) {
+        String type="";
+        try {
+            type = ((Variable)postDecrement.variable).getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)postDecrement.variable).variable)).VariableName.get(0) );
+        if( type.equals("Long") ){
+            symbol.value = ((long)visit((Variable)postDecrement.variable))-1;
+            return symbol.value;
+        }
+        if( type.equals("Double") ){
+            symbol.value = ((double)visit((Variable)postDecrement.variable))-1;
+            return symbol.value;
+        }
+        return null;
     }
 
     @Override
-    public void visit(PreIncrement preIncrement) {
-        System.out.println("ast PreIncrement");
-        System.out.println(preIncrement.op);
-        visit((Variable)preIncrement.variable);
+    public Object visit(PreIncrement preIncrement) {
+        String type="";
+        try {
+            type = ((Variable)preIncrement.variable).getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)preIncrement.variable).variable)).VariableName.get(0) );
+        if( type.equals("Long") ){
+            symbol.value = ((long)visit((Variable)preIncrement.variable))+1;
+            return symbol.value;
+        }
+        if( type.equals("Double") ){
+            symbol.value = ((double)visit((Variable)preIncrement.variable))+1;
+            return symbol.value;
+        }
+        return null;
     }
 
     @Override
-    public void visit(PreDecrement preDecrement) {
-        System.out.println("ast PreDecrement");
-        System.out.println(preDecrement.op);
-        visit((Variable)preDecrement.variable);
+    public Object visit(PreDecrement preDecrement) {
+        String type="";
+        try {
+            type = ((Variable)preDecrement.variable).getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+        Symbol symbol = symbolTable.getSymbol( ((SimpleVariable)(((Variable)preDecrement.variable).variable)).VariableName.get(0) );
+        if( type.equals("Long") ){
+            symbol.value = ((long)visit((Variable)preDecrement.variable))-1;
+            return symbol.value;
+        }
+        if( type.equals("Double") ){
+            symbol.value = ((double)visit((Variable)preDecrement.variable))-1;
+            return symbol.value;
+        }
+        return null;
     }
 
     @Override
@@ -95,11 +149,11 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast LogicalConditionNormal");
         visit((BooleanExpression)logicalConditionNormal.condition);
         if(logicalConditionNormal.ifTrue instanceof Expression)
-            visit((Expression)logicalConditionNormal.ifTrue);
+           // visit((Expression)logicalConditionNormal.ifTrue);
         if(logicalConditionNormal.ifTrue instanceof LogicalCondition)
             visit((LogicalCondition)logicalConditionNormal.ifTrue);
         if(logicalConditionNormal.ifFalse instanceof Expression)
-            visit((Expression)logicalConditionNormal.ifFalse);
+           // visit((Expression)logicalConditionNormal.ifFalse);
         if(logicalConditionNormal.ifFalse instanceof LogicalCondition)
             visit((LogicalCondition)logicalConditionNormal.ifFalse);
     }
@@ -114,7 +168,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(VariableAssignmentValue variableAssignmentValue) {
         System.out.println("ast VariableAssignmentValue");
         if(variableAssignmentValue.Value instanceof Expression)
-            visit((Expression)variableAssignmentValue.Value);
+            //visit((Expression)variableAssignmentValue.Value);
         if(variableAssignmentValue.Value instanceof ArrayIdentification)
             visit((ArrayIdentification)variableAssignmentValue.Value);
         if(variableAssignmentValue.Value instanceof JsonObject)
@@ -138,14 +192,14 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(MathExpression mathExpression) {
-        System.out.println("ast MathExpression");
+    public Object visit(MathExpression mathExpression) {
         if(mathExpression.expression instanceof Value)
-            visit((Value)mathExpression.expression);
+            return visit((Value)mathExpression.expression);
         if(mathExpression.expression instanceof ArithmeticOperation)
-            visit((ArithmeticOperation)mathExpression.expression);
+            return visit((ArithmeticOperation)mathExpression.expression);
         if(mathExpression.expression instanceof MathInParenth)
-            visit((MathInParenth)mathExpression.expression);
+            return visit((MathInParenth)mathExpression.expression);
+        return null;
     }
 
     @Override
@@ -154,51 +208,146 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(Compare compare) {
-        System.out.println("ast Compare");
-        visit((MathExpression)compare.left);
-        System.out.println(compare.op);
-        visit((MathExpression)compare.right);
+    public Boolean visit(Compare compare) {
+
+        String left = "";
+        try {
+            left = ((MathExpression)compare.left).getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+        switch ( left ){
+            case "Long":{
+                long valueLeft = ((long)(visit((MathExpression)(compare.left)))) ;
+                long valueRight = ((long)(visit((MathExpression)(compare.right)))) ;
+                if(compare.op.equals("<"))
+                    return valueLeft < valueRight;
+                if(compare.op.equals("<="))
+                    return valueLeft <= valueRight;
+                if(compare.op.equals(">"))
+                    return valueLeft > valueRight;
+                if(compare.op.equals(">="))
+                    return valueLeft >= valueRight;
+                if(compare.op.equals("=="))
+                    return valueLeft == valueRight;
+                if(compare.op.equals("!="))
+                    return valueLeft != valueRight;
+                break;
+            }
+            case "Double":{
+                double valueLeft = ((double)(visit((MathExpression)(compare.left)))) ;
+                double valueRight = ((double)(visit((MathExpression)(compare.right)))) ;
+                if(compare.op.equals("<"))
+                    return valueLeft < valueRight;
+                if(compare.op.equals("<="))
+                    return valueLeft <= valueRight;
+                if(compare.op.equals(">"))
+                    return valueLeft > valueRight;
+                if(compare.op.equals(">="))
+                    return valueLeft >= valueRight;
+                if(compare.op.equals("=="))
+                    return valueLeft == valueRight;
+                if(compare.op.equals("!="))
+                    return valueLeft != valueRight;
+                break;
+            }
+            case "String":{
+                String valueLeft = ((String)(visit((MathExpression)(compare.left)))) ;
+                String valueRight = ((String)(visit((MathExpression)(compare.right)))) ;
+                if(compare.op.equals("=="))
+                    return valueLeft == valueRight;
+                if(compare.op.equals("!="))
+                    return valueLeft != valueRight;
+                break;
+            }
+        }
+        return null;
     }
 
     @Override
-    public void visit(MathInParenth mathInParenth) {
-        System.out.println("ast MathInParenth");
-        visit((MathExpression)mathInParenth.expression);
+    public Object visit(MathInParenth mathInParenth) {
+        return visit((MathExpression)mathInParenth.expression);
     }
 
     @Override
-    public void visit(ValueInParenth valueInParenth) {
+    public Object visit(ValueInParenth valueInParenth) {
         System.out.println("ast ValueInParenth");
-        visit((Value)valueInParenth.value);
+        return visit((Value)valueInParenth.value);
     }
 
     @Override
-    public void visit(BooleanInParenth booleanInParenth) {
+    public Boolean visit(BooleanInParenth booleanInParenth) {
         System.out.println("ast BooleanInParenth");
-        visit((BooleanExpression)booleanInParenth.value);
+        return visit((BooleanExpression)booleanInParenth.value);
     }
 
     @Override
-    public void visit(SimpleLiteralValue simpleLiteralValue) {
+    public Object visit(SimpleLiteralValue simpleLiteralValue) {
         System.out.println("ast SimpleLiteralValue");
-        System.out.println(simpleLiteralValue.value);
+        try {
+            return NumberFormat.getInstance().parse( simpleLiteralValue.value ) ;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
-    public void visit(ArithmeticOperation arithmeticOperation) {
-        System.out.println("ast ArithmeticOperation");
-        visit((MathExpression)arithmeticOperation.left);
-        System.out.println(arithmeticOperation.op);
-        visit((MathExpression)arithmeticOperation.right);
+    public Object visit(ArithmeticOperation arithmeticOperation) {
+
+        String left = "";
+
+        try {
+            left = arithmeticOperation.left.getType(currentScope());
+        } catch (Error error) {
+            error.printStackTrace();
+        }
+
+        switch (left){
+            case "Long":{
+                long valueLeft = (long)visit(arithmeticOperation.left);
+                long valueRight = (long)visit(arithmeticOperation.right);
+                switch (arithmeticOperation.op){
+                    case "*":
+                        return valueLeft * valueRight;
+                    case "/":
+                        return valueLeft / valueRight;
+                    case "%":
+                        return valueLeft % valueRight;
+                    case "+":
+                        return valueLeft + valueRight;
+                    case "-":
+                        return valueLeft - valueRight;
+                }
+            }
+            case "Double":{
+                double valueLeft = (double)visit(arithmeticOperation.left);
+                double valueRight = (double)visit(arithmeticOperation.right);
+                switch (arithmeticOperation.op){
+                    case "*":
+                        return valueLeft * valueRight;
+                    case "/":
+                        return valueLeft / valueRight;
+                    case "%":
+                        return valueLeft % valueRight;
+                    case "+":
+                        return valueLeft + valueRight;
+                    case "-":
+                        return valueLeft - valueRight;
+                }
+            }
+        }
+        return null;
+
     }
 
     @Override
-    public void visit(MultipleBooleanExpression multipleBooleanExpression) {
-        System.out.println("ast MultipleBooleanExpression");
-        visit((BooleanExpression)multipleBooleanExpression.left);
-        System.out.println(multipleBooleanExpression.op);
-        visit((BooleanExpression)multipleBooleanExpression.right);
+    public Boolean visit(MultipleBooleanExpression multipleBooleanExpression) {
+
+        if(multipleBooleanExpression.op == "||")
+            return ( visit((BooleanExpression)multipleBooleanExpression.left) || visit((BooleanExpression)multipleBooleanExpression.right) );
+        else
+            return ( visit((BooleanExpression)multipleBooleanExpression.left) && visit((BooleanExpression)multipleBooleanExpression.right) );
     }
 
     @Override
@@ -208,24 +357,26 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(JavaString string)
+    public String visit(JavaString string)
     {
-        System.out.println("ast String");
-        System.out.println(string.string);
+        return string.string;
     }
+
+
     @Override
-    public void visit(Value value) {
+    public Object visit(Value value) {
         System.out.println("ast Value");
         if(value.value instanceof Variable)
-            visit((Variable)value.value);
+            return visit((Variable)value.value);
         if(value.value instanceof JavaString)
-            visit((JavaString)value.value);
+            return visit((JavaString)value.value);
         if(value.value instanceof FunctionCall)
-            visit((FunctionCall)value.value);
+            return visit((FunctionCall)value.value);
         if(value.value instanceof SimpleLiteralValue)
-            visit((SimpleLiteralValue)value.value);
+            return visit((SimpleLiteralValue)value.value);
         if(value.value instanceof ValueInParenth)
-            visit((ValueInParenth)value.value);
+            return visit((ValueInParenth)value.value);
+        return null;
     }
 
     @Override
@@ -250,21 +401,34 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(JavaStatment javaStmt)
     {
         System.out.println("ast JavaStatment ");
-        if(javaStmt.javaStatment instanceof FunctionCall)
+        if(javaStmt.javaStatment instanceof FunctionCall){
             visit((FunctionCall)javaStmt.javaStatment);
-        if(javaStmt.javaStatment instanceof  FunctionDeclaration)
+            if(javaStmt.javaStatement2!=null)
+                visit((JavaStatment)javaStmt.javaStatement2);
+        }
+        if(javaStmt.javaStatment instanceof  FunctionDeclaration){
             visit((FunctionDeclaration) javaStmt.javaStatment);
-        if(javaStmt.javaStatment instanceof HigherOrderFunctionCall)
+            if(javaStmt.javaStatement2!=null)
+                visit((JavaStatment)javaStmt.javaStatement2);
+        }
+        if(javaStmt.javaStatment instanceof HigherOrderFunctionCall){
             visit((HigherOrderFunctionCall) javaStmt.javaStatment);
-        if(javaStmt.javaStatment instanceof VariableDeclaration)
+            if(javaStmt.javaStatement2!=null)
+                visit((JavaStatment)javaStmt.javaStatement2);
+        }
+        if(javaStmt.javaStatment instanceof VariableDeclaration){
             visit((VariableDeclaration) javaStmt.javaStatment);
+            if(javaStmt.javaStatement2!=null)
+                visit((JavaStatment)javaStmt.javaStatement2);
+        }
     }
 
     @Override
     public void visit(ArgumentList argumentList) {
         System.out.println("ast ArgumentList ");
-        for (int i=0;i<argumentList.argumentList.size();i++)
-            visit((Expression)argumentList.argumentList.get(i));
+        for (int i=0;i<argumentList.argumentList.size();i++){
+            //visit((Expression)argumentList.argumentList.get(i));
+        }
     }
 
     @Override
@@ -277,15 +441,15 @@ public class BaseASTVisitor implements ASTVisitor {
     {
         System.out.println("ast DefaultParameter ");
         visit((Variable)defaultParameter.variable);
-        visit((Expression)defaultParameter.expression);
+        //visit((Expression)defaultParameter.expression);
     }
 
     @Override
-    public void visit(FunctionCall funcCall)
+    public Object visit(FunctionCall funcCall)
     {
         System.out.println("ast FunctionCall ");
         System.out.println(funcCall.functionName);
-        FunctionSymbol functionSymbol = ((FunctionSymbol)currentScope().symbolMap.get(funcCall.functionName));
+        FunctionSymbol functionSymbol = (FunctionSymbol) symbolTable.getSymbol(funcCall.functionName);
         for(int i = 0 ; i < ((ArgumentList)funcCall.argumentList).argumentList.size() ; i++){
             try {
                 functionSymbol.parameters.get(i).type = ((Expression)((ArgumentList)funcCall.argumentList)
@@ -293,28 +457,25 @@ public class BaseASTVisitor implements ASTVisitor {
             } catch (Error error) {
                 error.printStackTrace();
             }
-            try {
-                functionSymbol.parameters.get(i).value = ((Expression)((ArgumentList)funcCall.argumentList)
-                        .argumentList.get(i)).getValue(currentScope());
-            } catch (Error error) {
-                error.printStackTrace();
-            }
+            functionSymbol.parameters.get(i).value = visit((Expression)((ArgumentList)funcCall.argumentList)
+                    .argumentList.get(i));
         }
         symbolTable.pushScope( ((FunctionDeclaration)functionSymbol.value).scope );
-        visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
+        Object object = visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
 //        if(funcCall.argumentList!=null)
 //            visit((ArgumentList)funcCall.argumentList);
         symbolTable.popScope();
+        return object;
     }
 
     @Override
     public void visit(FunctionDeclaration funcDec) {
-        System.out.println("ast FunctionDeclaration ");
-        System.out.println(funcDec.functionName);
-        symbolTable.pushScope( funcDec.scope );
-        if(funcDec.pl!=null)
-            visit((ParameterList) funcDec.pl);
-        visit((Block)funcDec.block);
+//        System.out.println("ast FunctionDeclaration ");
+//        System.out.println(funcDec.functionName);
+        //symbolTable.pushScope( funcDec.scope );
+//        if(funcDec.pl!=null)
+//            visit((ParameterList) funcDec.pl);
+       // visit((Block)funcDec.block);
     }
 
     @Override
@@ -354,34 +515,39 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(Block block)
+    public Object visit(Block block)
     {
         System.out.println("ast Block ");
+        Object object = null;
         if(block.javaBodies.size()!=0)
         {
-            for(int i=0;i<block.javaBodies.size();i++)
-                visit((JavaBody)block.javaBodies.get(i));
+            for(int i=0;i<block.javaBodies.size();i++){
+                object = visit((JavaBody)block.javaBodies.get(i));
+                if(object!=null)
+                    break;
+            }
         }
-        if(block.returnStmt!=null)
-            visit((ReturnStmt)block.returnStmt);
+        if(block.returnStmt!=null && object==null){
+            object = visit((ReturnStmt)block.returnStmt);
+        }
+        return object;
     }
 
     @Override
-    public void visit(JavaBody javaBody)
+    public Object visit(JavaBody javaBody)
     {
         System.out.println("ast JavaBody");
         if(javaBody.command instanceof ConditionalStmt)
-            visit((ConditionalStmt)javaBody.command);
+            return visit((ConditionalStmt)javaBody.command);
         if(javaBody.command instanceof Increment)
             visit((Increment)javaBody.command);
         if(javaBody.command instanceof FunctionCall)
             visit((FunctionCall)javaBody.command);
         if(javaBody.command instanceof LoopStmt)
-            visit((LoopStmt)javaBody.command);
+            return visit((LoopStmt)javaBody.command);
         if(javaBody.command instanceof SwitchStmt)
-            visit((SwitchStmt)javaBody.command);
+             visit((SwitchStmt)javaBody.command);
         if(javaBody.command instanceof Scope) {
-            System.out.println("jasa");
             visit((Scope) javaBody.command);
         }
         if(javaBody.command instanceof Print)
@@ -394,6 +560,7 @@ public class BaseASTVisitor implements ASTVisitor {
             visit((Break)javaBody.command);
         if(javaBody.command instanceof Continue)
             visit((Continue)javaBody.command);
+        return null;
     }
 
     @Override
@@ -406,13 +573,15 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(ReturnStmt returnStmt)
+    public Object visit(ReturnStmt returnStmt)
     {
         System.out.println("ast ReturnStmt");
-        if(((ReturnValue)returnStmt.returnValue).value instanceof Expression)
-            visit((Expression)((ReturnValue)returnStmt.returnValue).value);
+        if(((ReturnValue)returnStmt.returnValue).value instanceof Expression){
+            return ( visit((Expression)((ReturnValue)returnStmt.returnValue).value) );
+        }
         if(((ReturnValue)returnStmt.returnValue).value instanceof LogicalCondition)
             visit((LogicalCondition)((ReturnValue)returnStmt.returnValue).value);
+        return null;
     }
 
     @Override
@@ -430,7 +599,7 @@ public class BaseASTVisitor implements ASTVisitor {
         {
             for(int i=0;i<arrayIdentification.arrayElementasExpr.size();i++)
             {
-                visit((Expression)arrayIdentification.arrayElementasExpr.get(i));
+                //visit((Expression)arrayIdentification.arrayElementasExpr.get(i));
             }
         }
         if(arrayIdentification.arrayElementasArray.size()!=0)
@@ -453,24 +622,18 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(Print print) {
         System.out.println("ast Print");
-        for(int i=0 ; i < print.expressions.size();i++)
-            visit((Expression) print.expressions.get(i));
+        for(int i=0 ; i < print.expressions.size();i++) {
+            System.out.print(visit(print.expressions.get(i)));
+        }
     }
 
     @Override
     public void visit(VariableAssignment variableAssignment)
     {
-        System.out.println("ast VariableAssignment");
-        //visit((Variable)variableAssignment.variable);
         Symbol symbol = currentScope().findSymbol(((SimpleVariable)
                 ((Variable)variableAssignment.variable).variable).VariableName.get(0));
-        Object assignmentValue = null;
-        try {
-            assignmentValue = ((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
-                    .variableAssignmentValue).getValue(currentScope());
-        } catch (Error error) {
-            error.printStackTrace();
-        }
+        Object assignmentValue = visit((Expression)((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
+                .variableAssignmentValue).Value);
         String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
         switch (op){
             case "=": {
@@ -544,109 +707,91 @@ public class BaseASTVisitor implements ASTVisitor {
                 break;
             }
         }
-//        if(variableAssignment.assignments.size()!=0)
-//            for(int i=0;i<variableAssignment.assignments.size();i++)
-//            {
-//                visit((Assignment)variableAssignment.assignments.get(i));
-//            }
     }
 
     @Override
     public void visit(VariableDeclaration variableDeclaration)
     {
-        System.out.println("ast VariableDeclaration ");
-        for(int i=0;i<variableDeclaration.variableAssignments.size();i++)
-        {
+        for(int i=0;i<variableDeclaration.variableAssignments.size();i++) {
             visit((VariableAssignment)variableDeclaration.variableAssignments.get(i));
         }
     }
 
     @Override
-    public void visit(ConditionalStmt conditionalStmt) {
-        System.out.println("ast ConditionalStmt ");
+    public Object visit(ConditionalStmt conditionalStmt) {
+        Object object = null;
         for (int i = 0; i < conditionalStmt.ifs.size(); i++)
-            visit((IfStmt) conditionalStmt.ifs.get(i), conditionalStmt.catched);
-        if (conditionalStmt.elseifs.size() != 0) {
+            object = visit((IfStmt) conditionalStmt.ifs.get(i), conditionalStmt.catched);
+        if (conditionalStmt.elseifs.size() != 0 && object ==null) {
             for (int i = 0; i < conditionalStmt.elseifs.size(); i++) {
                 if (conditionalStmt.catched == true)
                     break;
                 visit((ElseIfStmt) conditionalStmt.elseifs.get(i), conditionalStmt.catched);
             }
         }
-        if (conditionalStmt.elseStmt != null) {
+        if (conditionalStmt.elseStmt != null && object == null) {
             if (conditionalStmt.catched == false) {
                 visit((ElseStmt) conditionalStmt.elseStmt, conditionalStmt.catched);
             }
         }
+        return object;
     }
 
     @Override
-    public void visit(ElseIfStmt elseIfStmt , Boolean bool) {
-        System.out.println("ast ElseIfStmt ");
-        visit((BooleanExpression)elseIfStmt.condition);
-        try {
-            if(((BooleanExpression)elseIfStmt.condition).getValue(currentScope())){
-                bool = true;
-                if(elseIfStmt.body instanceof Block)
-                    visit((Block)elseIfStmt.body);
-                if(elseIfStmt.body instanceof OneLineBlock)
-                    visit((OneLineBlock)elseIfStmt.body);
-            }
-        } catch (Error error) {
-            error.printStackTrace();
+    public Object visit(ElseIfStmt elseIfStmt , Boolean bool) {
+        Object object = null;
+        if(visit((BooleanExpression)elseIfStmt.condition)) {
+            bool = true;
+            if (elseIfStmt.body instanceof Block)
+                object = visit((Block) elseIfStmt.body);
+            if (elseIfStmt.body instanceof OneLineBlock)
+                visit((OneLineBlock) elseIfStmt.body);
         }
+        return object;
     }
 
     @Override
-    public void visit(ElseStmt elseStmt , Boolean bool) {
-        System.out.println("ast ElseStmt ");
+    public Object visit(ElseStmt elseStmt , Boolean bool) {
+        Object object = null;
         if(elseStmt.body instanceof Block)
-            visit((Block)elseStmt.body);
+          object = visit((Block)elseStmt.body);
         if(elseStmt.body instanceof OneLineBlock)
             visit((OneLineBlock)elseStmt.body);
+        return object;
     }
 
     @Override
-    public void visit(IfStmt ifStmt , Boolean bool) {
-        System.out.println("ast IfStmt ");
+    public Object visit(IfStmt ifStmt , Boolean bool) {
+        Object object = null;
         symbolTable.pushScope( ifStmt.scope );
-        visit((BooleanExpression)ifStmt.condition);
-        try {
-            if(((BooleanExpression)ifStmt.condition).getValue(currentScope())) {
-                bool = true;
-                if (ifStmt.body instanceof Block)
-                    visit((Block) ifStmt.body);
-                if (ifStmt.body instanceof OneLineBlock)
-                    visit((OneLineBlock) ifStmt.body);
-            }
-        } catch (Error error) {
-            error.printStackTrace();
+        if(visit(((BooleanExpression)ifStmt.condition))) {
+            bool = true;
+            if (ifStmt.body instanceof Block)
+                object = visit((Block) ifStmt.body);
+            if (ifStmt.body instanceof OneLineBlock)
+                visit((OneLineBlock) ifStmt.body);
         }
         symbolTable.popScope();
+        return object;
     }
 
     @Override
-    public void visit(DoWhileLoop doWhileLoop) {
-        System.out.println("ast DoWhileLoop ");
-        //visit((BooleanExpression)doWhileLoop.booleanExpression);
+    public Object visit(DoWhileLoop doWhileLoop) {
+        Object object = null;
         symbolTable.pushScope( doWhileLoop.scope );
-        try {
-            do {
-                if (doWhileLoop.block instanceof OneLineBlock)
-                    visit((OneLineBlock) doWhileLoop.block);
-                if (doWhileLoop.block instanceof Block)
-                    visit((Block) doWhileLoop.block);
-            } while (((BooleanExpression) (doWhileLoop.booleanExpression)).getValue(currentScope()));
-        }
-        catch (Error e){
-
-        }
+        do {
+            if (doWhileLoop.block instanceof OneLineBlock)
+                visit((OneLineBlock) doWhileLoop.block);
+            if (doWhileLoop.block instanceof Block)
+                object = visit((Block) doWhileLoop.block);
+        } while (visit((BooleanExpression)(doWhileLoop.booleanExpression)) && object==null);
         symbolTable.popScope();
+        return object;
     }
 
     @Override
     public void visit(ForEachLoop forEachLoop) {
-        System.out.println("ast ForEachLoop ");
+        System.out.println("ast ForEachLoop");
         visit((Variable)forEachLoop.variable);
         System.out.println(forEachLoop.arrayName);
         if(forEachLoop.block instanceof OneLineBlock)
@@ -656,59 +801,53 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(ForLoop forLoop) {
-        System.out.println("ast ForLoop");
+    public Object visit(ForLoop forLoop) {
+        Object object = null;
         symbolTable.pushScope( forLoop.scope );
-        visit((VariableDeclaration)forLoop.variableDeclaration);
-        visit((BooleanExpression)forLoop.booleanExpression);
         while (true){
-            try {
-                if (!!((BooleanExpression)forLoop.booleanExpression).getValue(currentScope())) break;
-            } catch (Error error) {
-                error.printStackTrace();
-            }
+            if (!visit((BooleanExpression)forLoop.booleanExpression)) break;
             if(forLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock) forLoop.block);
             if(forLoop.block instanceof Block)
-                visit((Block)forLoop.block);
+                object = visit((Block)forLoop.block);
             if(forLoop.mathExpresion instanceof VariableAssignment)
                 visit((VariableAssignment)forLoop.mathExpresion);
             if(forLoop.mathExpresion instanceof Increment)
                 visit((Increment)forLoop.mathExpresion);
+            if (object!=null) break;
         }
         symbolTable.popScope();
+        return object;
     }
 
     @Override
-    public void visit(LoopStmt loopStmt) {
-        System.out.println("ast LoopStmt");
+    public Object visit(LoopStmt loopStmt) {
+        Object object = null;
         if(loopStmt.loop instanceof ForLoop)
-            visit((ForLoop)loopStmt.loop);
+             object = visit((ForLoop)loopStmt.loop);
         if(loopStmt.loop instanceof WhileLoop)
-            visit((WhileLoop)loopStmt.loop);
+             object = visit((WhileLoop)loopStmt.loop);
         if(loopStmt.loop instanceof ForEachLoop)
-            visit((ForEachLoop)loopStmt.loop);
+              visit((ForEachLoop)loopStmt.loop);
         if(loopStmt.loop instanceof DoWhileLoop)
-            visit((DoWhileLoop)loopStmt.loop);
+             object = visit((DoWhileLoop)loopStmt.loop);
+        return object;
     }
 
     @Override
-    public void visit(WhileLoop whileLoop) {
-        System.out.println("ast WhileLoop ");
+    public Object visit(WhileLoop whileLoop) {
+        Object object = null;
         symbolTable.pushScope( whileLoop.scope );
         //visit((BooleanExpression)whileLoop.booleanExpression);
-        try {
-            while ( ((BooleanExpression)whileLoop.booleanExpression).getValue(currentScope()) ){
-                System.out.println("In while");
-                if(whileLoop.block instanceof OneLineBlock)
-                    visit((OneLineBlock)whileLoop.block);
-                if(whileLoop.block instanceof Block)
-                    visit((Block)whileLoop.block);
-            }
-        }catch (Error e){
-
+        while (visit((BooleanExpression)whileLoop.booleanExpression) && object==null){
+            System.out.println("In while");
+            if(whileLoop.block instanceof OneLineBlock)
+                visit((OneLineBlock)whileLoop.block);
+            if(whileLoop.block instanceof Block)
+                object = visit((Block)whileLoop.block);
         }
         symbolTable.popScope();
+        return object;
     }
 
     @Override
@@ -729,7 +868,6 @@ public class BaseASTVisitor implements ASTVisitor {
     public void visit(SwitchDefault switchDefault) {
         System.out.println("ast SwitchDefault ");
         symbolTable.pushScope( switchDefault.scope );
-
 
         if (switchDefault.block instanceof Block)
             visit((Block)switchDefault.block);
@@ -765,20 +903,21 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(BooleanExpression booleanExpression) {
+    public Boolean visit(BooleanExpression booleanExpression) {
         System.out.println("ast BooleanExpression ");
         if(booleanExpression.booleanExpression instanceof Value)
-            visit((Value)booleanExpression.booleanExpression);
+            return (Boolean) visit((Value)booleanExpression.booleanExpression);
         if(booleanExpression.booleanExpression instanceof Compare)
-            visit((Compare)booleanExpression.booleanExpression);
+            return visit((Compare)booleanExpression.booleanExpression);
         if(booleanExpression.booleanExpression instanceof MultipleBooleanExpression)
-            visit((MultipleBooleanExpression)booleanExpression.booleanExpression);
+            return visit((MultipleBooleanExpression)booleanExpression.booleanExpression);
         if(booleanExpression.booleanExpression instanceof BooleanInParenth)
             visit((BooleanInParenth)booleanExpression.booleanExpression);
         if(booleanExpression.booleanExpression instanceof True)
-            visit((True)booleanExpression.booleanExpression);
+            return true;
         if(booleanExpression.booleanExpression instanceof False)
-            visit((False)booleanExpression.booleanExpression);
+            return false;
+        return null;
     }
 
     @Override
@@ -794,29 +933,31 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(Expression expression) {
+    public Object visit(Expression expression) {
         System.out.println("ast Expression ");
         if(expression.expression instanceof Value)
-            visit((Value)expression.expression);
+            return visit((Value)expression.expression);
         else if(expression.expression instanceof BooleanExpression)
-            visit((BooleanExpression) expression.expression);
+            return visit((BooleanExpression) expression.expression);
         else if(expression.expression instanceof MathExpression)
-            visit((MathExpression)expression.expression);
+            return visit((MathExpression)expression.expression);
         else if(expression.expression instanceof Increment)
-            visit((Increment)expression.expression);
+            return visit((Increment)expression.expression);
+        return null;
     }
 
     @Override
-    public void visit(Increment increment) {
+    public Object visit(Increment increment) {
         System.out.println("ast Increment ");
         if(increment.increment instanceof PreIncrement)
-            visit((PreIncrement) increment.increment);
+            return visit((PreIncrement) increment.increment);
         if(increment.increment instanceof PreDecrement)
-            visit((PreDecrement)increment.increment);
+            return visit((PreDecrement)increment.increment);
         if(increment.increment instanceof PostIncrement)
-            visit((PostIncrement)increment.increment);
+            return visit((PostIncrement)increment.increment);
         if(increment.increment instanceof PostDecrement)
-            visit((PostDecrement)increment.increment);
+            return visit((PostDecrement)increment.increment);
+        return null;
     }
 
     @Override
@@ -839,13 +980,13 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(Variable variable)
+    public Object visit(Variable variable)
     {
         System.out.println("ast Variable ");
-        if (variable.variable instanceof SimpleVariable)
-            visit((SimpleVariable)variable.variable);
-        if(variable.variable instanceof ArrayCall)
-            visit((ArrayCall)variable.variable);
+        if(variable.variable instanceof SimpleVariable){
+            return currentScope().findSymbol(((SimpleVariable)variable.variable).VariableName.get(0)).value;
+        }
+        return null;
     }
 
     @Override
@@ -877,7 +1018,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
         if(sqlStatment.stmt instanceof FactoredSelectStatement)
         {
-            System.out.println("TEST");
             visit((FactoredSelectStatement) sqlStatment.stmt);
 
         }
