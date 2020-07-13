@@ -12,6 +12,5 @@ public class ResultColumn extends SqlStatment {
     public AnyName tableName;
     public Node expression;
     public String cloumnForExpr;
-
     public Object res;
 }

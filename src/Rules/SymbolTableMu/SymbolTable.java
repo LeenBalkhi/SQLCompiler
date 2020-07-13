@@ -8,7 +8,7 @@ import java.util.Stack;
 public class SymbolTable {
     public Stack<Scope> scopeStack;
     public LinkedHashMap<String, SqlType> sqlTypes;
-    public ArrayList<TableOrSubQueryTypeEntry> queryManager = new ArrayList<>();
+    public TableSymbol queryManager = new TableSymbol();
     public ArrayList<AggregationFunction> aggregationFunctions = new ArrayList<>();
     public ArrayList<FunctionSymbol> functionSymbols = new ArrayList<>();
     public TableSymbol tableSymbol;

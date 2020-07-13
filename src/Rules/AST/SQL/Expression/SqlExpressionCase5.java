@@ -8,4 +8,5 @@ public class SqlExpressionCase5 extends Node {
     public Node SqlExpression2;
     public String op;
     public String type;
+    public Object parseObject;
 }

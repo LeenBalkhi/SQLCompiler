@@ -13,10 +13,9 @@ public class TableOrSubquery extends SqlStatment {
     public AnyName databaseName;
     public String tableAlias;
     public AnyName indexName;
-    public ArrayList<Node> tableOrSubqueries=new ArrayList<>();
     public Node joinClause;
     public Node selectStatment;
     public TableSymbol tableSymbol;
 
-    public ArrayList<TableOrSubQueryTypeEntry> types = new ArrayList<>();
+    public TableSymbol type;
 }

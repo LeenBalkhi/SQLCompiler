@@ -24,10 +24,8 @@ import Rules.SymbolTableMu.FunctionSymbol;
 import Rules.SymbolTableMu.*;
 import Rules.SymbolTableMu.Scope;
 import Rules.SymbolTableMu.SymbolTable;
+import Rules.Utils.*;
 import Rules.Utils.Error;
-import Rules.Utils.JSONParse;
-import Rules.Utils.Path;
-import Rules.Utils.Warning;
 import Rules.generated.*;
 
 import java.text.NumberFormat;
@@ -1054,12 +1052,13 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         {
             sqlExpression.expression = (SqlExpressionCase1)temp;
             sqlExpression.type = ((SqlExpressionCase1)temp).type;
+            sqlExpression.parseObject = sqlExpression.type;
         }
         if(temp instanceof SqlExpressionCase2)
         {
             sqlExpression.expression = (SqlExpressionCase2)temp;
             sqlExpression.type = ((SqlExpressionCase2)temp).type;
-            sqlExpression.costumName = ((SqlExpressionCase2)temp).customName;
+            sqlExpression.parseObject = ((SqlExpressionCase2) temp).parseObject;
         }
         if(temp instanceof SqlExpressionCase3)
         {
@@ -1074,11 +1073,13 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         {
             sqlExpression.expression = (SqlExpressionCase5)temp;
             sqlExpression.type = ((SqlExpressionCase5)temp).type;
+            sqlExpression.parseObject = ((SqlExpressionCase5) temp).parseObject;
         }
         if(temp instanceof SqlExpressionCase6)
         {
             sqlExpression.expression = (SqlExpressionCase6)temp;
             sqlExpression.type = ((SqlExpressionCase6)temp).type;
+            sqlExpression.parseObject = ((SqlExpressionCase6) temp).parseObject;
         }
         if(temp instanceof SqlExpressionCase7)
         {
@@ -1129,7 +1130,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         {
             sqlExpression.expression = (SqlExpressionCase22)temp;
             sqlExpression.type = ((SqlExpressionCase22)temp).type;
-            sqlExpression.costumName = ((SqlExpressionCase2)temp).customName;
         }
         return sqlExpression;
     }
@@ -1164,79 +1164,19 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public SqlExpressionCase2 visitCase2(SqlParser.Case2Context ctx) {
         boolean err = true;
-        boolean useTable = false;
         SqlExpressionCase2 sqlExpressionCase2 = new SqlExpressionCase2();
-        SqlType sqlType = new SqlType();
-        if(ctx.table_name()!= null){
-            sqlExpressionCase2.tableName = visitAny_name(ctx.table_name().any_name());
-            for(int i=0;i<symbolTable.queryManager.size();i++){
-                if(symbolTable.queryManager.get(i).as!=null){
-                    if(symbolTable.queryManager.get(i).as.equals(sqlExpressionCase2.tableName.name)){
-                        sqlType = symbolTable.queryManager.get(i).sqlType;
-                        err = false;
-                        useTable = true;
-                    }
-                }
-            }
-            if(err){
-                if(symbolTable.queryManager.size()==1){
-                    for(int i=0;i<symbolTable.queryManager.get(0).sqlType.entries.size();i++){
-                        if(symbolTable.queryManager.get(0).sqlType.entries.get(i).name.equals(sqlExpressionCase2.tableName.name)){
-                            err = false;
-                            sqlType.entries.add(symbolTable.queryManager.get(0).sqlType.entries.get(i));
-                        }
-                    }
-                }
-                if(err){
-                    int line =  ctx.table_name().start.getLine();
-                    int col = ctx.table_name().start.getCharPositionInLine();
-                    String des = sqlExpressionCase2.tableName.name + " Does Not Exist In This Context";
-                    Error error = new Error(line , col , des);
-                    errors.add(error);
-                }
-            }
-        }else
-            err = false;
         sqlExpressionCase2.columnName =visitAny_name(ctx.column_name().any_name());
-        if(!err){
-            err = true;
-            if(ctx.table_name()!=null){
-                if(useTable){
-                    for (int i=0;i<sqlType.entries.size();i++){
-                        if(sqlType.entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
-                            err = false;
-                            sqlExpressionCase2.type = sqlType.entries.get(i).type;
-                        }
-                    }
-                }
-                else {
-                    if(symbolTable.sqlTypes.containsKey(sqlType.entries.get(0).type)) {
-                        for(int i=0; i < symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.size();i++) {
-                            if( symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.get(i).name.equals(sqlExpressionCase2.columnName.name)){
-                                err = false;
-                                sqlExpressionCase2.type = symbolTable.sqlTypes.get(sqlType.entries.get(0).type).entries.get(i).type;
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                for(int j=0;j<symbolTable.queryManager.get(0).sqlType.entries.size();j++){
-                    if(symbolTable.queryManager.get(0).sqlType.entries.get(j).name.equals(sqlExpressionCase2.columnName.name)){
-                        err=false;
-                        sqlExpressionCase2.type = symbolTable.queryManager.get(0).sqlType.entries.get(j).type;
-                    }
-                }
-            }
-            if(err){
-                int line = ctx.start.getLine();
-                int col = ctx.start.getCharPositionInLine();
-                String des = sqlExpressionCase2.columnName.name +" Does Not Exist In Current Context";
-                Error error = new Error(line,col,des);
-                errors.add(error);
-            }
-            else
-                sqlExpressionCase2.customName = sqlExpressionCase2.columnName.name;
+        if(symbolTable.queryManager.values.containsKey(sqlExpressionCase2.columnName.name)){
+            err = false;
+            sqlExpressionCase2.type = symbolTable.queryManager.values.get(sqlExpressionCase2.columnName.name).type;
+            sqlExpressionCase2.parseObject = symbolTable.queryManager.values.get(sqlExpressionCase2.columnName.name).clone();
+        }
+        if(err){
+            int line = ctx.start.getLine();
+            int col = ctx.start.getCharPositionInLine();
+            String des = sqlExpressionCase2.columnName.name +" Does Not Exist In Current Context";
+            Error error = new Error(line,col,des);
+            errors.add(error);
         }
         return sqlExpressionCase2;
     }
@@ -1266,6 +1206,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             else
                 sqlExpressionCase4.type = "Boolean";
         }
+
         return sqlExpressionCase4;
     }
 
@@ -1285,8 +1226,16 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 Error error = new Error(line,col,des);
                 errors.add(error);
             }
-            else
+            else{
                 sqlExpressionCase5.type = ((SqlExpression)sqlExpressionCase5.SqlExpression1).type;
+                if( ((SqlExpression) sqlExpressionCase5.SqlExpression1).parseObject instanceof ColumnSymbol){
+                    sqlExpressionCase5.parseObject = ((SqlExpression) sqlExpressionCase5.SqlExpression1).parseObject;
+                }else if( ((SqlExpression) sqlExpressionCase5.SqlExpression1).parseObject instanceof ColumnSymbol ){
+                    sqlExpressionCase5.parseObject = ((SqlExpression) sqlExpressionCase5.SqlExpression1).parseObject;
+                } else{
+                    sqlExpressionCase5.parseObject = ((SqlExpression) sqlExpressionCase5.SqlExpression1).parseObject;
+                }
+            }
         }
         return sqlExpressionCase5;
     }
@@ -1307,8 +1256,16 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 Error error = new Error(line,col,des);
                 errors.add(error);
             }
-            else
+            else{
                 sqlExpressionCase6.type = ((SqlExpression)sqlExpressionCase6.SqlExpression1).type;
+                if( ((SqlExpression) sqlExpressionCase6.SqlExpression1).parseObject instanceof ColumnSymbol){
+                    sqlExpressionCase6.parseObject = ((SqlExpression) sqlExpressionCase6.SqlExpression1).parseObject;
+                }else if( ((SqlExpression) sqlExpressionCase6.SqlExpression1).parseObject instanceof ColumnSymbol ){
+                    sqlExpressionCase6.parseObject = ((SqlExpression) sqlExpressionCase6.SqlExpression1).parseObject;
+                } else{
+                    sqlExpressionCase6.parseObject = ((SqlExpression) sqlExpressionCase6.SqlExpression1).parseObject;
+                }
+            }
         }
         return sqlExpressionCase6;
     }
@@ -1443,60 +1400,60 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public SqlExpressionCase14 visitCase14(SqlParser.Case14Context ctx) {
         SqlExpressionCase14 sqlExpressionCase14 = new SqlExpressionCase14();
-        if(ctx.K_NOT() != null)
-            sqlExpressionCase14.not = true;
-        sqlExpressionCase14.mainExpression = visitExpr(ctx.exp1);
-        if(ctx.select_stmt() != null)
-            sqlExpressionCase14.selectStmt = visitSelect_stmt(ctx.select_stmt());
-        if(((SelectStmt)sqlExpressionCase14.selectStmt).types.size() == 0){
-            int line = ctx.select_stmt().start.getLine();
-            int col = ctx.select_stmt().start.getCharPositionInLine();
-            String des = "Select Statement Does Not Have Any Type";
-            Error error = new Error(line,col,des);
-            errors.add(error);
-        }else {
-            if( ((SelectStmt)sqlExpressionCase14.selectStmt).types.size() > 1 ){
-                int line = ctx.select_stmt().start.getLine();
-                int col = ctx.select_stmt().start.getCharPositionInLine();
-                String des = "Select Statement Has More Than One Type";
-                Error error = new Error(line,col,des);
-                errors.add(error);
-            }
-            else {
-                if( sqlExpressionCase14.mainExpression.type.equals("String")
-                        || sqlExpressionCase14.mainExpression.type.equals("Boolean")
-                        || sqlExpressionCase14.mainExpression.type.equals("Double")
-                        || sqlExpressionCase14.mainExpression.type.equals("Long")){
-                    if( (((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.size()>1) ){
-                        int line = ctx.select_stmt().start.getLine();
-                        int col = ctx.select_stmt().start.getCharPositionInLine();
-                        String des = "Select Statement Has More Than One Type";
-                        Error error = new Error(line,col,des);
-                        errors.add(error);
-                    }else {
-                        if( !((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.get(0).type.equals(sqlExpressionCase14.mainExpression.type) ){
-                            int line = ctx.select_stmt().start.getLine();
-                            int col = ctx.select_stmt().start.getCharPositionInLine();
-                            String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
-                            Error error = new Error(line,col,des);
-                            errors.add(error);
-                        }
-                        else
-                            sqlExpressionCase14.type = "Boolean";
-                    }
-                }else {
-                    if(!((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.name.equals(sqlExpressionCase14.mainExpression.type)) {
-                        int line = ctx.select_stmt().start.getLine();
-                        int col = ctx.select_stmt().start.getCharPositionInLine();
-                        String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
-                        Error error = new Error(line,col,des);
-                        errors.add(error);
-                    }
-                    else
-                        sqlExpressionCase14.type = "Boolean";
-                }
-            }
-        }
+//        if(ctx.K_NOT() != null)
+//            sqlExpressionCase14.not = true;
+//        sqlExpressionCase14.mainExpression = visitExpr(ctx.exp1);
+//        if(ctx.select_stmt() != null)
+//            sqlExpressionCase14.selectStmt = visitSelect_stmt(ctx.select_stmt());
+//        if(((SelectStmt)sqlExpressionCase14.selectStmt).types.size() == 0){
+//            int line = ctx.select_stmt().start.getLine();
+//            int col = ctx.select_stmt().start.getCharPositionInLine();
+//            String des = "Select Statement Does Not Have Any Type";
+//            Error error = new Error(line,col,des);
+//            errors.add(error);
+//        }else {
+//            if( ((SelectStmt)sqlExpressionCase14.selectStmt).types.size() > 1 ){
+//                int line = ctx.select_stmt().start.getLine();
+//                int col = ctx.select_stmt().start.getCharPositionInLine();
+//                String des = "Select Statement Has More Than One Type";
+//                Error error = new Error(line,col,des);
+//                errors.add(error);
+//            }
+//            else {
+//                if( sqlExpressionCase14.mainExpression.type.equals("String")
+//                        || sqlExpressionCase14.mainExpression.type.equals("Boolean")
+//                        || sqlExpressionCase14.mainExpression.type.equals("Double")
+//                        || sqlExpressionCase14.mainExpression.type.equals("Long")){
+//                    if( (((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.size()>1) ){
+//                        int line = ctx.select_stmt().start.getLine();
+//                        int col = ctx.select_stmt().start.getCharPositionInLine();
+//                        String des = "Select Statement Has More Than One Type";
+//                        Error error = new Error(line,col,des);
+//                        errors.add(error);
+//                    }else {
+//                        if( !((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.get(0).type.equals(sqlExpressionCase14.mainExpression.type) ){
+//                            int line = ctx.select_stmt().start.getLine();
+//                            int col = ctx.select_stmt().start.getCharPositionInLine();
+//                            String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
+//                            Error error = new Error(line,col,des);
+//                            errors.add(error);
+//                        }
+//                        else
+//                            sqlExpressionCase14.type = "Boolean";
+//                    }
+//                }else {
+//                    if(!((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.name.equals(sqlExpressionCase14.mainExpression.type)) {
+//                        int line = ctx.select_stmt().start.getLine();
+//                        int col = ctx.select_stmt().start.getCharPositionInLine();
+//                        String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
+//                        Error error = new Error(line,col,des);
+//                        errors.add(error);
+//                    }
+//                    else
+//                        sqlExpressionCase14.type = "Boolean";
+//                }
+//            }
+//        }
         return sqlExpressionCase14;
     }
 
@@ -1710,22 +1667,22 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     {
         FactoredSelectStatement factoredSelectStatement= new FactoredSelectStatement();
         factoredSelectStatement.selectCore = visitSelect_core(ctx.select_core());
-        ArrayList<TableOrSubQueryTypeEntry> types = ((SelectCore)factoredSelectStatement.selectCore).types;
-        for(int i=0;i<types.size();i++){
-            if(types.get(i).sqlType.name == null){
-                for(int j=0;j<types.get(i).sqlType.entries.size();j++){
-                    SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                    sqlTypeEntry.type = types.get(i).sqlType.entries.get(j).type;
-                    sqlTypeEntry.name = types.get(i).as;
-                    factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
-                }
-            } else {
-                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                sqlTypeEntry.type = types.get(i).sqlType.name;
-                sqlTypeEntry.name = types.get(i).as;
-                factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
-            }
-        }
+//        ArrayList<TableOrSubQueryTypeEntry> types = ((SelectCore)factoredSelectStatement.selectCore).types;
+//        for(int i=0;i<types.size();i++){
+//            if(types.get(i).sqlType.name == null){
+//                for(int j=0;j<types.get(i).sqlType.entries.size();j++){
+//                    SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+//                    sqlTypeEntry.type = types.get(i).sqlType.entries.get(j).type;
+//                    sqlTypeEntry.name = types.get(i).as;
+//                    factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
+//                }
+//            } else {
+//                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+//                sqlTypeEntry.type = types.get(i).sqlType.name;
+//                sqlTypeEntry.name = types.get(i).as;
+//                factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
+//            }
+//        }
         //((SelectCore)factoredSelectStatement.selectCore).sqlType.printType();
 //        for(int i=0 ; i <ctx.ordering_term().size() ; i++)
 //            factoredSelectStatement.orderingterms.add(visitOrdering_term(ctx.ordering_term().get(i)));
@@ -1743,45 +1700,24 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             selectCore.distinct = true;
         for(int i=0 ; i < ctx.table_or_subquery().size(); i++){
             selectCore.tableOrSubQueries.add(visitTable_or_subquery(ctx.table_or_subquery().get(i)));
-            for(int j = 0; j<((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).types.size(); j++){
-                selectCore.types.add(((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).types.get(j));
+        }
+        TableSymbol current = new TableSymbol();
+        for(int i=0;i<selectCore.tableOrSubQueries.size();i++) {
+            if (i == 0) {
+                current = ((TableOrSubquery) selectCore.tableOrSubQueries.get(i)).type;
+                symbolTable.queryManager = current.clone();
+            } else {
+                current = cartProduct(current
+                        , ((TableOrSubquery) selectCore.tableOrSubQueries.get(i)).type);
+                symbolTable.queryManager = current.clone();
             }
         }
-        symbolTable.queryManager.clear();
-        if(selectCore.types.size()!=0)
+        for(ColumnSymbol col : current.values.values()){
+            System.out.println(col.name);
+        }
+        if(current.values.size()!=0)
         {
-            for(int i=0;i<selectCore.types.size();i++){
-                symbolTable.queryManager.add(selectCore.types.get(i));
-            }
-            selectCore.types.clear();
-            for(int i=0 ; i < ctx.result_column().size(); i++){
-                selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
-                if( ((SqlExpression)((ResultColumn)selectCore.resultColumns.get(i)).expression).type != null){
-                    String type = ((SqlExpression)((ResultColumn)selectCore.resultColumns.get(i)).expression).type;
-                    TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-                    if(!( type.equals("String") || type.equals("Boolean") || type.equals("Double") || type.equals("Long") )){
-                        temp.sqlType = symbolTable.sqlTypes.get(type);
-                        temp.as = ((SqlExpression)((ResultColumn)selectCore.resultColumns.get(i)).expression).costumName;
-                        if(((ResultColumn)selectCore.resultColumns.get(i)).cloumnForExpr!=null)
-                            temp.as = ((ResultColumn)selectCore.resultColumns.get(i)).cloumnForExpr;
-                        selectCore.types.add(temp);
-                    }
-                    else{
-                        SqlType sqlType = new SqlType();
-                        SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                        sqlTypeEntry.type = type;
-                        sqlType.entries.add(sqlTypeEntry);
-                        temp.sqlType=sqlType;
-                        temp.as = ((SqlExpression)((ResultColumn)selectCore.resultColumns.get(i)).expression).costumName;
-                        if(((ResultColumn)selectCore.resultColumns.get(i)).cloumnForExpr!=null)
-                            temp.as = ((ResultColumn)selectCore.resultColumns.get(i)).cloumnForExpr;
-                        selectCore.types.add(temp);
-                    }
-                }
-            }
-            if( ctx.join_clause() !=null){
-                selectCore.joinClause = visitJoin_clause(ctx.join_clause());
-            }
+            symbolTable.queryManager = current.clone();
             if( ctx.where!=null){
                 SqlExpression sqlExpression = visitExpr(ctx.where);
                 selectCore.whereExpression = sqlExpression;
@@ -1793,16 +1729,22 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     errors.add(error);
                 }
             }
-//            if(ctx.K_GROUP() != null)
-//            {
-//                for(int i=0 ; i < ctx.expr().size(); i++)
-//                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
-//            }
-//            if(ctx.K_HAVING() != null)
-//            {
-//                for(int i=0 ; i < ctx.expr().size(); i++)
-//                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
-//            }
+            for(int i=0 ; i < ctx.result_column().size(); i++){
+                selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
+            }
+            if( ctx.join_clause() !=null){
+                selectCore.joinClause = visitJoin_clause(ctx.join_clause());
+            }
+            if(ctx.K_GROUP() != null)
+            {
+                for(int i=0 ; i < ctx.expr().size(); i++)
+                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
+            }
+            if(ctx.K_HAVING() != null)
+            {
+                for(int i=0 ; i < ctx.expr().size(); i++)
+                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
+            }
         }
         return selectCore;
     }
@@ -1855,69 +1797,45 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 errors.add(error);
             }
             else {
-                TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-                temp.as = tableOrSubquery.tableName.name;
-                temp.sqlType = symbolTable.sqlTypes.get(((TableSymbol)(symbolTable.getSymbol(tableOrSubquery.tableName.name))).type);
-                if(tableOrSubquery.tableAlias!=null)
-                    temp.as = tableOrSubquery.tableAlias;
-                tableOrSubquery.types.add(temp);
-            }
-        }
-
-        else if(ctx.table_or_subquery().size()!=0) {
-            for(int i=0 ; i < ctx.table_or_subquery().size(); i++)
-                tableOrSubquery.tableOrSubqueries.add(visitTable_or_subquery(ctx.table_or_subquery().get(i)));
-            if(ctx.join_clause() != null)
-                tableOrSubquery.joinClause = visitJoin_clause(ctx.join_clause());
-            if(ctx.table_alias()!= null)
-                tableOrSubquery.tableAlias = ctx.table_alias().getText();
-            if(tableOrSubquery.tableAlias!=null){
-                TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-                for(int i=0;i<tableOrSubquery.tableOrSubqueries.size();i++){
-                    for(int j=0;j<((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i)).types.size();j++){
-                        for (int n=0;n<((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i)).types.get(j).sqlType.entries.size();n++){
-                            temp.sqlType.entries.add(((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i)).types.get(j).sqlType.entries.get(n));
-                        }
-                    }
-                }
-                temp.as = tableOrSubquery.tableAlias;
-                tableOrSubquery.types.add(temp);
-            }
-            else{
-                for(int i=0;i<tableOrSubquery.tableOrSubqueries.size();i++){
-                    for(int j=0;j<((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i)).types.size();j++) {
-                        tableOrSubquery.types.add(((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i)).types.get(j));
-                    }
-                }
+                tableOrSubquery.type = (((TableSymbol)(symbolTable.getSymbol(tableOrSubquery.tableName.name)))).clone();
             }
         }
         else {
             tableOrSubquery.selectStatment = visitSelect_stmt(ctx.select_stmt());
             if(ctx.table_alias()!=null)
                 tableOrSubquery.tableAlias = ctx.table_alias().getText();
-            if(tableOrSubquery.tableAlias == null){
-                tableOrSubquery.types = ((SelectStmt)tableOrSubquery.selectStatment).types;
-            }
             else {
-                TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-                for(int i=0;i<((SelectStmt)tableOrSubquery.selectStatment).types.size();i++){
-                    for(int j=0;j<((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.size();j++){
-                        temp.sqlType.entries.add(((SelectStmt)tableOrSubquery.selectStatment).types.get(i).sqlType.entries.get(j));
-                    }
-                }
-                temp.as = tableOrSubquery.tableAlias;
-                tableOrSubquery.types.add(temp);
+                tableOrSubquery.type = ((SelectStmt)tableOrSubquery.selectStatment).type;
             }
         }
         return tableOrSubquery;
     }
+
+
+    public TableSymbol cartProduct(TableSymbol table1 , TableSymbol table2){
+        TableSymbol tableSymbol = new TableSymbol();
+        table1.values.values().forEach(val->{
+            ColumnSymbol columnSymbol = new ColumnSymbol();
+            columnSymbol.name = val.name;
+            columnSymbol.type = val.type;
+            tableSymbol.values.put(columnSymbol.name,columnSymbol);
+        });
+        table2.values.values().forEach(val->{
+            ColumnSymbol columnSymbol = new ColumnSymbol();
+            columnSymbol.name = val.name;
+            columnSymbol.type = val.type;
+            tableSymbol.values.put(columnSymbol.name,columnSymbol);
+        });
+        return tableSymbol;
+    }
+
 
     @Override
     public SelectStmt visitSelect_stmt(SqlParser.Select_stmtContext ctx)
     {
         SelectStmt selectStmt = new SelectStmt();
         selectStmt.selectorval = visitSelect_or_values(ctx.select_or_values());
-        selectStmt.types = ((SelectOrValue)selectStmt.selectorval).types;
+        selectStmt.type = ((SelectOrValue)selectStmt.selectorval).type;
         for(int i=0 ; i < ctx.ordering_term().size(); i++)
             selectStmt.ordering.add(visitOrdering_term(ctx.ordering_term().get(i)));
         return selectStmt;
@@ -1937,58 +1855,56 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public SelectOrValue visitSelect_or_values(SqlParser.Select_or_valuesContext ctx)
     {
         SelectOrValue selectOrValue = new SelectOrValue();
-        if(ctx.K_DISTINCT() != null)
-            selectOrValue.id = ctx.K_DISTINCT().getSymbol().getText();
-        if(ctx.K_ALL() != null)
-            selectOrValue.id = ctx.K_ALL().getSymbol().getText();
         for(int i=0 ; i < ctx.table_or_subquery().size(); i++){
             selectOrValue.tablesorSbqueries.add(visitTable_or_subquery(ctx.table_or_subquery().get(i)));
-            for(int j=0;j<((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).types.size();j++){
-                selectOrValue.types.add(((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).types.get(j));
+        }
+        TableSymbol current = new TableSymbol();
+        for(int i=0;i<selectOrValue.tablesorSbqueries.size();i++){
+            if(i==0){
+                current = ((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).type;
+                symbolTable.queryManager = current.clone();
+            }
+            else{
+                current = cartProduct(current
+                        , ((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).type);
+                symbolTable.queryManager = current.clone();
             }
         }
-        symbolTable.queryManager.clear();
-        if(selectOrValue.types.size()!=0){
-            for(int i=0;i<selectOrValue.types.size();i++){
-                symbolTable.queryManager.add(selectOrValue.types.get(i));
-            }
-            selectOrValue.types.clear();
-            for(int i=0 ; i < ctx.result_column().size() ;i++){
-                selectOrValue.resColumns.add(visitResult_column(ctx.result_column().get(i)));
-                if( ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type != null){
-                    String type = ((SqlExpression)((ResultColumn)selectOrValue.resColumns.get(i)).expression).type;
-                    TableOrSubQueryTypeEntry temp = new TableOrSubQueryTypeEntry();
-                    if(!( type.equals("String") || type.equals("Boolean") || type.equals("Double") || type.equals("Long") )){
-                        temp.sqlType = symbolTable.sqlTypes.get(type);
-                        if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
-                            temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
-                        selectOrValue.types.add(temp);
-                    }
-                    else{
-                        SqlType sqlType = new SqlType();
-                        SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                        sqlTypeEntry.type = type;
-                        sqlType.entries.add(sqlTypeEntry);
-                        temp.sqlType=sqlType;
-                        if(((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr!=null)
-                            temp.as = ((ResultColumn)selectOrValue.resColumns.get(i)).cloumnForExpr;
-                        selectOrValue.types.add(temp);
-                    }
-                }
-            }
-            if(ctx.join_clause() != null)
-                selectOrValue.join = visitJoin_clause(ctx.join_clause());
-            if( ctx.where!=null){
+        if(current.values.size()!=0) {
+            symbolTable.queryManager = current.clone();
+            if (ctx.where != null) {
                 SqlExpression sqlExpression = visitExpr(ctx.where);
                 selectOrValue.whereExpression = sqlExpression;
-                if (sqlExpression.type ==null ||!sqlExpression.type.equals("Boolean")){
+                if (sqlExpression.type == null || !sqlExpression.type.equals("Boolean")) {
                     int line = ctx.where.start.getLine();
                     int col = ctx.where.start.getCharPositionInLine();
                     String des = "Expression Inside Where Is Not Of Type Boolean";
-                    Error error = new Error(line,col,des);
+                    Error error = new Error(line, col, des);
                     errors.add(error);
                 }
             }
+            TableSymbol tableSymbol = symbolTable.queryManager.clone();
+            tableSymbol.values.clear();
+            for (int i = 0; i < ctx.result_column().size(); i++) {
+                selectOrValue.resColumns.add(visitResult_column(ctx.result_column().get(i)));
+                ResultColumn resultColumn = ((ResultColumn)selectOrValue.resColumns.get(i));
+                SqlExpression expr = ((SqlExpression)resultColumn.expression);
+                if(expr.parseObject==null){
+                    System.out.println("ok");
+                }
+                else{
+                    if(expr.parseObject instanceof ColumnSymbol){
+                        ColumnSymbol col = ((ColumnSymbol)expr.parseObject);
+                        tableSymbol.values.put(col.name,col);
+                    }else if(expr.parseObject instanceof String){
+                        ColumnSymbol col = new ColumnSymbol();
+                        col.name = RandomNameGenerator.generateNewRandomName();
+                        col.type = (String) expr.parseObject;
+                        tableSymbol.values.put(col.name,col);
+                    }
+                }
+            }
+            selectOrValue.type = tableSymbol;
         }
         return selectOrValue;
     }

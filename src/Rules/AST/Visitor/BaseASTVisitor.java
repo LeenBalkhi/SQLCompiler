@@ -1253,7 +1253,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpressionCase2 sqlExpressionCase2) {
-        ColumnSymbol col = null;
+        ColumnSymbol col;
         TableSymbol temp = null;
 //        if(sqlExpressionCase2.tableName!=null){
 //            if(symbolTable.tableSymbol.name.equals(sqlExpressionCase2.tableName.name)){
