@@ -1,3 +1,4 @@
+// Generated from C:/Users/Dell/Documents/GitHub/SQLCompiler\Sql.g4 by ANTLR 4.7.2
 package Rules.generated;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

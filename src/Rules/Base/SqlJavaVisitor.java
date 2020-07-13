@@ -25,6 +25,7 @@ import Rules.SymbolTableMu.*;
 import Rules.SymbolTableMu.Scope;
 import Rules.SymbolTableMu.SymbolTable;
 import Rules.Utils.Error;
+import Rules.Utils.JSONParse;
 import Rules.Utils.Path;
 import Rules.Utils.Warning;
 import Rules.generated.*;
@@ -614,8 +615,9 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             javaString.string+= ctx.expression().get(i).getText();
         for(int i=0 ; i < ctx.any_name().size(); i ++)
             javaString.string+=ctx.any_name().get(i).getText();
-        for(int i=0 ; i < ctx.SPACES().size() ; i++)
-            javaString.string+=ctx.SPACES().get(i).getSymbol().getText();
+//        for(int i=0 ; i < ctx.SPACES().size() ; i++)
+//            javaString.string+=" ";
+        System.out.println(javaString.string);
         return  javaString;
     }
     @Override
@@ -1136,11 +1138,25 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public SqlExpressionCase1 visitCase1(SqlParser.Case1Context ctx)
     {
         SqlExpressionCase1 sqlExpressionCase1 = new SqlExpressionCase1();
-        sqlExpressionCase1.literalValue = ctx.literal_value().getText();
-        try {
-            sqlExpressionCase1.type = NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue).getClass().getSimpleName();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(ctx.literal_value()!=null){
+            sqlExpressionCase1.literalValue = ctx.literal_value().getText();
+            try {
+                sqlExpressionCase1.type = NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue).getClass().getSimpleName();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(ctx.string()!=null){
+            sqlExpressionCase1.literalValue = visitString(ctx.string()).string;
+            sqlExpressionCase1.type = "String";
+        }
+        else if(ctx.K_TRUE()!=null){
+            sqlExpressionCase1.bool = true;
+            sqlExpressionCase1.type = "Boolean";
+        }
+        else {
+            sqlExpressionCase1.bool = false;
+            sqlExpressionCase1.type = "Boolean";
         }
         return sqlExpressionCase1;
     }
@@ -1674,8 +1690,13 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     }
                 }
                 if(!err){
-                    tableSymbol.type = tableSymbol.getSqlTypeFromTableSymbol(symbolTable).name;
+                    SqlType sqlType = tableSymbol.getSqlTypeFromTableSymbol(symbolTable);
+                    tableSymbol.type = sqlType.name;
                     symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name , tableSymbol);
+                    if(tableSymbol.name.equals("libraries"))
+                        new JSONParse("C:\\Users\\Dell\\Desktop\\sample.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
+                    if(tableSymbol.name.equals("lib"))
+                        new JSONParse("C:\\Users\\Dell\\Desktop\\sample2.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
                 }
             }
         }
@@ -1763,6 +1784,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             }
             if( ctx.where!=null){
                 SqlExpression sqlExpression = visitExpr(ctx.where);
+                selectCore.whereExpression = sqlExpression;
                 if (sqlExpression.type ==null ||!sqlExpression.type.equals("Boolean")){
                     int line = ctx.where.start.getLine();
                     int col = ctx.where.start.getCharPositionInLine();

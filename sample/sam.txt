@@ -1,21 +1,5 @@
-func(){
-    var m = 10;
-    m++;
-    print(m);
-    return m;
-}
+Create Table music(artistName String , songName String)
+Create Table libraries(libraryName String, myMusic music)
+Create Table lib(name String ,num Long)
+select libraryName from libraries , lib where lib.num = 3 or lib.name = "MyLibrary1"
 
-funcc(){
-    return 1 + func();
-}
-
-fuuu(){
-    var m = 19;
-    while(m<29){
-        m = m+3;
-        funcc();
-        print(m);
-    }
-}
-
-fuuu();

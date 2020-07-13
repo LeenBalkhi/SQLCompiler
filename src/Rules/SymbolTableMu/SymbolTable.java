@@ -11,6 +11,7 @@ public class SymbolTable {
     public ArrayList<TableOrSubQueryTypeEntry> queryManager = new ArrayList<>();
     public ArrayList<AggregationFunction> aggregationFunctions = new ArrayList<>();
     public ArrayList<FunctionSymbol> functionSymbols = new ArrayList<>();
+    public TableSymbol tableSymbol;
 
     public SymbolTable() {
         scopeStack = new Stack<>();

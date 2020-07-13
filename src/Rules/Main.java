@@ -33,7 +33,7 @@ public class Main {
                 }
             }
             if(m.errors.size()==0)
-                    new BaseASTVisitor(m.symbolTable).visit((Parse) n);
+                new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {
             e.printStackTrace();
         }

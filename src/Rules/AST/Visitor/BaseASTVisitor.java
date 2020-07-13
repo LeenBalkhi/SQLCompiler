@@ -10,6 +10,7 @@ import Rules.AST.Java.Logic.Switch.*;
 import Rules.AST.Java.Utils.*;
 
 
+import Rules.AST.Java.Utils.Scope;
 import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.SQL.*;
@@ -21,14 +22,14 @@ import Rules.AST.SQL.Database.QualifiedTableName;
 import Rules.AST.SQL.Database.ResultColumn;
 import Rules.AST.SQL.Database.TypeName;
 import Rules.AST.SQL.Expression.*;
-import Rules.SymbolTableMu.FunctionSymbol;
-import Rules.SymbolTableMu.Symbol;
-import Rules.SymbolTableMu.SymbolTable;
+import Rules.SymbolTableMu.*;
 import Rules.Utils.Error;
 
 import java.sql.SQLSyntaxErrorException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class BaseASTVisitor implements ASTVisitor {
 
@@ -166,7 +167,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(VariableAssignmentValue variableAssignmentValue) {
-        System.out.println("ast VariableAssignmentValue");
         if(variableAssignmentValue.Value instanceof Expression)
             //visit((Expression)variableAssignmentValue.Value);
         if(variableAssignmentValue.Value instanceof ArrayIdentification)
@@ -179,7 +179,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(Assignment assignment) {
-        System.out.println("ast Assignment");
         visit((AssignmentOperator)assignment.assignmentOperator);
         visit((VariableAssignmentValue)assignment.variableAssignmentValue);
 
@@ -187,7 +186,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(True t) {
-        System.out.println("ast True");
+
     }
 
     @Override
@@ -203,7 +202,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(False f) {
-        System.out.println("ast False");
+
     }
 
     @Override
@@ -270,19 +269,16 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(ValueInParenth valueInParenth) {
-        System.out.println("ast ValueInParenth");
         return visit((Value)valueInParenth.value);
     }
 
     @Override
     public Boolean visit(BooleanInParenth booleanInParenth) {
-        System.out.println("ast BooleanInParenth");
         return visit((BooleanExpression)booleanInParenth.value);
     }
 
     @Override
     public Object visit(SimpleLiteralValue simpleLiteralValue) {
-        System.out.println("ast SimpleLiteralValue");
         try {
             return NumberFormat.getInstance().parse( simpleLiteralValue.value ) ;
         } catch (ParseException e) {
@@ -351,8 +347,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SimpleVariable simpleVariable) {
-        System.out.println("ast SimpleVariable");
-        System.out.println(simpleVariable.VariableName);
+
     }
 
     @Override
@@ -364,7 +359,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(Value value) {
-        System.out.println("ast Value");
         if(value.value instanceof Variable)
             return visit((Variable)value.value);
         if(value.value instanceof JavaString)
@@ -380,10 +374,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(Parse p) {
-        for(int i=0;i<p.sqlStmts.size();i++)
-        {
-            visit((Statement)p.sqlStmts.get(i));
-        }
         if(p.Java!=null)
             visit((JavaStatment)p.Java);
     }
@@ -418,11 +408,15 @@ public class BaseASTVisitor implements ASTVisitor {
             if(javaStmt.javaStatement2!=null)
                 visit((JavaStatment)javaStmt.javaStatement2);
         }
+        if(javaStmt.javaStatment instanceof SqlStatment){
+            visit((SqlStatment)javaStmt.javaStatment);
+            if(javaStmt.javaStatement2!=null)
+                visit((JavaStatment)javaStmt.javaStatement2);
+        }
     }
 
     @Override
     public void visit(ArgumentList argumentList) {
-        System.out.println("ast ArgumentList ");
         for (int i=0;i<argumentList.argumentList.size();i++){
             //visit((Expression)argumentList.argumentList.get(i));
         }
@@ -456,12 +450,8 @@ public class BaseASTVisitor implements ASTVisitor {
                     .argumentList.get(i));
         }
         symbolTable.pushScope( ((FunctionDeclaration)functionSymbol.value).scope );
-        System.out.println("During "+ functionSymbol.name + symbolTable.scopeStack.peek().symbolMap.keySet() );
         Object object = visit(((Block)((FunctionDeclaration)functionSymbol.value).block));
-//        if(funcCall.argumentList!=null)
-//            visit((ArgumentList)funcCall.argumentList);
         symbolTable.popScope();
-        System.out.println("After "+ functionSymbol.name + symbolTable.scopeStack.peek().symbolMap.keySet() );
         return object;
     }
 
@@ -500,7 +490,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public void visit(ParameterList ParamList) {
 
-        System.out.println("ast ParameterList ");
         for(int i=0 ; i < ParamList.list.size(); i ++)
         {
             System.out.println(ParamList.list.get(i));
@@ -514,7 +503,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(Block block)
     {
-        System.out.println("ast Block ");
         Object object = null;
         if(block.javaBodies.size()!=0)
         {
@@ -533,7 +521,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(JavaBody javaBody)
     {
-        System.out.println("ast JavaBody");
         if(javaBody.command instanceof ConditionalStmt)
             return visit((ConditionalStmt)javaBody.command);
         if(javaBody.command instanceof Increment)
@@ -562,7 +549,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(OneLineBlock oneLineBlock) {
-        System.out.println("ast OneLineBlock ");
         if(oneLineBlock.line instanceof JavaBody)
             visit((JavaBody)oneLineBlock.line);
         if(oneLineBlock.line instanceof ReturnStmt)
@@ -572,7 +558,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(ReturnStmt returnStmt)
     {
-        System.out.println("ast ReturnStmt");
         if(((ReturnValue)returnStmt.returnValue).value instanceof Expression){
             return ( visit((Expression)((ReturnValue)returnStmt.returnValue).value) );
         }
@@ -618,7 +603,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(Print print) {
-        System.out.println("ast Print");
         for(int i=0 ; i < print.expressions.size();i++) {
             System.out.print(visit(print.expressions.get(i)));
         }
@@ -788,7 +772,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(ForEachLoop forEachLoop) {
-        System.out.println("ast ForEachLoop");
         visit((Variable)forEachLoop.variable);
         System.out.println(forEachLoop.arrayName);
         if(forEachLoop.block instanceof OneLineBlock)
@@ -837,7 +820,6 @@ public class BaseASTVisitor implements ASTVisitor {
         symbolTable.pushScope( whileLoop.scope );
         //visit((BooleanExpression)whileLoop.booleanExpression);
         while (visit((BooleanExpression)whileLoop.booleanExpression) && object==null){
-            System.out.println("In while");
             if(whileLoop.block instanceof OneLineBlock)
                 visit((OneLineBlock)whileLoop.block);
             if(whileLoop.block instanceof Block)
@@ -849,9 +831,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SwitchCase switchCase) {
-        System.out.println("ast SwitchCase ");
         symbolTable.pushScope( switchCase.scope );
-
         visit((Value)switchCase.value);
         if(switchCase.block instanceof Block)
             visit((Block)switchCase.block);
@@ -863,20 +843,16 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SwitchDefault switchDefault) {
-        System.out.println("ast SwitchDefault ");
         symbolTable.pushScope( switchDefault.scope );
-
         if (switchDefault.block instanceof Block)
             visit((Block)switchDefault.block);
         if(switchDefault.block instanceof OneLineBlock)
             visit((OneLineBlock)switchDefault.block);
-
         symbolTable.popScope();
     }
 
     @Override
     public void visit(SwitchStmt switchStmt) {
-        System.out.println("ast SwitchStmt ");
         String varName = ((SimpleVariable)((Variable)switchStmt.var).variable).VariableName.get(0);
         visit((Variable)switchStmt.var);
         for(int i=0;i<switchStmt.cases.size();i++) {
@@ -895,13 +871,11 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(AssignmentOperator assignmentOperator) {
-        System.out.println("ast AssignmentOperator ");
-        System.out.println(assignmentOperator.op);
+
     }
 
     @Override
     public Boolean visit(BooleanExpression booleanExpression) {
-        System.out.println("ast BooleanExpression ");
         if(booleanExpression.booleanExpression instanceof Value)
             return (Boolean) visit((Value)booleanExpression.booleanExpression);
         if(booleanExpression.booleanExpression instanceof Compare)
@@ -931,7 +905,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(Expression expression) {
-        System.out.println("ast Expression ");
         if(expression.expression instanceof Value)
             return visit((Value)expression.expression);
         else if(expression.expression instanceof BooleanExpression)
@@ -945,7 +918,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(Increment increment) {
-        System.out.println("ast Increment ");
         if(increment.increment instanceof PreIncrement)
             return visit((PreIncrement) increment.increment);
         if(increment.increment instanceof PreDecrement)
@@ -964,7 +936,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(LiteralValue literalValue) {
-        System.out.println("ast LiteralValue ");
+
     }
 
     @Override
@@ -979,7 +951,6 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(Variable variable)
     {
-        System.out.println("ast Variable ");
         if(variable.variable instanceof SimpleVariable){
             return currentScope().findSymbol(((SimpleVariable) variable.variable).VariableName.get(0)).value;
         }
@@ -1013,12 +984,9 @@ public class BaseASTVisitor implements ASTVisitor {
         if(sqlStatment.stmt instanceof DropTableStatement)
             visit((DropTableStatement) sqlStatment.stmt);
 
-        if(sqlStatment.stmt instanceof FactoredSelectStatement)
-        {
+        if(sqlStatment.stmt instanceof FactoredSelectStatement) {
             visit((FactoredSelectStatement) sqlStatment.stmt);
-
         }
-
         if(sqlStatment.stmt instanceof InsertStatement)
             visit((InsertStatement) sqlStatment.stmt);
 
@@ -1227,131 +1195,289 @@ public class BaseASTVisitor implements ASTVisitor {
         for(int i=0 ; i<foreignKeyClause.matchOnNodes.size(); i++)
             visit((AnyName) foreignKeyClause.matchOnNodes.get(i));
     }
+
     @Override
-    public void visit(SqlExpression sqlExpression) {
+    public Object visit(SqlExpression sqlExpression) {
         if(sqlExpression.expression instanceof SqlExpressionCase1)
-            visit((SqlExpressionCase1)sqlExpression.expression);
+            return visit((SqlExpressionCase1)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase2)
-            visit((SqlExpressionCase2)sqlExpression.expression);
+            return visit((SqlExpressionCase2)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase3)
-            visit((SqlExpressionCase3)sqlExpression.expression);
+            return visit((SqlExpressionCase3)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase4)
-            visit((SqlExpressionCase4)sqlExpression.expression);
+            return visit((SqlExpressionCase4)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase5)
-            visit((SqlExpressionCase5)sqlExpression.expression);
+            return visit((SqlExpressionCase5)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase6)
-            visit((SqlExpressionCase6)sqlExpression.expression);
+            return visit((SqlExpressionCase6)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase7)
-            visit((SqlExpressionCase7)sqlExpression.expression);
+            return visit((SqlExpressionCase7)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase8)
-            visit((SqlExpressionCase8)sqlExpression.expression);
+            return visit((SqlExpressionCase8)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase9)
-            visit((SqlExpressionCase9)sqlExpression.expression);
+            return visit((SqlExpressionCase9)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase10)
-            visit((SqlExpressionCase10)sqlExpression.expression);
+            return visit((SqlExpressionCase10)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase11)
-            visit((SqlExpressionCase11)sqlExpression.expression);
+            return visit((SqlExpressionCase11)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase12)
-            visit((SqlExpressionCase12)sqlExpression.expression);
+            return visit((SqlExpressionCase12)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase13)
-            visit((SqlExpressionCase13)sqlExpression.expression);
+            return visit((SqlExpressionCase13)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase14)
-            visit((SqlExpressionCase14)sqlExpression.expression);
+            return visit((SqlExpressionCase14)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase15)
-            visit((SqlExpressionCase15)sqlExpression.expression);
+            return visit((SqlExpressionCase15)sqlExpression.expression);
+        return null;
 
     }
 
 
     @Override
-    public void visit(SqlExpressionCase1 sqlExpressionCase1) {
-        System.out.println("ast SqlExpressionCase1");
-        System.out.println(sqlExpressionCase1.literalValue);
+    public Object visit(SqlExpressionCase1 sqlExpressionCase1) {
+//        System.out.println("ast SqlExpressionCase1");
+//        System.out.println(sqlExpressionCase1.literalValue);
+        if(sqlExpressionCase1.type.equals("Long")){
+            try {
+                return NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(sqlExpressionCase1.type.equals("String")){
+            return sqlExpressionCase1.literalValue;
+        }
+        else {
+            return sqlExpressionCase1.bool;
+        }
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase2 sqlExpressionCase2) {
-        System.out.println("ast SqlExpressionCase2");
-        if(sqlExpressionCase2.dataBaseName!=null)
-            visit(sqlExpressionCase2.dataBaseName);
-        if(sqlExpressionCase2.tableName!=null)
-            visit(sqlExpressionCase2.tableName);
-        visit(sqlExpressionCase2.columnName);
+    public Object visit(SqlExpressionCase2 sqlExpressionCase2) {
+        ColumnSymbol col = null;
+        TableSymbol temp = null;
+//        if(sqlExpressionCase2.tableName!=null){
+//            if(symbolTable.tableSymbol.name.equals(sqlExpressionCase2.tableName.name)){
+//                temp = symbolTable.tableSymbol;
+//            }
+//        }
+        if(sqlExpressionCase2.tableName!=null){
+            if(sqlExpressionCase2.tableName.name.equals(symbolTable.tableSymbol.name))
+                temp = symbolTable.tableSymbol;
+//            else{
+//                if(symbolTable.tableSymbol.values.containsKey(sqlExpressionCase2.tableName.name)
+//                        && symbolTable.sqlTypes.containsKey(sqlExpressionCase2.tableName.name)){
+//                    col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.dataBaseName.name);
+//                }
+//            }
+        }
+        if(temp!=null){
+             col = temp.values.get(sqlExpressionCase2.columnName.name);
+        }else
+            col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.columnName.name);
+
+        return col.clone();
     }
 
     @Override
-    public void visit(SqlExpressionCase3 sqlExpressionCase3) {
+    public Object visit(SqlExpressionCase3 sqlExpressionCase3) {
         System.out.println("ast SqlExpressionCase3");
         System.out.println(sqlExpressionCase3.unaryOperator);
         visit((SqlExpression)sqlExpressionCase3.SqlExpression);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase4 sqlExpressionCase4) {
+    public Object visit(SqlExpressionCase4 sqlExpressionCase4) {
         System.out.print("ast SqlExpressionCase4");
         visit((SqlExpression)sqlExpressionCase4.SqlExpression1);
         System.out.println(sqlExpressionCase4.op);
         visit((SqlExpression)sqlExpressionCase4.SqlExpression2);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase5 sqlExpressionCase5) {
+    public Object visit(SqlExpressionCase5 sqlExpressionCase5) {
         System.out.println("ast SqlExpressionCase5");
         visit((SqlExpression)sqlExpressionCase5.SqlExpression1);
         System.out.println(sqlExpressionCase5.op);
         visit((SqlExpression)sqlExpressionCase5.SqlExpression2);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase6 sqlExpressionCase6) {
+    public Object visit(SqlExpressionCase6 sqlExpressionCase6) {
         System.out.println("ast SqlExpressionCase6");
         visit((SqlExpression)sqlExpressionCase6.SqlExpression1);
         System.out.println(sqlExpressionCase6.op);
         visit((SqlExpression)sqlExpressionCase6.SqlExpression2);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase7 sqlExpressionCase7) {
+    public Object visit(SqlExpressionCase7 sqlExpressionCase7) {
         System.out.println("ast SqlExpressionCase7");
         visit((SqlExpression)sqlExpressionCase7.SqlExpression1);
         System.out.println(sqlExpressionCase7.op);
         visit((SqlExpression)sqlExpressionCase7.SqlExpression2);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase8 sqlExpressionCase8) {
+    public Object visit(SqlExpressionCase8 sqlExpressionCase8) {
         System.out.println("ast SqlExpressinoCase8");
         visit((SqlExpression)sqlExpressionCase8.SqlExpression1);
         System.out.println(sqlExpressionCase8.op);
         visit((SqlExpression)sqlExpressionCase8.SqlExpression2);
+        return null;
+    }
+
+
+
+    @Override
+    public Object visit(SqlExpressionCase9 sqlExpressionCase9) {
+        Object expr1 = visit((SqlExpression) sqlExpressionCase9.SqlExpression1);
+        Object expr2 = visit((SqlExpression) sqlExpressionCase9.SqlExpression2);
+        int offset = 0;
+        String op = sqlExpressionCase9.op;
+        TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
+        if (expr1 instanceof ColumnSymbol) {
+            if (expr2 instanceof ColumnSymbol) {
+                switch (op) {
+                    case ("="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((ColumnSymbol) expr1).values.get(i).equals(((ColumnSymbol) expr2).values.get(i))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "==": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((ColumnSymbol) expr1).values.get(i).equals(((ColumnSymbol) expr2).values.get(i))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "!=": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (((ColumnSymbol) expr1).values.get(i).equals(((ColumnSymbol) expr2).values.get(i))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else if (expr2 instanceof Number || expr2 instanceof String || expr2 instanceof Boolean) {
+                switch (op) {
+                    case ("="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((ColumnSymbol) expr1).values.get(i).equals(expr2)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "==": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((ColumnSymbol) expr1).values.get(i).equals(expr2)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "!=": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (((ColumnSymbol) expr1).values.get(i).equals(expr2)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }else{
+            if(expr2 instanceof ColumnSymbol){
+                switch (op) {
+                    case ("="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((ColumnSymbol) expr2).values.get(i).equals(expr1)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "==": {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((ColumnSymbol) expr2).values.get(i).equals(expr1)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "!=": {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (((ColumnSymbol) expr2).values.get(i).equals(expr1)) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return tableSymbol;
     }
 
     @Override
-    public void visit(SqlExpressionCase9 sqlExpressionCase9) {
-        System.out.println("ast SqlExpressionCase9");
-        visit((SqlExpression)sqlExpressionCase9.SqlExpression1);
-        System.out.println(sqlExpressionCase9.op);
-        visit((SqlExpression)sqlExpressionCase9.SqlExpression2);
+    public Object visit(SqlExpressionCase10 sqlExpressionCase10) {
+        TableSymbol temp;
+        symbolTable.tableSymbol = ((TableSymbol)visit((SqlExpression)sqlExpressionCase10.SqlExpression1)).clone();
+        temp = ((TableSymbol)visit((SqlExpression)sqlExpressionCase10.SqlExpression2)).clone();
+        temp.printTable(symbolTable);
+        return temp;
     }
 
     @Override
-    public void visit(SqlExpressionCase10 sqlExpressionCase10) {
-        System.out.println("ast SqlExpressionCase10");
-        visit((SqlExpression)sqlExpressionCase10.SqlExpression1);
-        System.out.println(sqlExpressionCase10.op);
-        visit((SqlExpression)sqlExpressionCase10.SqlExpression2);
+    public Object visit(SqlExpressionCase11 sqlExpressionCase11) {
+        TableSymbol table1 =  (TableSymbol) visit((SqlExpression)sqlExpressionCase11.SqlExpression1);
+        TableSymbol table2 = (TableSymbol) visit((SqlExpression)sqlExpressionCase11.SqlExpression2);
+        TableSymbol result = TableSymbol.combineTables(table1,table2);
+        result.printTable(symbolTable);
+        return result;
     }
 
     @Override
-    public void visit(SqlExpressionCase11 sqlExpressionCase11) {
-        System.out.println("ast SqlExpressionCase11");
-        visit((SqlExpression)sqlExpressionCase11.SqlExpression1);
-        System.out.println(sqlExpressionCase11.op);
-        visit((SqlExpression)sqlExpressionCase11.SqlExpression2);
-    }
-
-    @Override
-    public void visit(SqlExpressionCase12 sqlExpressionCase12) {
+    public Object visit(SqlExpressionCase12 sqlExpressionCase12) {
         System.out.println("ast SqlExpressionCase12");
         visit(sqlExpressionCase12.functionName);
         if(sqlExpressionCase12.distinct!=false)
@@ -1360,16 +1486,18 @@ public class BaseASTVisitor implements ASTVisitor {
             visit((SqlExpression)sqlExpressionCase12.expressions.get(i));
         if(sqlExpressionCase12.op!=null)
             System.out.println(sqlExpressionCase12.op);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase13 sqlExpressionCase13) {
+    public Object visit(SqlExpressionCase13 sqlExpressionCase13) {
         System.out.println("ast SqlExpressionCase13");
         visit((SqlExpression)sqlExpressionCase13.expression);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase14 sqlExpressionCase14) {
+    public Object visit(SqlExpressionCase14 sqlExpressionCase14) {
         System.out.println("ast SqlExpressionCase14");
         if(sqlExpressionCase14.not!=false)
             System.out.println("not");
@@ -1381,16 +1509,18 @@ public class BaseASTVisitor implements ASTVisitor {
             visit(sqlExpressionCase14.dataBaseName);
         if(sqlExpressionCase14.tableName!=null)
             visit(sqlExpressionCase14.tableName);
+        return null;
     }
 
     @Override
-    public void visit(SqlExpressionCase15 sqlExpressionCase15) {
+    public Object visit(SqlExpressionCase15 sqlExpressionCase15) {
         System.out.println("ast SqlExpressionCase15");
         if(sqlExpressionCase15.not!=false)
             System.out.println("NOT");
         if(sqlExpressionCase15.exists!=false)
             System.out.println("EXISTS");
         visit((SelectStmt)sqlExpressionCase15.selectStmt);
+        return null;
     }
 
     @Override
@@ -1454,21 +1584,27 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SelectCore selectCore) {
-        System.out.println("ast SelectCore");
-        if(selectCore.all!=false)
-            System.out.println("ALL");
-        if(selectCore.distinct!=false)
-            System.out.println("DISTINCT");
-        for(int i=0;i<selectCore.resultColumns.size();i++)
-            visit((ResultColumn)selectCore.resultColumns.get(i));
-        for(int i=0;i<selectCore.tableOrSubQueries.size();i++)
+        for(int i=0;i<selectCore.tableOrSubQueries.size();i++){
             visit((TableOrSubquery)selectCore.tableOrSubQueries.get(i));
-        if(selectCore.joinClause!=null)
-            visit((JoinClause)selectCore.joinClause);
-        for(int i=0;i<selectCore.groupByexpressions.size();i++)
-            visit((SqlExpression)selectCore.groupByexpressions.get(i));
-        for(int i=0;i<selectCore.valuesExpression.size();i++)
-            visit((SqlExpression)selectCore.valuesExpression.get(i));
+            if(i==0)
+                symbolTable.tableSymbol = ((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).tableSymbol;
+            else
+                symbolTable.tableSymbol = cartesianProduct(symbolTable.tableSymbol
+                        , ((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).tableSymbol);
+        }
+        if (selectCore.whereExpression!=null){
+            symbolTable.tableSymbol = ((TableSymbol)visit(selectCore.whereExpression)).clone();
+
+        }
+//        TableSymbol tableSymbol = new TableSymbol();
+//        for(int i=0;i<selectCore.resultColumns.size();i++){
+//            visit((ResultColumn)selectCore.resultColumns.get(i));
+//            tableSymbol.values.put(((ResultColumn) selectCore.resultColumns.get(i)).res.name , ((ResultColumn) selectCore.resultColumns.get(i)).res);
+//            for(int m=0;m< ((ResultColumn) selectCore.resultColumns.get(i)).res.values.size();m++){
+//                System.out.println(((ResultColumn) selectCore.resultColumns.get(i)).res.values.get(m));
+//            }
+//        }
+
     }
 
     @Override
@@ -1496,19 +1632,54 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(TableOrSubquery tableOrSubquery) {
-        System.out.println("ast TableOrSubquery");
-        if(tableOrSubquery.databaseName!=null)
+        if(tableOrSubquery.databaseName!=null){
             visit(tableOrSubquery.databaseName);
-        if(tableOrSubquery.tableName!=null)
-            visit(tableOrSubquery.tableName);
+        }
+        if(tableOrSubquery.tableName!=null){
+            tableOrSubquery.tableSymbol =(TableSymbol) currentScope().findSymbol(tableOrSubquery.tableName.name);
+        }
         if(tableOrSubquery.indexName!=null)
             visit(tableOrSubquery.indexName);
-        for(int i=0;i<tableOrSubquery.tableOrSubqueries.size();i++)
-            visit((TableOrSubquery)tableOrSubquery.tableOrSubqueries.get(i));
         if(tableOrSubquery.joinClause!=null)
             visit((JoinClause) tableOrSubquery.joinClause);
         if(tableOrSubquery.selectStatment!=null)
             visit((SelectStmt)tableOrSubquery.selectStatment);
+    }
+
+    public TableSymbol cartesianProduct(TableSymbol table1,TableSymbol table2){
+        TableSymbol tableSymbol = new TableSymbol();
+        int count = 0;
+        table1.values.values().forEach(val->{
+            ColumnSymbol columnSymbol = new ColumnSymbol();
+            columnSymbol.name = val.name;
+            columnSymbol.type = val.type;
+            tableSymbol.values.put(columnSymbol.name,columnSymbol);
+        });
+        table2.values.values().forEach(val->{
+            ColumnSymbol columnSymbol = new ColumnSymbol();
+            columnSymbol.name = val.name;
+            columnSymbol.type = val.type;
+            tableSymbol.values.put(columnSymbol.name,columnSymbol);
+        });
+
+        if(table1.getColumnWithLeastValues()<table2.getColumnWithLeastValues())
+            count = table1.getColumnWithLeastValues();
+        else
+            count = table2.getColumnWithLeastValues();
+        for(int i = 0;i<count;i++){
+            for(int j=0;j<count;j++){
+                for (ColumnSymbol col1 : table1.values.values()) {
+                    tableSymbol.values.get(col1.name).values.add(col1.values.get(i));
+                }
+            }
+            for(int j=0; j<count;j++){
+                for (ColumnSymbol col2 : table2.values.values()){
+                    System.out.println();
+                    tableSymbol.values.get(col2.name).values.add(col2.values.get(j));
+                }
+            }
+        }
+        return tableSymbol;
     }
 
     @Override
@@ -1537,9 +1708,10 @@ public class BaseASTVisitor implements ASTVisitor {
         System.out.println("ast ResultColumn");
         if(resultColumn.tableName!=null)
             visit(resultColumn.tableName);
-        if(resultColumn.expression!=null)
-            visit((SqlExpression)resultColumn.expression);
-        System.out.println(resultColumn.cloumnForExpr);
+        if(resultColumn.expression!=null){
+            resultColumn.res = ((ColumnSymbol)visit((SqlExpression)resultColumn.expression));
+        }
+        //System.out.println(resultColumn.cloumnForExpr);
     }
 
     @Override

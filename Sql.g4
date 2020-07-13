@@ -631,7 +631,7 @@ exists_expr:
  ;
 */
 expr
- : literal_value  #case1
+ : (literal_value | string | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
  | ( table_name '.' )? column_name  #case2
  | expr '.' any_name #case22
