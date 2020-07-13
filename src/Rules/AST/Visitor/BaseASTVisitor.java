@@ -24,6 +24,7 @@ import Rules.AST.SQL.Database.TypeName;
 import Rules.AST.SQL.Expression.*;
 import Rules.SymbolTableMu.*;
 import Rules.Utils.Error;
+import Rules.Utils.RandomNameGenerator;
 
 import java.sql.SQLSyntaxErrorException;
 import java.text.NumberFormat;
@@ -966,7 +967,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SqlStatment sqlStatment) {
-
         System.out.println("ast sql statement");
         if(sqlStatment.Unique)
             System.out.println("Unique");
@@ -996,24 +996,22 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SelectStmt selectStmt) {
-
-        System.out.println("AST SelectStmt");
         if(selectStmt.selectorval != null)
-            visit((SelectOrValue) selectStmt.selectorval);
-        for(int i=0 ; i < selectStmt.expressions.size(); i++)
-            visit((SqlExpression) selectStmt.expressions.get(i));
-        for(int i=0 ; i < selectStmt.ordering.size();i++)
-            visit((OrderingTerm) selectStmt.ordering.get(i));
-        if(selectStmt.limit)
-            System.out.println("is limited");
-        if(selectStmt.expr1!= null)
-            visit((SqlExpression) selectStmt.expr1);
-
-        if(selectStmt.offset)
-            System.out.println("There exists an offset");
-
-        if(selectStmt.expr2!= null)
-            visit((SqlExpression) selectStmt.expr2);
+            selectStmt.tableSymbol = visit((SelectOrValue) selectStmt.selectorval);
+//        for(int i=0 ; i < selectStmt.expressions.size(); i++)
+//            visit((SqlExpression) selectStmt.expressions.get(i));
+//        for(int i=0 ; i < selectStmt.ordering.size();i++)
+//            visit((OrderingTerm) selectStmt.ordering.get(i));
+//        if(selectStmt.limit)
+//            System.out.println("is limited");
+//        if(selectStmt.expr1!= null)
+//            visit((SqlExpression) selectStmt.expr1);
+//
+//        if(selectStmt.offset)
+//            System.out.println("There exists an offset");
+//
+//        if(selectStmt.expr2!= null)
+//            visit((SqlExpression) selectStmt.expr2);
 
     }
 
@@ -1484,11 +1482,158 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpressionCase8 sqlExpressionCase8) {
-        System.out.println("ast SqlExpressinoCase8");
-        visit((SqlExpression)sqlExpressionCase8.SqlExpression1);
-        System.out.println(sqlExpressionCase8.op);
-        visit((SqlExpression)sqlExpressionCase8.SqlExpression2);
-        return null;
+        Object expr1 = visit((SqlExpression) sqlExpressionCase8.SqlExpression1);
+        Object expr2 = visit((SqlExpression) sqlExpressionCase8.SqlExpression2);
+        int offset = 0;
+        String op = sqlExpressionCase8.op;
+        TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
+        if (expr1 instanceof ColumnSymbol) {
+            if (expr2 instanceof ColumnSymbol) {
+                switch (op) {
+                    case ("<"): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) < ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case "<=": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) <= ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case ">": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) > ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case ">=": {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) >= ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else if (expr2 instanceof Number ) {
+                switch (op) {
+                    case ("<"): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) < ((long)expr2))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case ("<="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) <= ((long)expr2))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case (">"): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) > ((long)expr2))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case (">="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) >= ((long)expr2))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }else{
+            if(expr2 instanceof ColumnSymbol){
+                switch (op) {
+                    case ("<"): {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) < ((long)expr1))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case ("<="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) <= ((long)expr1))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case (">"): {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) > ((long)expr1))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                    case (">="): {
+                        for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
+                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) >= ((long)expr1))) {
+                                for (ColumnSymbol col : tableSymbol.values.values()) {
+                                    col.values.remove(i-offset);
+                                }
+                                offset++;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return tableSymbol;
     }
 
 
@@ -1741,18 +1886,24 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SelectCore selectCore) {
+        TableSymbol current = new TableSymbol();
         for(int i=0;i<selectCore.tableOrSubQueries.size();i++){
             visit((TableOrSubquery)selectCore.tableOrSubQueries.get(i));
-            if(i==0)
-                symbolTable.tableSymbol = ((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).tableSymbol;
-            else
-                symbolTable.tableSymbol = cartesianProduct(symbolTable.tableSymbol
+            if(i==0){
+                current = ((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).tableSymbol;
+                symbolTable.tableSymbol = current.clone();
+            }
+            else{
+                current = cartesianProduct(current
                         , ((TableOrSubquery)selectCore.tableOrSubQueries.get(i)).tableSymbol);
+                symbolTable.tableSymbol = current.clone();
+            }
         }
         if (selectCore.whereExpression!=null){
             symbolTable.tableSymbol = ((TableSymbol)visit(selectCore.whereExpression)).clone();
 
         }
+        symbolTable.tableSymbol.printTable(symbolTable);
 //        TableSymbol tableSymbol = new TableSymbol();
 //        for(int i=0;i<selectCore.resultColumns.size();i++){
 //            visit((ResultColumn)selectCore.resultColumns.get(i));
@@ -1761,7 +1912,6 @@ public class BaseASTVisitor implements ASTVisitor {
 //                System.out.println(((ResultColumn) selectCore.resultColumns.get(i)).res.values.get(m));
 //            }
 //        }
-
     }
 
     @Override
@@ -1799,13 +1949,15 @@ public class BaseASTVisitor implements ASTVisitor {
             visit(tableOrSubquery.indexName);
         if(tableOrSubquery.joinClause!=null)
             visit((JoinClause) tableOrSubquery.joinClause);
-        if(tableOrSubquery.selectStatment!=null)
+        if(tableOrSubquery.selectStatment!=null){
             visit((SelectStmt)tableOrSubquery.selectStatment);
+            tableOrSubquery.tableSymbol = ((SelectStmt)tableOrSubquery.selectStatment).tableSymbol;
+        }
     }
 
     public TableSymbol cartesianProduct(TableSymbol table1,TableSymbol table2){
         TableSymbol tableSymbol = new TableSymbol();
-        int count = 0;
+        int count1,count2;
         table1.values.values().forEach(val->{
             ColumnSymbol columnSymbol = new ColumnSymbol();
             columnSymbol.name = val.name;
@@ -1818,18 +1970,15 @@ public class BaseASTVisitor implements ASTVisitor {
             columnSymbol.type = val.type;
             tableSymbol.values.put(columnSymbol.name,columnSymbol);
         });
-
-        if(table1.getColumnWithLeastValues()<table2.getColumnWithLeastValues())
-            count = table1.getColumnWithLeastValues();
-        else
-            count = table2.getColumnWithLeastValues();
-        for(int i = 0;i<count;i++){
-            for(int j=0;j<count;j++){
+        count1 = table1.getColumnWithLeastValues();
+        count2 = table2.getColumnWithLeastValues();
+        for(int i = 0;i<count1;i++){
+            for(int j=0;j<count2;j++){
                 for (ColumnSymbol col1 : table1.values.values()) {
                     tableSymbol.values.get(col1.name).values.add(col1.values.get(i));
                 }
             }
-            for(int j=0; j<count;j++){
+            for(int j=0; j<count2;j++){
                 for (ColumnSymbol col2 : table2.values.values()){
                     System.out.println();
                     tableSymbol.values.get(col2.name).values.add(col2.values.get(j));
@@ -1847,28 +1996,70 @@ public class BaseASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(SelectOrValue selectOrValue) {
-        System.out.println("ast SelectOrValue");
-        System.out.println(selectOrValue.id);
-        for(int i=0;i<selectOrValue.resColumns.size();i++)
-            visit((ResultColumn)selectOrValue.resColumns.get(i));
-        for(int i=0;i<selectOrValue.tablesorSbqueries.size();i++)
+    public TableSymbol visit(SelectOrValue selectOrValue) {
+        for(int i=0;i<selectOrValue.tablesorSbqueries.size();i++){
             visit((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i));
-        if(selectOrValue.join!=null)
-            visit((JoinClause)selectOrValue.join);
-        for(int i=0;i<selectOrValue.expressions.size();i++)
-            visit((SqlExpression)selectOrValue.expressions.get(i));
+            if(i==0)
+                symbolTable.tableSymbol = ((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).tableSymbol;
+            else
+                symbolTable.tableSymbol = cartesianProduct(symbolTable.tableSymbol
+                        , ((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i)).tableSymbol);
+        }
+        if (selectOrValue.whereExpression!=null){
+            symbolTable.tableSymbol = ((TableSymbol)visit(selectOrValue.whereExpression)).clone();
+        }
+        TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
+        tableSymbol.values.clear();
+        for(int i=0;i<selectOrValue.resColumns.size();i++){
+            visit((ResultColumn)selectOrValue.resColumns.get(i));
+            ResultColumn resultColumn = (ResultColumn)selectOrValue.resColumns.get(i);
+            if(resultColumn.res instanceof ColumnSymbol){
+                ColumnSymbol col = ((ColumnSymbol)resultColumn.res);
+                tableSymbol.values.put(col.name,col);
+            }else if(resultColumn.res instanceof Number){
+                ColumnSymbol columnSymbol = new ColumnSymbol();
+                columnSymbol.type = "Long";
+                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                for(int j = 0 ; j < count ; j++){
+                    columnSymbol.values.add(resultColumn.res);
+                }
+                tableSymbol.values.put(columnSymbol.name,columnSymbol);
+            }else if(resultColumn.res instanceof String){
+                ColumnSymbol columnSymbol = new ColumnSymbol();
+                columnSymbol.type = "String";
+                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                for(int j = 0 ; j < count ; j++){
+                    columnSymbol.values.add(resultColumn.res);
+                }
+                tableSymbol.values.put(columnSymbol.name,columnSymbol);
+            }else if(resultColumn.res instanceof Boolean){
+                ColumnSymbol columnSymbol = new ColumnSymbol();
+                columnSymbol.type = "Boolean";
+                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                for(int j = 0 ; j < count ; j++){
+                    columnSymbol.values.add(resultColumn.res);
+                }
+                tableSymbol.values.put(columnSymbol.name,columnSymbol);
+            }
+        }
+//        if(selectOrValue.join!=null)
+//            visit((JoinClause)selectOrValue.join);
+//        for(int i=0;i<selectOrValue.expressions.size();i++)
+//            visit((SqlExpression)selectOrValue.expressions.get(i));
+        return tableSymbol;
     }
 
     @Override
     public void visit(ResultColumn resultColumn) {
-        System.out.println("ast ResultColumn");
         if(resultColumn.tableName!=null)
             visit(resultColumn.tableName);
         if(resultColumn.expression!=null){
-            resultColumn.res = ((ColumnSymbol)visit((SqlExpression)resultColumn.expression));
+            Object expr = visit((SqlExpression)resultColumn.expression);
+            resultColumn.res = expr;
         }
-        //System.out.println(resultColumn.cloumnForExpr);
     }
 
     @Override
@@ -1904,6 +2095,4 @@ public class BaseASTVisitor implements ASTVisitor {
         for(int i=0 ; i < updateStatement.expressions.size();i++)
             visit((SqlExpression) updateStatement.expressions.get(i));
     }
-
-
 }

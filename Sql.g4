@@ -634,7 +634,7 @@ expr
  : (literal_value | string | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
  | ( table_name '.' )? column_name  #case2
- | expr '.' any_name #case22
+ | expr '->' any_name #case22
  | unary_operator expr  #case3
  | expr op='||' expr  #case4
  | expr op=( '*' | '/' | '%' ) expr  #case5

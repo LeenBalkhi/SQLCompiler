@@ -26,6 +26,7 @@ import Rules.AST.SQL.Database.QualifiedTableName;
 import Rules.AST.SQL.Database.ResultColumn;
 import Rules.AST.SQL.Database.TypeName;
 import Rules.AST.SQL.Expression.*;
+import Rules.SymbolTableMu.TableSymbol;
 
 public interface ASTVisitor {
 
@@ -159,7 +160,7 @@ public interface ASTVisitor {
     public void visit(JoinOperator joinOperator);
     public void visit(TableOrSubquery tableOrSubquery);
     public void visit(OrderingTerm orderingTerm);
-    public void visit(SelectOrValue selectOrValue);
+    public TableSymbol visit(SelectOrValue selectOrValue);
     public void visit(ResultColumn resultColumn);
     public void visit(InsertStatement insertStatement);
     public void visit(UpdateStatement updateStatement);

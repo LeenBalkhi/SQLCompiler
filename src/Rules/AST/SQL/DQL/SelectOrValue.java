@@ -1,6 +1,7 @@
 package Rules.AST.SQL.DQL;
 
 import Rules.AST.Node;
+import Rules.AST.SQL.Expression.SqlExpression;
 import Rules.AST.SQL.SqlStatment;
 import Rules.SymbolTableMu.TableOrSubQueryTypeEntry;
 
@@ -13,4 +14,5 @@ public class SelectOrValue extends SqlStatment {
     public Node join;
     public ArrayList<Node> expressions = new ArrayList<>();
     public ArrayList<TableOrSubQueryTypeEntry> types = new ArrayList<>();
+    public SqlExpression whereExpression;
 }

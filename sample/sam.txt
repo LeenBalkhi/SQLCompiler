@@ -1,5 +1,5 @@
 Create Table music(artistName String , songName String)
 Create Table libraries(libraryName String, myMusic music)
 Create Table lib(name String ,num Long)
-select libraryName from libraries , lib where lib.num = 3 or lib.name = "MyLibrary1"
+select libraryName  from libraries , (select name , 1 from lib where lib.num <= 3)
 

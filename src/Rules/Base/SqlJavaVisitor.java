@@ -1980,6 +1980,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 selectOrValue.join = visitJoin_clause(ctx.join_clause());
             if( ctx.where!=null){
                 SqlExpression sqlExpression = visitExpr(ctx.where);
+                selectOrValue.whereExpression = sqlExpression;
                 if (sqlExpression.type ==null ||!sqlExpression.type.equals("Boolean")){
                     int line = ctx.where.start.getLine();
                     int col = ctx.where.start.getCharPositionInLine();
