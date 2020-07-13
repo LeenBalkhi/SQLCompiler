@@ -63,8 +63,7 @@ public class TableSymbol extends Symbol {
         TableSymbol tableSymbol = table1.clone();
         int count1 = table1.getColumnWithLeastValues();
         int count2 = table2.getColumnWithLeastValues();
-        boolean add = true;
-        boolean dup;
+        boolean add,dup;
         for(int i=0;i<count2;i++){
             add = true;
             for(int j=0;j<count1;j++){

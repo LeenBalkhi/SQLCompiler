@@ -1299,28 +1299,186 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpressionCase5 sqlExpressionCase5) {
-        System.out.println("ast SqlExpressionCase5");
-        visit((SqlExpression)sqlExpressionCase5.SqlExpression1);
-        System.out.println(sqlExpressionCase5.op);
-        visit((SqlExpression)sqlExpressionCase5.SqlExpression2);
-        return null;
+        Object expr1 = visit((SqlExpression)sqlExpressionCase5.SqlExpression1);
+        Object expr2 = visit((SqlExpression)sqlExpressionCase5.SqlExpression2);
+        String op = sqlExpressionCase5.op;
+        ColumnSymbol col1 = new ColumnSymbol();
+        ColumnSymbol col2;
+        if(expr1 instanceof ColumnSymbol){
+            col1 = ((ColumnSymbol)expr1).clone();
+            if(expr2 instanceof ColumnSymbol){
+                col2 = ((ColumnSymbol)expr2).clone();
+                switch (op){
+                    case "*":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) * (long)col2.values.get(i));
+                        }
+                        break;
+                    }
+                    case "/":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) / (long)col2.values.get(i));
+                        }
+                        break;
+                    }
+                    case "%":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) % (long)col2.values.get(i));
+                        }
+                        break;
+                    }
+                }
+            }else if(expr2 instanceof Number){
+                switch (op){
+                    case "*":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) * (long)expr2);
+                        }
+                        break;
+                    }
+                    case "/":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) / (long)expr2);
+                        }
+                        break;
+                    }
+                    case "%":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) % (long)expr2);
+                        }
+                        break;
+                    }
+                }
+            }
+        }else if(expr1 instanceof Number){
+            if(expr2 instanceof ColumnSymbol){
+                col1 = ((ColumnSymbol)expr2).clone();
+                switch (op){
+                    case "*":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) * (long)expr1);
+                        }
+                        break;
+                    }
+                    case "/":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) / (long)expr1);
+                        }
+                        break;
+                    }
+                    case "%":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) % (long)expr1);
+                        }
+                        break;
+                    }
+                }
+            }else if(expr2 instanceof Number){
+                switch (op){
+                    case "*":{
+                        return (long)expr1 * (long)expr2;
+                    }
+                    case "/":{
+                        return (long)expr1 / (long)expr2;
+                    }
+                    case "%":{
+                        return (long)expr1 % (long)expr2;
+                    }
+                }
+            }
+        }
+        return col1;
     }
 
     @Override
     public Object visit(SqlExpressionCase6 sqlExpressionCase6) {
-        System.out.println("ast SqlExpressionCase6");
-        visit((SqlExpression)sqlExpressionCase6.SqlExpression1);
-        System.out.println(sqlExpressionCase6.op);
-        visit((SqlExpression)sqlExpressionCase6.SqlExpression2);
-        return null;
+        Object expr1 = visit((SqlExpression)sqlExpressionCase6.SqlExpression1);
+        Object expr2 = visit((SqlExpression)sqlExpressionCase6.SqlExpression2);
+        String op = sqlExpressionCase6.op;
+        ColumnSymbol col1 = new ColumnSymbol();
+        ColumnSymbol col2;
+        if(expr1 instanceof ColumnSymbol){
+            col1 = ((ColumnSymbol)expr1).clone();
+            if(expr2 instanceof ColumnSymbol){
+                col2 = ((ColumnSymbol)expr2).clone();
+                switch (op){
+                    case "+":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) + (long)col2.values.get(i));
+                        }
+                        break;
+                    }
+                    case "-":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) - (long)col2.values.get(i));
+                        }
+                        break;
+                    }
+                }
+            }else if(expr2 instanceof Number){
+                switch (op){
+                    case "+":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) + (long)expr2);
+                        }
+                        break;
+                    }
+                    case "-":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) - (long)expr2);
+                        }
+                        break;
+                    }
+                }
+            }
+        }else if(expr1 instanceof Number){
+            if(expr2 instanceof ColumnSymbol){
+                col1 = ((ColumnSymbol)expr2).clone();
+                switch (op){
+                    case "+":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) + (long)expr1);
+                        }
+                        break;
+                    }
+                    case "-":{
+                        for(int i=0;i<col1.values.size();i++){
+                            col1.values.set(i,(long)col1.values.get(i) - (long)expr1);
+                        }
+                        break;
+                    }
+                }
+            }else if(expr2 instanceof Number){
+                switch (op){
+                    case "+":{
+                        return (long)expr1 * (long)expr2;
+                    }
+                    case "-":{
+                        return (long)expr1 - (long)expr2;
+                    }
+                }
+            }
+        }
+        return col1;
     }
 
     @Override
     public Object visit(SqlExpressionCase7 sqlExpressionCase7) {
-        System.out.println("ast SqlExpressionCase7");
-        visit((SqlExpression)sqlExpressionCase7.SqlExpression1);
-        System.out.println(sqlExpressionCase7.op);
-        visit((SqlExpression)sqlExpressionCase7.SqlExpression2);
+        String op = sqlExpressionCase7.op;
+        switch (op){
+            case ("&") : {
+                SqlExpressionCase10 sqlExpressionCase10 = new SqlExpressionCase10();
+                sqlExpressionCase10.SqlExpression1 = sqlExpressionCase7.SqlExpression1;
+                sqlExpressionCase10.SqlExpression2 = sqlExpressionCase7.SqlExpression2;
+                return visit(sqlExpressionCase10);
+            }
+            case ("|") : {
+                SqlExpressionCase11 sqlExpressionCase11 = new SqlExpressionCase11();
+                sqlExpressionCase11.SqlExpression1 = sqlExpressionCase7.SqlExpression1;
+                sqlExpressionCase11.SqlExpression2 = sqlExpressionCase7.SqlExpression2;
+                return visit(sqlExpressionCase11);
+            }
+        }
         return null;
     }
 
@@ -1463,7 +1621,6 @@ public class BaseASTVisitor implements ASTVisitor {
         TableSymbol temp;
         symbolTable.tableSymbol = ((TableSymbol)visit((SqlExpression)sqlExpressionCase10.SqlExpression1)).clone();
         temp = ((TableSymbol)visit((SqlExpression)sqlExpressionCase10.SqlExpression2)).clone();
-        temp.printTable(symbolTable);
         return temp;
     }
 
