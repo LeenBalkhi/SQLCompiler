@@ -148,13 +148,14 @@ public interface ASTVisitor {
     public Object visit(SqlExpressionCase13 sqlExpressionCase13);
     public Object visit(SqlExpressionCase14 sqlExpressionCase14);
     public Object visit(SqlExpressionCase15 sqlExpressionCase15);
+    public Object visit(SqlExpressionCase22 sqlExpressionCase22);
     public void visit(TypeName typeName);
     public void visit(CreateTableStatement createTableStatement);
     public void visit(DeleteStatement deleteStatement);
     public void visit(QualifiedTableName qualifiedTableName);
     public void visit(DropTableStatement dropTableStatement);
-    public void visit(FactoredSelectStatement factoredSelectStatement);
-    public void visit(SelectCore selectCore);
+    public TableSymbol visit(FactoredSelectStatement factoredSelectStatement);
+    public TableSymbol visit(SelectCore selectCore);
     public void visit(JoinClause joinClause);
     public void visit(JoinConstraint joinConstraint);
     public void visit(JoinOperator joinOperator);

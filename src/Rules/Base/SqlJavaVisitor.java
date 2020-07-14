@@ -1485,30 +1485,37 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public SqlExpressionCase22 visitCase22(SqlParser.Case22Context ctx) {
         SqlExpressionCase22 sqlExpressionCase22 = new SqlExpressionCase22();
-        sqlExpressionCase22.expression = visitExpr(ctx.expr());
+        sqlExpressionCase22.expression1 = visitExpr(ctx.expr().get(0));
         sqlExpressionCase22.anyname = visitAny_name(ctx.any_name());
-        if(((SqlExpression)sqlExpressionCase22.expression).type != null){
-            if(symbolTable.sqlTypes.containsKey(((SqlExpression)(sqlExpressionCase22.expression)).type)){
-                if(!symbolTable.sqlTypes.get(((SqlExpression)(sqlExpressionCase22.expression)).type).entryExists(sqlExpressionCase22.anyname.name)){
+        if(((SqlExpression)sqlExpressionCase22.expression1).type != null){
+            if(symbolTable.sqlTypes.containsKey(((SqlExpression)(sqlExpressionCase22.expression1)).type)){
+                if(!symbolTable.sqlTypes.get(((SqlExpression)(sqlExpressionCase22.expression1)).type).entryExists(sqlExpressionCase22.anyname.name)){
                     int line = ctx.any_name().start.getLine();
                     int col = ctx.any_name().start.getCharPositionInLine();
-                    String des = sqlExpressionCase22.anyname.name + " Does Not Exist In "+ ((SqlExpression)(sqlExpressionCase22.expression)).type;
+                    String des = sqlExpressionCase22.anyname.name + " Does Not Exist In "+ ((SqlExpression)(sqlExpressionCase22.expression1)).type;
                     Error error = new Error(line,col,des);
                     errors.add(error);
                 }
                 else {
-                    SqlType sqlType = symbolTable.sqlTypes.get(((SqlExpression)(sqlExpressionCase22.expression)).type);
-                    for(int i=0;i < sqlType.entries.size();i++){
-                        if(sqlExpressionCase22.anyname.name.equals(sqlType.entries.get(i).name))
-                            sqlExpressionCase22.type = sqlType.entries.get(i).type;
+                    TableSymbol store = symbolTable.queryManager.clone();
+                    if((((SqlExpression)sqlExpressionCase22.expression1).parseObject) instanceof ColumnSymbol){
+                        ColumnSymbol col = ((ColumnSymbol)((SqlExpression)sqlExpressionCase22.expression1).parseObject);
+                        if(symbolTable.sqlTypes.containsKey(col.type) &&
+                                symbolTable.scopeStack.peek().findSymbol(col.type) instanceof TableSymbol){
+                            for(Object obj : col.values){
+                                TableSymbol temp = ((TableSymbol)obj);
+                                symbolTable.queryManager = temp.clone();
+                                sqlExpressionCase22.expression2 = visitExpr(ctx.expr(1));
+                            }
+                        }
                     }
-                    sqlExpressionCase22.customName = sqlExpressionCase22.anyname.name;
+                    symbolTable.queryManager = store.clone();
                 }
             }
             else {
-                int line = ctx.expr().start.getLine();
-                int col = ctx.expr().start.getCharPositionInLine();
-                String des = ((SqlExpression)(sqlExpressionCase22.expression)).type + " Does Not Exist In This Context";
+                int line = ctx.expr().get(0).start.getLine();
+                int col = ctx.expr().get(0).start.getCharPositionInLine();
+                String des = ((SqlExpression)(sqlExpressionCase22.expression1)).type + " Does Not Exist In This Context";
                 Error error = new Error(line,col,des);
                 errors.add(error);
             }
