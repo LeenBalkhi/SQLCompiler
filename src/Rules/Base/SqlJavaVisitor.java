@@ -1500,6 +1500,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     TableSymbol store = symbolTable.queryManager.clone();
                     if((((SqlExpression)sqlExpressionCase22.expression1).parseObject) instanceof ColumnSymbol){
                         ColumnSymbol col = ((ColumnSymbol)((SqlExpression)sqlExpressionCase22.expression1).parseObject);
+                        store.printTable(symbolTable);
                         if(symbolTable.sqlTypes.containsKey(col.type) &&
                                 symbolTable.scopeStack.peek().findSymbol(col.type) instanceof TableSymbol){
                             for(Object obj : col.values){
@@ -1833,6 +1834,21 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             columnSymbol.type = val.type;
             tableSymbol.values.put(columnSymbol.name,columnSymbol);
         });
+        int count1 = table1.getColumnWithLeastValues();
+        int count2 = table2.getColumnWithLeastValues();
+        for(int i = 0;i<count1;i++){
+            for(int j=0;j<count2;j++){
+                for (ColumnSymbol col1 : table1.values.values()) {
+                    tableSymbol.values.get(col1.name).values.add(col1.values.get(i));
+                }
+            }
+            for(int j=0; j<count2;j++){
+                for (ColumnSymbol col2 : table2.values.values()){
+                    System.out.println();
+                    tableSymbol.values.get(col2.name).values.add(col2.values.get(j));
+                }
+            }
+        }
         return tableSymbol;
     }
 

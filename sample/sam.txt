@@ -1,5 +1,5 @@
 Create Table music(artistName String , songName String)
 Create Table libraries(libraryName String, myMusic music)
 Create Table lib(name String ,num Long)
-select myMusic->(songName where songName = "Stronger") from libraries , lib
+select myMusic->(artistName where songName = "Stronger") from libraries , lib
 
