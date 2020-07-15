@@ -154,17 +154,6 @@ param_array
  '[' type (',' type)*']'
 ;
 
-create_agg_fun:
-K_CREATE  K_AGGREGATION K_FUNCTION
-function_name
-'('
- jar_path ','
-  class_name /*classname*/ ','
-  method_name/*MethodName*/ ','
-  type/*return type*/  ','
-  param_array
- ')'
-;
 
 element
 :
@@ -320,7 +309,6 @@ sql_stmt
 :
  create_table_stmt
 | create_type
-| create_agg_fun
 | factored_select_stmt
  ;
 
@@ -378,16 +366,16 @@ create_table_stmt
 //   | K_AS select_stmt
    )
   ( K_TYPE '=' file
-   K_PATH '=' path)?
+   K_PATH '=' '"'path'"')?
    ;
 file:
 K_CSV | K_JSON | K_PARQUET
 ;
 path:
-(IDENTIFIER ':')? ('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))? (('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))?)*
+any_name':' ( '\\' '\\'  any_name)* '\\' '\\' file_name
 ;
-jar_path:
-(IDENTIFIER ':')? ('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))? (('\\' ('\\')?| '\/' ('\/')?) any_name (('\\' ('\\')?| '\/' ('\/')?))?)*'.jar'
+file_name:
+ any_name '.txt'
 ;
 
 create_type
@@ -1196,6 +1184,7 @@ K_TEMPORARY : T E M P O R A R Y;
 K_THEN : T H E N;
 K_TO : T O;
 K_TYPE: T Y P E;
+K_PATH: P A T H;
 K_TRANSACTION : T R A N S A C T I O N;
 K_TRIGGER : T R I G G E R;
 K_UNION : U N I O N;

@@ -399,18 +399,6 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCreate_agg_fun(SqlParser.Create_agg_funContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCreate_agg_fun(SqlParser.Create_agg_funContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterElement(SqlParser.ElementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -891,13 +879,13 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJar_path(SqlParser.Jar_pathContext ctx) { }
+	@Override public void enterFile_name(SqlParser.File_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJar_path(SqlParser.Jar_pathContext ctx) { }
+	@Override public void exitFile_name(SqlParser.File_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

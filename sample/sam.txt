@@ -1,7 +1,7 @@
 Create Type Book(String name)
 Create Table music(artistName String , songName String)
-Create Table libraries(libraryName String, myMusic music)
-Create Table lib(name String ,num Long,book Book)
+Create Table libraries(libraryName String, myMusic music)   type = json   path = "C:\\Users\\Dell\\Desktop\\sample.txt"
+Create Table lib(name String ,num Long,book Book)   type = json    path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
 
 fun(){
     var i = select * from lib , libraries ;

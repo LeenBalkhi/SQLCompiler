@@ -28,6 +28,7 @@ import Rules.Utils.*;
 import Rules.Utils.Error;
 import Rules.generated.*;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1708,12 +1709,23 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     SqlType sqlType = tableSymbol.getSqlTypeFromTableSymbol(symbolTable);
                     tableSymbol.type = sqlType.name;
                     symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name , tableSymbol);
-                    if(tableSymbol.name.equals("libraries"))
-                        new JSONParse("C:\\Users\\Dell\\Desktop\\sample.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
-                    if(tableSymbol.name.equals("lib"))
-                        new JSONParse("C:\\Users\\Dell\\Desktop\\sample2.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
+                    if(ctx.path()!=null){
+                        String path = visitPath(ctx.path()).path;
+                        if(ctx.file().K_JSON()!=null)
+                            new JSONParse(path).getTableFromFile(sqlType,symbolTable,tableSymbol);
+                        else if(ctx.file().K_CSV()!=null) {
+                            try {
+                                new CSVParse(path,tableSymbol).loadCsv();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             }
+        }
+        if(ctx.path()!=null){
+            visitPath(ctx.path());
         }
         return createTableStatement;
     }
@@ -1990,17 +2002,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public ResultColumn visitResult_column(SqlParser.Result_columnContext ctx)
     {
         ResultColumn resultColumn= new ResultColumn();
-//        if(ctx.table_name()!= null){
-//            resultColumn.tableName = visitAny_name(ctx.table_name().any_name());
-//            if( !(symbolTable.getSymbol(resultColumn.tableName.name)!=null
-//                    && symbolTable.getSymbol(resultColumn.tableName.name) instanceof TableSymbol) ){
-//                int line = ctx.table_name().start.getLine();
-//                int col = ctx.table_name().start.getCharPositionInLine();
-//                String des = "Table "+ resultColumn.tableName.name +" Does Not Exist";
-//                Error error = new Error(line,col,des);
-//                errors.add(error);
-//            }
-//        }
         if(ctx.expr() != null)
         {
             resultColumn.expression = visitExpr(ctx.expr());
@@ -2016,73 +2017,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public Path visitPath(SqlParser.PathContext ctx)
     {
         Path path = new Path();
-        path.append(ctx.IDENTIFIER().toString());
-        path.append(":");
-        for(int i=0 ; i < ctx.any_name().size(); i++)
-        {
-            path.append("\\");
-            path.append(visitAny_name(ctx.any_name().get(i)).id);
-        }
+        path.path = (ctx.getText());
         return path;
     }
-    @Override
-    public Path visitJar_path(SqlParser.Jar_pathContext ctx)
-    {
-        Path path = new Path();
-        path.append(ctx.IDENTIFIER().toString());
-        path.append(":");
-        for(int i=0 ; i < ctx.any_name().size(); i++)
-        {
-
-            path.append("\\");
-            if(i< ctx.any_name().size()-1)
-                path.append(visitAny_name(ctx.any_name().get(i)).id);
-            else
-                path.setFilename(visitAny_name(ctx.any_name().get(i)).id+=".jar");
-        }
-        return path;
-    }
-    //    @Override public T visitType(SqlParser.TypeContext ctx)
-//    {
-//
-//    }
-//    @Override public T visitCreate_type(SqlParser.Create_typeContext ctx)
-//    {
-//
-//    }
-    @Override
-    public AggregationFunction visitCreate_agg_fun(SqlParser.Create_agg_funContext ctx)
-    {
-        AggregationFunction aggregationFunction = new AggregationFunction();
-        aggregationFunction.setAggregationFunctionName(visitAny_name(ctx.function_name().any_name()).id);
-        aggregationFunction.setClassName(visitAny_name(ctx.class_name().any_name().any_name()).id);
-        aggregationFunction.setMethodName(visitAny_name(ctx.method_name().any_name().any_name()).id);
-        //aggregationFunction.setReturnType(visitAny_name(ctx.type().type_name().any_name().get(0)).id);
-        aggregationFunction.setJarPath(visitJar_path(ctx.jar_path()).path);
-        aggregationFunction.setJarName(visitJar_path(ctx.jar_path()).filename);
-
-//param list
-        return  aggregationFunction;
-    }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
