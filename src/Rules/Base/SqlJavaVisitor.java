@@ -1420,8 +1420,16 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         sqlExpressionCase12.functionName = visitAny_name(ctx.function_name().any_name());
         sqlExpressionCase12.expression = visitExpr(ctx.expr());
         String name = sqlExpressionCase12.functionName.name;
-        if(name.equals("Sum") || name.equals("Count") || name.equals("Min") || name.equals("Max")){
+        if(name.equals("Sum") || name.equals("Min") || name.equals("Max")){
             if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Long")){
+                System.out.println("WTF");
+            }
+        }else if(name.equals("Count")){
+            if( ((SqlExpression)sqlExpressionCase12.expression).parseObject != null ){
+                if(!( ((SqlExpression)sqlExpressionCase12.expression).parseObject instanceof TableSymbol )){
+                    System.out.println("WTF");
+                }
+            }else if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Long")){
                 System.out.println("WTF");
             }
         }

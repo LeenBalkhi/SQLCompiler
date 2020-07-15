@@ -1,10 +1,9 @@
-Create Type Book(String name)
-Create Table music(artistName String , songName String)
-Create Table libraries(libraryName String, myMusic music)   type = json   path = "C:\\Users\\Dell\\Desktop\\sample.txt"
-Create Table lib(name String ,num Long,book Book)   type = json    path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
+create type Address(String Country, String City)
+create table Student(Name String, Birth String,Address Address)
+create table Faculty(FacultyName String, Students Student)  type = json  path = "C:\\Users\\Dell\\Desktop\\s.txt"
 
 fun(){
-    var i = select * from lib , libraries ;
+    var i = select Count(*) from Faculty where FacultyName="Damascus";
 }
 
 fun();

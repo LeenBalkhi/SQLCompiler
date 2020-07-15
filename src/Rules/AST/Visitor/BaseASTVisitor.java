@@ -1822,9 +1822,19 @@ public class BaseASTVisitor implements ASTVisitor {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+        }else if(expr instanceof TableSymbol){
+            if(sqlExpressionCase12.functionName.name.equals("Count")){
+                TableSymbol temp = (TableSymbol)expr;
+                int count = temp.getColumnWithLeastValues();
+                ColumnSymbol res = new ColumnSymbol();
+                res.name = "Count";
+                res.type = "Long";
+                for(int i=0;i<count;i++){
+                 res.values.add(count);
+                }
+                return res;
+            }
         }
-        if(sqlExpressionCase12.op!=null)
-            System.out.println(sqlExpressionCase12.op);
         return null;
     }
 
