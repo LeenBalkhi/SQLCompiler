@@ -10,10 +10,15 @@ public class TableSymbol extends Symbol {
         for(int i = 0;i<this.getColumnWithLeastValues();i++){
             System.out.println("Row "+i+": ");
             for(ColumnSymbol col : values.values()){
-                if(symbolTable.sqlTypes.containsKey(col.type)){
+                if(symbolTable.sqlTypes.containsKey(col.type)
+                        && symbolTable.scopeStack.peek().findSymbol(col.type) != null
+                        && symbolTable.scopeStack.peek().findSymbol(col.type) instanceof TableSymbol){
                     System.out.println("Table "+col.type+": ");
                     ((TableSymbol)col.values.get(i)).printTable(symbolTable);
-                }else{
+                }else if( symbolTable.sqlTypes.containsKey(col.type) ){
+                    ((TypeSymbol)col.values.get(i)).printType(symbolTable);
+                }
+                else {
                     System.out.println(col.name + " "+ col.values.get(i));
                 }
                 System.out.println();

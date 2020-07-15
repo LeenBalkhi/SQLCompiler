@@ -1,10 +1,7 @@
 package Rules.Utils;
 
 import Rules.AST.Java.Logic.JsonObject;
-import Rules.SymbolTableMu.ColumnSymbol;
-import Rules.SymbolTableMu.SqlType;
-import Rules.SymbolTableMu.SymbolTable;
-import Rules.SymbolTableMu.TableSymbol;
+import Rules.SymbolTableMu.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -63,7 +60,14 @@ public class JSONParse {
                 columnSymbol.values.add(innerTableSymbol1);
             }
             else if(symbolTable.sqlTypes.containsKey(sqlType.entries.get(i).type)){
-
+                SqlType temp = symbolTable.sqlTypes.get(sqlType.entries.get(i).type);
+                ColumnSymbol columnSymbol = tableSymbol.values.get(sqlType.entries.get(i).name);
+                JSONObject type= ((JSONObject)object.get(sqlType.entries.get(i).name));
+                TypeSymbol typeSymbol = new TypeSymbol();
+                typeSymbol.type = columnSymbol.type;
+                typeSymbol.name = columnSymbol.type;
+                parseTypeSymbol(type,temp,symbolTable,typeSymbol);
+                columnSymbol.values.add(typeSymbol);
             }
             else{
                 ColumnSymbol columnSymbol = tableSymbol.values.get(sqlType.entries.get(i).name);
@@ -83,6 +87,58 @@ public class JSONParse {
                         e.printStackTrace();
                     }
                 }
+            }
+        }
+    }
+    private static void parseTypeSymbol(JSONObject object , SqlType sqlType , SymbolTable symbolTable,TypeSymbol typeSymbol){
+        for(SqlTypeEntry entry : sqlType.entries){
+            if(symbolTable.sqlTypes.containsKey(entry.type) &&
+                    symbolTable.scopeStack.peek().findSymbol(entry.type)!=null &&
+                    symbolTable.scopeStack.peek().findSymbol(entry.type) instanceof TableSymbol){
+                SqlType temp = symbolTable.sqlTypes.get(entry.type);
+                JSONArray array = ((JSONArray)object.get(entry.name));
+                TableSymbol innerTableSymbol = new TableSymbol();
+                innerTableSymbol.name = entry.type;
+                innerTableSymbol.type = entry.type;
+                for (SqlTypeEntry innerEntry : temp.entries){
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.name = innerEntry.type;
+                    columnSymbol.type = innerEntry.type;
+                    innerTableSymbol.values.put(columnSymbol.name,columnSymbol);
+                }
+                array.forEach(obj->{
+                    parseObject((JSONObject) obj,temp,symbolTable,innerTableSymbol);
+                });
+                typeSymbol.values.put(innerTableSymbol.name,innerTableSymbol);
+            }else if(symbolTable.sqlTypes.containsKey(entry.type)){
+                SqlType innerType = symbolTable.sqlTypes.get(entry.type);
+                TypeSymbol innerTypeSymbol = new TypeSymbol();
+                innerTypeSymbol.name = entry.type;
+                innerTypeSymbol.type = entry.type;
+                parseTypeSymbol(object,innerType,symbolTable,innerTypeSymbol);
+                typeSymbol.values.put(innerTypeSymbol.name,innerTypeSymbol);
+            }else {
+                //ColumnSymbol columnSymbol = tableSymbol.values.get(sqlType.entries.get(i).name);
+                Symbol symbol = new Symbol();
+                symbol.name = entry.name;
+                symbol.type = entry.type;
+                if(symbol.type.equals("String"))
+                    symbol.value = ( object.get((entry.name)));
+                else if(symbol.type.equals("Boolean")){
+                    if( object.get((entry.name)).equals("true") ){
+                        symbol.value = true;
+                    }
+                    else if(object.get((entry)).equals("false")){
+                        symbol.value = false;
+                    }
+                }else{
+                    try {
+                        symbol.value = (NumberFormat.getInstance().parse((String) object.get((entry.name))));
+                    } catch (java.text.ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                typeSymbol.values.put(symbol.name,symbol);
             }
         }
     }

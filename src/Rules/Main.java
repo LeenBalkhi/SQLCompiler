@@ -6,6 +6,7 @@ import Rules.AST.Visitor.BaseASTVisitor;
 
 import Rules.Base.MainVisitor;
 import Rules.SymbolTableMu.TableSymbol;
+import Rules.Utils.RandomNameGenerator;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -32,6 +33,7 @@ public class Main {
                     m.errors.get(i).printError();
                 }
             }
+            RandomNameGenerator.i = 0;
             if(m.errors.size()==0)
                 new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {

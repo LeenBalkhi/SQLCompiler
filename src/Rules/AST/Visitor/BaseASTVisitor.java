@@ -24,8 +24,11 @@ import Rules.AST.SQL.Database.TypeName;
 import Rules.AST.SQL.Expression.*;
 import Rules.SymbolTableMu.*;
 import Rules.Utils.Error;
+import Rules.Utils.LoadAggregationFunction;
 import Rules.Utils.RandomNameGenerator;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.sql.SQLSyntaxErrorException;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -614,79 +617,88 @@ public class BaseASTVisitor implements ASTVisitor {
     {
         Symbol symbol = currentScope().findSymbol(((SimpleVariable)
                 ((Variable) variableAssignment.variable).variable).VariableName.get(0));
-        Object assignmentValue = visit( (Expression)((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
-                .variableAssignmentValue).Value );
-        String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
-        switch (op){
-            case "=": {
-                symbol.value = assignmentValue;
-                System.out.println( symbol.value );
-                break;
-            }
-            case "+=": {
-                switch (symbol.type){
-                    case "Long":{
-                        assignmentValue = (long)symbol.value + (long)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
-                    case "Double":{
-                        assignmentValue = (double)symbol.value + (double)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
-                    case "Stirng":{
-                        assignmentValue = (String)symbol.value + (String) assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
+        if(!(symbol instanceof TableSymbol)){
+            Object assignmentValue = visit( (Expression)((VariableAssignmentValue)((Assignment)variableAssignment.assignments.get(0))
+                    .variableAssignmentValue).Value );
+            String op = ((AssignmentOperator)((Assignment)variableAssignment.assignments.get(0)).assignmentOperator).op;
+            switch (op){
+                case "=": {
+                    symbol.value = assignmentValue;
+                    System.out.println( symbol.value );
+                    break;
                 }
-                break;
-            }
-            case "-=": {
-                switch (symbol.type){
-                    case "Long":{
-                        assignmentValue = (long)symbol.value - (long)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
+                case "+=": {
+                    switch (symbol.type){
+                        case "Long":{
+                            assignmentValue = (long)symbol.value + (long)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                        case "Double":{
+                            assignmentValue = (double)symbol.value + (double)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                        case "Stirng":{
+                            assignmentValue = (String)symbol.value + (String) assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
                     }
-                    case "Double":{
-                        assignmentValue = (double)symbol.value - (double)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
+                    break;
                 }
-                break;
-            }
-            case "*=": {
-                switch (symbol.type){
-                    case "Long":{
-                        assignmentValue = (long)symbol.value * (long)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
+                case "-=": {
+                    switch (symbol.type){
+                        case "Long":{
+                            assignmentValue = (long)symbol.value - (long)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                        case "Double":{
+                            assignmentValue = (double)symbol.value - (double)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
                     }
-                    case "Double":{
-                        assignmentValue = (double)symbol.value * (double)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
+                    break;
                 }
-                break;
-            }
-            case "/=": {
-                switch (symbol.type){
-                    case "Long":{
-                        assignmentValue = (long)symbol.value / (long)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
+                case "*=": {
+                    switch (symbol.type){
+                        case "Long":{
+                            assignmentValue = (long)symbol.value * (long)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                        case "Double":{
+                            assignmentValue = (double)symbol.value * (double)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
                     }
-                    case "Double":{
-                        assignmentValue = (double)symbol.value / (double)assignmentValue;
-                        symbol.value = assignmentValue;
-                        break;
-                    }
+                    break;
                 }
-                break;
+                case "/=": {
+                    switch (symbol.type){
+                        case "Long":{
+                            assignmentValue = (long)symbol.value / (long)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                        case "Double":{
+                            assignmentValue = (double)symbol.value / (double)assignmentValue;
+                            symbol.value = assignmentValue;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }else {
+            if( ((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0))).variableAssignmentValue).Value
+                    instanceof FactoredSelectStatement ){
+                FactoredSelectStatement factoredSelectStatement =(FactoredSelectStatement) ((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0))).variableAssignmentValue).Value;
+                ((TableSymbol) symbol).values = visit(factoredSelectStatement).values;
+                ((TableSymbol) symbol).printTable(symbolTable);
             }
         }
     }
@@ -1256,27 +1268,17 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public Object visit(SqlExpressionCase2 sqlExpressionCase2) {
         ColumnSymbol col;
-        TableSymbol temp = null;
-//        if(sqlExpressionCase2.tableName!=null){
-//            if(symbolTable.tableSymbol.name.equals(sqlExpressionCase2.tableName.name)){
-//                temp = symbolTable.tableSymbol;
-//            }
-//        }
-        if(sqlExpressionCase2.tableName!=null){
-            if(sqlExpressionCase2.tableName.name.equals(symbolTable.tableSymbol.name))
-                temp = symbolTable.tableSymbol;
-//            else{
-//                if(symbolTable.tableSymbol.values.containsKey(sqlExpressionCase2.tableName.name)
-//                        && symbolTable.sqlTypes.containsKey(sqlExpressionCase2.tableName.name)){
-//                    col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.dataBaseName.name);
-//                }
-//            }
+        col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.columnName.name);
+        if(sqlExpressionCase2.anyName!=null){
+            ColumnSymbol res = new ColumnSymbol();
+            res.name = sqlExpressionCase2.anyName.name;
+            for(Object obj : col.values){
+                TypeSymbol typeSymbol = ((TypeSymbol)obj);
+                res.type = typeSymbol.values.get(sqlExpressionCase2.anyName.name).type;
+                res.values.add( typeSymbol.values.get(sqlExpressionCase2.anyName.name).value );
+            }
+            return res.clone();
         }
-        if(temp!=null){
-             col = temp.values.get(sqlExpressionCase2.columnName.name);
-        }else
-            col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.columnName.name);
-
         return col.clone();
     }
 
@@ -1786,8 +1788,34 @@ public class BaseASTVisitor implements ASTVisitor {
         visit(sqlExpressionCase12.functionName);
         if(sqlExpressionCase12.distinct!=false)
             System.out.println("DISTINCT");
-        for(int i=0;i<sqlExpressionCase12.expressions.size();i++)
-            visit((SqlExpression)sqlExpressionCase12.expressions.get(i));
+        Object expr = visit((SqlExpression)sqlExpressionCase12.expression);
+        if(expr instanceof ColumnSymbol){
+            ColumnSymbol columnSymbol= ((ColumnSymbol)expr);
+            ArrayList<Long> list = new ArrayList<>();
+            for(Object obj : columnSymbol.values){
+                list.add((long)obj);
+            }
+            LoadAggregationFunction loader = new LoadAggregationFunction(list,sqlExpressionCase12.functionName.name);
+            try {
+                ColumnSymbol res = new ColumnSymbol();
+                res.name = sqlExpressionCase12.functionName.name;
+                res.type = "Long";
+                for (Object obj : columnSymbol.values){
+                    res.values.add(loader.call());
+                }
+                return res;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         if(sqlExpressionCase12.op!=null)
             System.out.println(sqlExpressionCase12.op);
         return null;
@@ -1836,6 +1864,20 @@ public class BaseASTVisitor implements ASTVisitor {
         TableSymbol store = symbolTable.tableSymbol.clone();
         if(symbolTable.sqlTypes.containsKey(expr1.type) && currentScope().findSymbol(expr1.type)!=null
                 && currentScope().findSymbol(expr1.type) instanceof TableSymbol){
+            for(Object obj : expr1.values){
+                TableSymbol temp = ((TableSymbol)obj).clone();
+                symbolTable.tableSymbol = temp.clone();
+                res.type = temp.values.get(name).type;
+                temp = ( (TableSymbol) visit((SqlExpression) sqlExpressionCase22.expression2)).clone();
+                for( ColumnSymbol col : temp.values.values()){
+                    if(col.name.equals(name)) {
+                        for (Object obj1 : col.values){
+                            res.values.add(obj1);
+                        }
+                    }
+                }
+            }
+        }else if(symbolTable.sqlTypes.containsKey(expr1.type)){
             for(Object obj : expr1.values){
                 TableSymbol temp = ((TableSymbol)obj).clone();
                 symbolTable.tableSymbol = temp.clone();
@@ -1969,7 +2011,6 @@ public class BaseASTVisitor implements ASTVisitor {
                 tableSymbol.values.put(columnSymbol.name, columnSymbol);
             }
         }
-        tableSymbol.printTable(symbolTable);
         return tableSymbol;
 //        TableSymbol tableSymbol = new TableSymbol();
 //        for(int i=0;i<selectCore.resultColumns.size();i++){
@@ -2047,7 +2088,6 @@ public class BaseASTVisitor implements ASTVisitor {
             }
             for(int j=0; j<count2;j++){
                 for (ColumnSymbol col2 : table2.values.values()){
-                    System.out.println();
                     tableSymbol.values.get(col2.name).values.add(col2.values.get(j));
                 }
             }

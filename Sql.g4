@@ -634,7 +634,7 @@ exists_expr:
 expr
  : (literal_value | string | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
- | ( table_name '.' )? column_name  #case2
+ |  column_name (  '.' any_name)?  #case2
  | expr '->' '('any_name K_WHERE expr')' #case22
  | unary_operator expr  #case3
  | expr op='||' expr  #case4
@@ -645,7 +645,7 @@ expr
  | expr ( op=( '=' | '==' | '!=' | '<>') | (K_IS | K_IS K_NOT | K_LIKE | K_GLOB | K_MATCH | K_REGEXP) ) expr  #case9
  | expr K_AND expr  #case10
  | expr K_OR expr  #case11
- | function_name '(' ( K_DISTINCT? expr ( ',' expr )* | op='*' )? ')' #case12
+ | function_name '(' expr ')' #case12
  | '(' expr ')' #case13
  | exp1=expr K_NOT? K_IN ( '(' ( select_stmt
                           | expr ( ',' expr )*

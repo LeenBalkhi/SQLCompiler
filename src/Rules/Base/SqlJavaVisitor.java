@@ -217,9 +217,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         boolean fix = false;
         VariableDeclaration variableDeclaration = new VariableDeclaration();
         for(int i=0 ; i <ctx.variable_assignment().size(); i ++) {
-            //
             variableDeclaration.variableAssignments.add(visitVariable_assignment(ctx.variable_assignment(i),true));
-            //
             VariableAssignment variableAssignment = ((VariableAssignment)variableDeclaration.variableAssignments.get(i));
             Symbol symbol = new Symbol();
             symbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
@@ -229,18 +227,29 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     fix = true;
                     FactoredSelectStatement factoredSelectStatement = ((FactoredSelectStatement)((VariableAssignmentValue)(((Assignment)variableAssignment.assignments.get(0)))
                             .variableAssignmentValue).Value);
-                    TableSymbol tableSymbol = new TableSymbol();
-                    tableSymbol.name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
-                    if(symbolTable.sqlTypes.containsKey(tableSymbol.name)){
+                    String name = ((SimpleVariable)((Variable)variableAssignment.variable).variable).VariableName.get(0);
+                    if(symbolTable.sqlTypes.containsKey(name)){
                         Error error = new Error(ctx.variable_assignment(i).start.getLine(),
                                 ctx.variable_assignment(i).start.getCharPositionInLine(),
-                                "Table " + tableSymbol.name + " Already Exists");
+                                "Table " + name + " Already Exists");
                         errors.add(error);
                     }
                     else {
-                        if(factoredSelectStatement.sqlType!=null){
-                            factoredSelectStatement.sqlType.name = tableSymbol.name;
-                            symbolTable.sqlTypes.put(factoredSelectStatement.sqlType.name,factoredSelectStatement.sqlType);
+                        TableSymbol tableSymbol = factoredSelectStatement.type;
+                        tableSymbol.name = name;
+                        System.out.println(tableSymbol.values.size());
+                        if(factoredSelectStatement.type!=null){
+                            SqlType sqlType = new SqlType();
+                            sqlType.name = tableSymbol.name;
+                            for(ColumnSymbol col : tableSymbol.values.values()){
+                                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
+                                sqlTypeEntry.name = col.name;
+                                sqlTypeEntry.type = col.type;
+                                System.out.println(sqlTypeEntry.name);
+                                System.out.println(sqlTypeEntry.type);
+                                sqlType.entries.add(sqlTypeEntry);
+                            }
+                            symbolTable.sqlTypes.put(sqlType.name,sqlType);
                             tableSymbol.type = tableSymbol.name;
                             symbolTable.scopeStack.peek().symbolMap.put(tableSymbol.name,tableSymbol);
                         }
@@ -615,7 +624,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             javaString.string+=ctx.any_name().get(i).getText();
 //        for(int i=0 ; i < ctx.SPACES().size() ; i++)
 //            javaString.string+=" ";
-        System.out.println(javaString.string);
         return  javaString;
     }
     @Override
@@ -1094,6 +1102,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         {
             sqlExpression.expression = (SqlExpressionCase9)temp;
             sqlExpression.type = ((SqlExpressionCase9)temp).type;
+            sqlExpression.parseObject = ((SqlExpressionCase9)temp).parseObject;
         }
         if(temp instanceof SqlExpressionCase10)
         {
@@ -1108,6 +1117,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         if(temp instanceof SqlExpressionCase12)
         {
             sqlExpression.expression = (SqlExpressionCase12)temp;
+            sqlExpression.type = ((SqlExpressionCase12)temp).type;
+            sqlExpression.parseObject = ((SqlExpressionCase12)temp).parseObject;
         }
         if(temp instanceof SqlExpressionCase13)
         {
@@ -1130,6 +1141,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         {
             sqlExpression.expression = (SqlExpressionCase22)temp;
             sqlExpression.type = ((SqlExpressionCase22)temp).type;
+            sqlExpression.parseObject = ((SqlExpressionCase22)temp).parseObject;
         }
         return sqlExpression;
     }
@@ -1177,6 +1189,21 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             String des = sqlExpressionCase2.columnName.name +" Does Not Exist In Current Context";
             Error error = new Error(line,col,des);
             errors.add(error);
+        }
+        err = false;
+        if(ctx.any_name()!=null){
+            sqlExpressionCase2.anyName = visitAny_name(ctx.any_name());
+            if(sqlExpressionCase2.parseObject!=null){
+                ColumnSymbol col = (ColumnSymbol) sqlExpressionCase2.parseObject;
+                if(col.values.get(0) instanceof TableSymbol){
+                    if( ((TypeSymbol)col.values.get(0)).values.containsKey(sqlExpressionCase2.anyName.name) ){
+                        ColumnSymbol temp = new ColumnSymbol();
+                        temp.name = sqlExpressionCase2.anyName.name;
+                        temp.type = ((TypeSymbol)col.values.get(0)).values.get(sqlExpressionCase2.anyName).type;
+                        sqlExpressionCase2.parseObject = temp;
+                    }
+                }
+            }
         }
         return sqlExpressionCase2;
     }
@@ -1331,8 +1358,10 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             Error error = new Error(line,col,des);
             errors.add(error);
         }
-        else
+        else{
             sqlExpressionCase9.type = "Boolean";
+            sqlExpressionCase9.parseObject = symbolTable.queryManager.clone();
+        }
         return sqlExpressionCase9;
     }
 
@@ -1380,12 +1409,20 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public SqlExpressionCase12 visitCase12(SqlParser.Case12Context ctx) {
         SqlExpressionCase12 sqlExpressionCase12 = new SqlExpressionCase12();
         sqlExpressionCase12.functionName = visitAny_name(ctx.function_name().any_name());
-        if(ctx.K_DISTINCT()!= null)
-            sqlExpressionCase12.distinct = true;
-        for(int i=0 ; i < ctx.expr().size(); i++)
-            sqlExpressionCase12.expressions.add(visitExpr(ctx.expr().get(i)));
-        if(ctx.op != null)
-            sqlExpressionCase12.op = ctx.op.getText();
+        sqlExpressionCase12.expression = visitExpr(ctx.expr());
+        String name = sqlExpressionCase12.functionName.name;
+        if(name.equals("Sum") || name.equals("Count") || name.equals("Min") || name.equals("Max")){
+            if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Long")){
+                System.out.println("WTF");
+            }
+        }
+//        if(ctx.op != null)
+//            sqlExpressionCase12.op = ctx.op.getText();
+        ColumnSymbol columnSymbol = new ColumnSymbol();
+        columnSymbol.name = name;
+        columnSymbol.type = "Long";
+        sqlExpressionCase12.type = "Long";
+        sqlExpressionCase12.parseObject = columnSymbol;
         return sqlExpressionCase12;
     }
 
@@ -1487,6 +1524,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         SqlExpressionCase22 sqlExpressionCase22 = new SqlExpressionCase22();
         sqlExpressionCase22.expression1 = visitExpr(ctx.expr().get(0));
         sqlExpressionCase22.anyname = visitAny_name(ctx.any_name());
+        ColumnSymbol res = new ColumnSymbol();
         if(((SqlExpression)sqlExpressionCase22.expression1).type != null){
             if(symbolTable.sqlTypes.containsKey(((SqlExpression)(sqlExpressionCase22.expression1)).type)){
                 if(!symbolTable.sqlTypes.get(((SqlExpression)(sqlExpressionCase22.expression1)).type).entryExists(sqlExpressionCase22.anyname.name)){
@@ -1498,17 +1536,21 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 }
                 else {
                     TableSymbol store = symbolTable.queryManager.clone();
+                    String name = sqlExpressionCase22.anyname.name;
                     if((((SqlExpression)sqlExpressionCase22.expression1).parseObject) instanceof ColumnSymbol){
                         ColumnSymbol col = ((ColumnSymbol)((SqlExpression)sqlExpressionCase22.expression1).parseObject);
-                        store.printTable(symbolTable);
                         if(symbolTable.sqlTypes.containsKey(col.type) &&
                                 symbolTable.scopeStack.peek().findSymbol(col.type) instanceof TableSymbol){
                             for(Object obj : col.values){
                                 TableSymbol temp = ((TableSymbol)obj);
                                 symbolTable.queryManager = temp.clone();
                                 sqlExpressionCase22.expression2 = visitExpr(ctx.expr(1));
+                                temp = ((TableSymbol) ((SqlExpression)sqlExpressionCase22.expression2).parseObject).clone();
+                                res = temp.values.get(name).clone();
+                                break;
                             }
                         }
+                        sqlExpressionCase22.parseObject = res.clone();
                     }
                     symbolTable.queryManager = store.clone();
                 }
@@ -1662,6 +1704,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                         new JSONParse("C:\\Users\\Dell\\Desktop\\sample.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
                     if(tableSymbol.name.equals("lib"))
                         new JSONParse("C:\\Users\\Dell\\Desktop\\sample2.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
+                    tableSymbol.printTable(symbolTable);
                 }
             }
         }
@@ -1675,27 +1718,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     {
         FactoredSelectStatement factoredSelectStatement= new FactoredSelectStatement();
         factoredSelectStatement.selectCore = visitSelect_core(ctx.select_core());
-//        ArrayList<TableOrSubQueryTypeEntry> types = ((SelectCore)factoredSelectStatement.selectCore).types;
-//        for(int i=0;i<types.size();i++){
-//            if(types.get(i).sqlType.name == null){
-//                for(int j=0;j<types.get(i).sqlType.entries.size();j++){
-//                    SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-//                    sqlTypeEntry.type = types.get(i).sqlType.entries.get(j).type;
-//                    sqlTypeEntry.name = types.get(i).as;
-//                    factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
-//                }
-//            } else {
-//                SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-//                sqlTypeEntry.type = types.get(i).sqlType.name;
-//                sqlTypeEntry.name = types.get(i).as;
-//                factoredSelectStatement.sqlType.entries.add(sqlTypeEntry);
-//            }
-//        }
-        //((SelectCore)factoredSelectStatement.selectCore).sqlType.printType();
-//        for(int i=0 ; i <ctx.ordering_term().size() ; i++)
-//            factoredSelectStatement.orderingterms.add(visitOrdering_term(ctx.ordering_term().get(i)));
-//        for(int i=0 ; i < ctx.expr().size(); i++)
-//            factoredSelectStatement.expression.add(visitExpr(ctx.expr().get(i)));
+        factoredSelectStatement.type = ((SelectCore) factoredSelectStatement.selectCore).type;
         return factoredSelectStatement;
     }
     @Override
@@ -1720,9 +1743,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 symbolTable.queryManager = current.clone();
             }
         }
-        for(ColumnSymbol col : current.values.values()){
-            System.out.println(col.name);
-        }
         if(current.values.size()!=0)
         {
             symbolTable.queryManager = current.clone();
@@ -1737,23 +1757,46 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     errors.add(error);
                 }
             }
-            for(int i=0 ; i < ctx.result_column().size(); i++){
+            TableSymbol tableSymbol = symbolTable.queryManager.clone();
+            tableSymbol.values.clear();
+            for (int i = 0; i < ctx.result_column().size(); i++) {
                 selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
+                ResultColumn resultColumn = ((ResultColumn)selectCore.resultColumns.get(i));
+                SqlExpression expr = ((SqlExpression)resultColumn.expression);
+                if(expr.parseObject==null){
+                    System.out.println("ok");
+                }
+                else{
+                    if(expr.parseObject instanceof ColumnSymbol){
+                        ColumnSymbol col = ((ColumnSymbol)expr.parseObject);
+                        tableSymbol.values.put(col.name,col);
+                    }else if(expr.parseObject instanceof String){
+                        ColumnSymbol col = new ColumnSymbol();
+                        col.name = RandomNameGenerator.generateNewRandomName();
+                        col.type = (String) expr.parseObject;
+                        tableSymbol.values.put(col.name,col);
+                    }
+                }
             }
-            if( ctx.join_clause() !=null){
-                selectCore.joinClause = visitJoin_clause(ctx.join_clause());
-            }
-            if(ctx.K_GROUP() != null)
-            {
-                for(int i=0 ; i < ctx.expr().size(); i++)
-                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
-            }
-            if(ctx.K_HAVING() != null)
-            {
-                for(int i=0 ; i < ctx.expr().size(); i++)
-                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
-            }
+            selectCore.type = tableSymbol;
         }
+//            for(int i=0 ; i < ctx.result_column().size(); i++){
+//                selectCore.resultColumns.add(visitResult_column(ctx.result_column().get(i)));
+//            }
+//            if( ctx.join_clause() !=null){
+//                selectCore.joinClause = visitJoin_clause(ctx.join_clause());
+//            }
+//            if(ctx.K_GROUP() != null)
+//            {
+//                for(int i=0 ; i < ctx.expr().size(); i++)
+//                    selectCore.groupByexpressions.add(visitExpr(ctx.expr().get(i)));
+//            }
+//            if(ctx.K_HAVING() != null)
+//            {
+//                for(int i=0 ; i < ctx.expr().size(); i++)
+//                    selectCore.valuesExpression.add(visitExpr(ctx.expr().get(i)));
+//            }
+
         return selectCore;
     }
 
@@ -1844,7 +1887,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             }
             for(int j=0; j<count2;j++){
                 for (ColumnSymbol col2 : table2.values.values()){
-                    System.out.println();
                     tableSymbol.values.get(col2.name).values.add(col2.values.get(j));
                 }
             }

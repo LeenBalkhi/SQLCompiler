@@ -2,27 +2,21 @@ package Rules.SymbolTableMu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class TypeSymbol extends Symbol{
-    public HashMap<String , Symbol> values = new HashMap<>();
+    public LinkedHashMap<String , Symbol> values = new LinkedHashMap<>();
 
-
-    public TypeSymbol getTypeSymbolFromType(SqlType sqlType , HashMap<String,SqlType> sqlTypes){
-        TypeSymbol typeSymbol = new TypeSymbol();
-        typeSymbol.type = sqlType.name;
-        for(int i = 0 ; i < sqlType.entries.size() ; i++){
-            if(sqlTypes.containsKey(sqlType.entries.get(i).type)){
-                TypeSymbol symbol = getTypeSymbolFromType(sqlTypes.get(sqlType.entries.get(i).type) , sqlTypes);
-                symbol.name = sqlType.entries.get(i).name;
-                typeSymbol.values.put(sqlType.entries.get(i).name , symbol);
-            }
-            else {
-                Symbol symbol = new Symbol();
-                symbol.name = sqlType.entries.get(i).name;
-                symbol.type = sqlType.entries.get(i).type;
-                typeSymbol.values.put(sqlType.entries.get(i).name , symbol);
+    public void printType(SymbolTable symbolTable){
+        System.out.println("Type "+type+":");
+        for(Symbol symbol : values.values()){
+            if(symbol instanceof TableSymbol)
+                ((TableSymbol)symbol).printTable(symbolTable);
+            else if(symbol instanceof TypeSymbol)
+                printType(symbolTable);
+            else{
+                System.out.println(symbol.name + " "+ symbol.value);
             }
         }
-        return typeSymbol;
     }
 }

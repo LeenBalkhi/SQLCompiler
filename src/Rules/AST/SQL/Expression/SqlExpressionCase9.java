@@ -7,4 +7,5 @@ public class SqlExpressionCase9 extends Node {
     public Node SqlExpression2;
     public String op;
     public String type;
+    public Object parseObject;
 }
