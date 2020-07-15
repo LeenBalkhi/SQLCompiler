@@ -1208,6 +1208,8 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpression sqlExpression) {
+        if(sqlExpression.expression instanceof SqlExpressionCase0)
+            return visit((SqlExpressionCase0)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase1)
             return visit((SqlExpressionCase1)sqlExpression.expression);
         if(sqlExpression.expression instanceof SqlExpressionCase2)
@@ -1244,6 +1246,11 @@ public class BaseASTVisitor implements ASTVisitor {
         return null;
     }
 
+
+    @Override
+    public TableSymbol visit(SqlExpressionCase0 sqlExpressionCase0) {
+        return symbolTable.tableSymbol.clone();
+    }
 
     @Override
     public Object visit(SqlExpressionCase1 sqlExpressionCase1) {
@@ -2009,6 +2016,11 @@ public class BaseASTVisitor implements ASTVisitor {
                     columnSymbol.values.add(resultColumn.res);
                 }
                 tableSymbol.values.put(columnSymbol.name, columnSymbol);
+            }else if(resultColumn.res instanceof TableSymbol){
+                TableSymbol temp =  ((TableSymbol)resultColumn.res).clone();
+                for (ColumnSymbol col : temp.values.values()){
+                    tableSymbol.values.put(col.name,col);
+                }
             }
         }
         return tableSymbol;

@@ -892,6 +892,18 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitColumn_default_value(SqlParser.Column_default_valueContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code case0}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCase0(SqlParser.Case0Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code case0}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCase0(SqlParser.Case0Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code case1}
 	 * labeled alternative in {@link SqlParser#expr}.
 	 * @param ctx the parse tree

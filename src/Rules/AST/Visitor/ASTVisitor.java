@@ -133,6 +133,7 @@ public interface ASTVisitor {
     public void visit(ColumnConstraintNull columnConstraintNull);
     public void visit(foreignKeyClause foreignKeyClause);
     public Object visit(SqlExpression sqlExpression);
+    public Object visit(SqlExpressionCase0 sqlExpressionCase0);
     public Object visit(SqlExpressionCase1 sqlExpressionCase1);
     public Object visit(SqlExpressionCase2 sqlExpressionCase2);
     public Object visit(SqlExpressionCase3 sqlExpressionCase3);

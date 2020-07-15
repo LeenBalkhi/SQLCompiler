@@ -632,7 +632,8 @@ exists_expr:
 */
 
 expr
- : (literal_value | string | K_TRUE | K_FALSE) #case1
+ : '*' #case0
+ |(literal_value | string | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
  |  column_name (  '.' any_name)?  #case2
  | expr '->' '('any_name K_WHERE expr')' #case22
@@ -722,9 +723,7 @@ ordering_term
 // ;
 
 result_column
- : '*'
- | table_name '.' '*'
- | expr ( K_AS? column_alias )?
+ :  expr ( K_AS? column_alias )?
  ;
 
 /*

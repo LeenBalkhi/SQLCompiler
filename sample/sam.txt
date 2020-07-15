@@ -2,4 +2,10 @@ Create Type Book(String name)
 Create Table music(artistName String , songName String)
 Create Table libraries(libraryName String, myMusic music)
 Create Table lib(name String ,num Long,book Book)
-var i = select Sum(num) from lib ;
+
+fun(){
+    var i = select * from lib , libraries ;
+}
+
+fun();
+

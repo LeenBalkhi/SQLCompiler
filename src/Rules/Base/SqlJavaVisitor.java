@@ -237,7 +237,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     else {
                         TableSymbol tableSymbol = factoredSelectStatement.type;
                         tableSymbol.name = name;
-                        System.out.println(tableSymbol.values.size());
                         if(factoredSelectStatement.type!=null){
                             SqlType sqlType = new SqlType();
                             sqlType.name = tableSymbol.name;
@@ -245,8 +244,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                                 SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
                                 sqlTypeEntry.name = col.name;
                                 sqlTypeEntry.type = col.type;
-                                System.out.println(sqlTypeEntry.name);
-                                System.out.println(sqlTypeEntry.type);
                                 sqlType.entries.add(sqlTypeEntry);
                             }
                             symbolTable.sqlTypes.put(sqlType.name,sqlType);
@@ -1056,6 +1053,10 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     {
         SqlExpression sqlExpression = new SqlExpression();
         Node temp = visit(ctx);
+        if(temp instanceof SqlExpressionCase0){
+            sqlExpression.expression = (SqlExpressionCase0)temp;
+            sqlExpression.parseObject = ((SqlExpressionCase0)temp).parseObject;
+        }
         if(temp instanceof SqlExpressionCase1)
         {
             sqlExpression.expression = (SqlExpressionCase1)temp;
@@ -1144,6 +1145,13 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             sqlExpression.parseObject = ((SqlExpressionCase22)temp).parseObject;
         }
         return sqlExpression;
+    }
+
+    @Override
+    public SqlExpressionCase0 visitCase0(SqlParser.Case0Context ctx) {
+        SqlExpressionCase0 sqlExpressionCase0 = new SqlExpressionCase0();
+        sqlExpressionCase0.parseObject = symbolTable.queryManager.clone();
+        return sqlExpressionCase0;
     }
 
     @Override
@@ -1704,7 +1712,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                         new JSONParse("C:\\Users\\Dell\\Desktop\\sample.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
                     if(tableSymbol.name.equals("lib"))
                         new JSONParse("C:\\Users\\Dell\\Desktop\\sample2.txt").getTableFromFile(sqlType,symbolTable,tableSymbol);
-                    tableSymbol.printTable(symbolTable);
                 }
             }
         }
@@ -1775,6 +1782,11 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                         col.name = RandomNameGenerator.generateNewRandomName();
                         col.type = (String) expr.parseObject;
                         tableSymbol.values.put(col.name,col);
+                    }else if(expr.parseObject instanceof TableSymbol){
+                        TableSymbol temp = ((TableSymbol)expr.parseObject);
+                        for (ColumnSymbol col: temp.values.values()){
+                            tableSymbol.values.put(col.name,col);
+                        }
                     }
                 }
             }
@@ -1978,17 +1990,17 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public ResultColumn visitResult_column(SqlParser.Result_columnContext ctx)
     {
         ResultColumn resultColumn= new ResultColumn();
-        if(ctx.table_name()!= null){
-            resultColumn.tableName = visitAny_name(ctx.table_name().any_name());
-            if( !(symbolTable.getSymbol(resultColumn.tableName.name)!=null
-                    && symbolTable.getSymbol(resultColumn.tableName.name) instanceof TableSymbol) ){
-                int line = ctx.table_name().start.getLine();
-                int col = ctx.table_name().start.getCharPositionInLine();
-                String des = "Table "+ resultColumn.tableName.name +" Does Not Exist";
-                Error error = new Error(line,col,des);
-                errors.add(error);
-            }
-        }
+//        if(ctx.table_name()!= null){
+//            resultColumn.tableName = visitAny_name(ctx.table_name().any_name());
+//            if( !(symbolTable.getSymbol(resultColumn.tableName.name)!=null
+//                    && symbolTable.getSymbol(resultColumn.tableName.name) instanceof TableSymbol) ){
+//                int line = ctx.table_name().start.getLine();
+//                int col = ctx.table_name().start.getCharPositionInLine();
+//                String des = "Table "+ resultColumn.tableName.name +" Does Not Exist";
+//                Error error = new Error(line,col,des);
+//                errors.add(error);
+//            }
+//        }
         if(ctx.expr() != null)
         {
             resultColumn.expression = visitExpr(ctx.expr());

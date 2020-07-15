@@ -22,6 +22,8 @@ public class LoadAggregationFunction {
         MethodName = methodName;
     }
 
+
+
     public Object call() throws ClassNotFoundException, MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         URLClassLoader myClassLoader = new URLClassLoader(
                 new URL[]{new File(JARPath + JARName).toURI().toURL()},

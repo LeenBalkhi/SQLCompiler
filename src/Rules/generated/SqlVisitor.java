@@ -535,6 +535,13 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitColumn_default_value(SqlParser.Column_default_valueContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code case0}
+	 * labeled alternative in {@link SqlParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCase0(SqlParser.Case0Context ctx);
+	/**
 	 * Visit a parse tree produced by the {@code case1}
 	 * labeled alternative in {@link SqlParser#expr}.
 	 * @param ctx the parse tree
