@@ -1784,6 +1784,12 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     errors.add(error);
                 }
             }
+            if(ctx.group!=null){
+                selectCore.groupByExpression = visitExpr(ctx.group);
+                if(ctx.have!=null){
+                    selectCore.havingExpression = visitExpr(ctx.have);
+                }
+            }
             TableSymbol tableSymbol = symbolTable.queryManager.clone();
             tableSymbol.values.clear();
             for (int i = 0; i < ctx.result_column().size(); i++) {

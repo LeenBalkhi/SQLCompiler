@@ -1826,13 +1826,14 @@ public class BaseASTVisitor implements ASTVisitor {
             if(sqlExpressionCase12.functionName.name.equals("Count")){
                 TableSymbol temp = (TableSymbol)expr;
                 int count = temp.getColumnWithLeastValues();
+                long result = (long)count;
                 ColumnSymbol res = new ColumnSymbol();
                 res.name = "Count";
                 res.type = "Long";
                 for(int i=0;i<count;i++){
-                 res.values.add(count);
+                 res.values.add((long)count);
                 }
-                return res;
+                return result;
             }
         }
         return null;
@@ -1976,6 +1977,7 @@ public class BaseASTVisitor implements ASTVisitor {
     @Override
     public TableSymbol visit(SelectCore selectCore) {
         TableSymbol current = new TableSymbol();
+        ArrayList<TableSymbol> tempArray = null;
         for (int i = 0; i < selectCore.tableOrSubQueries.size(); i++) {
             visit((TableOrSubquery) selectCore.tableOrSubQueries.get(i));
             if (i == 0) {
@@ -1989,59 +1991,130 @@ public class BaseASTVisitor implements ASTVisitor {
         }
         if (selectCore.whereExpression != null) {
             symbolTable.tableSymbol = ((TableSymbol) visit(selectCore.whereExpression)).clone();
-
         }
-        TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
-        tableSymbol.values.clear();
-        for (int i = 0; i < selectCore.resultColumns.size(); i++) {
-            visit((ResultColumn) selectCore.resultColumns.get(i));
-            ResultColumn resultColumn = (ResultColumn) selectCore.resultColumns.get(i);
-            if (resultColumn.res instanceof ColumnSymbol) {
-                ColumnSymbol col = ((ColumnSymbol) resultColumn.res);
-                tableSymbol.values.put(col.name, col);
-            } else if (resultColumn.res instanceof Number) {
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "Long";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for (int j = 0; j < count; j++) {
-                    columnSymbol.values.add(resultColumn.res);
-                }
-                tableSymbol.values.put(columnSymbol.name, columnSymbol);
-            } else if (resultColumn.res instanceof String) {
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "String";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for (int j = 0; j < count; j++) {
-                    columnSymbol.values.add(resultColumn.res);
-                }
-                tableSymbol.values.put(columnSymbol.name, columnSymbol);
-            } else if (resultColumn.res instanceof Boolean) {
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "Boolean";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for (int j = 0; j < count; j++) {
-                    columnSymbol.values.add(resultColumn.res);
-                }
-                tableSymbol.values.put(columnSymbol.name, columnSymbol);
-            }else if(resultColumn.res instanceof TableSymbol){
-                TableSymbol temp =  ((TableSymbol)resultColumn.res).clone();
-                for (ColumnSymbol col : temp.values.values()){
-                    tableSymbol.values.put(col.name,col);
+        if(selectCore.groupByExpression!=null){
+            TableSymbol store = symbolTable.tableSymbol.clone();
+            ColumnSymbol col = ((ColumnSymbol)(visit(selectCore.groupByExpression)));
+            TableSymbol temp = symbolTable.tableSymbol.clone();
+            tempArray = temp.splitIntoTables(col);
+            if(selectCore.havingExpression!=null){
+                for(TableSymbol table : tempArray){
+                    symbolTable.tableSymbol = table.clone();
+                    table = ((TableSymbol)visit(selectCore.havingExpression)).clone();
+                    table.printTable(symbolTable);
                 }
             }
+            symbolTable.tableSymbol = store.clone();
         }
-        return tableSymbol;
-//        TableSymbol tableSymbol = new TableSymbol();
-//        for(int i=0;i<selectCore.resultColumns.size();i++){
-//            visit((ResultColumn)selectCore.resultColumns.get(i));
-//            tableSymbol.values.put(((ResultColumn) selectCore.resultColumns.get(i)).res.name , ((ResultColumn) selectCore.resultColumns.get(i)).res);
-//            for(int m=0;m< ((ResultColumn) selectCore.resultColumns.get(i)).res.values.size();m++){
-//                System.out.println(((ResultColumn) selectCore.resultColumns.get(i)).res.values.get(m));
-//            }
-//        }
+        if(tempArray==null) {
+            TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
+            tableSymbol.values.clear();
+            for (int i = 0; i < selectCore.resultColumns.size(); i++) {
+                visit((ResultColumn) selectCore.resultColumns.get(i));
+                ResultColumn resultColumn = (ResultColumn) selectCore.resultColumns.get(i);
+                if (resultColumn.res instanceof ColumnSymbol) {
+                    ColumnSymbol col = ((ColumnSymbol) resultColumn.res);
+                    tableSymbol.values.put(col.name, col);
+                } else if (resultColumn.res instanceof Number) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "Long";
+                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof String) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "String";
+                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof Boolean) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "Boolean";
+                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof TableSymbol) {
+                    TableSymbol temp = ((TableSymbol) resultColumn.res).clone();
+                    for (ColumnSymbol col : temp.values.values()) {
+                        tableSymbol.values.put(col.name, col);
+                    }
+                }
+            }
+            return tableSymbol;
+        }else{
+            TableSymbol tableSymbol = null;
+            TableSymbol groupingTable;
+            for(int m=0;m<tempArray.size();m++){
+                groupingTable = tempArray.get(m);
+                symbolTable.tableSymbol = groupingTable.clone();
+                if(m == 0){
+                    tableSymbol = symbolTable.tableSymbol.clone();
+                    tableSymbol.values.clear();
+                }
+                for (int i = 0; i < selectCore.resultColumns.size(); i++) {
+                    visit((ResultColumn) selectCore.resultColumns.get(i));
+                    ResultColumn resultColumn = (ResultColumn) selectCore.resultColumns.get(i);
+                    if (resultColumn.res instanceof ColumnSymbol) {
+                        ColumnSymbol col = ((ColumnSymbol) resultColumn.res).clone();
+                        for(int k = 0;k<col.values.size();k++){
+                            if(k!=0)
+                                col.values.remove(k);
+                        }
+                        if(!tableSymbol.values.containsKey(col.name))
+                            tableSymbol.values.put(col.name, col);
+                        else {
+                            if(col.values.size()!=0)
+                                tableSymbol.values.get(col.name).values.add(col.values.get(0));
+                        }
+                    } else if (resultColumn.res instanceof Number) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "Long";
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
+                            columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
+                        }else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
+                    } /*else if (resultColumn.res instanceof String) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "String";
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                        for (int j = 0; j < count; j++) {
+                            columnSymbol.values.add(resultColumn.res);
+                        }
+                        tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                    } else if (resultColumn.res instanceof Boolean) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "Boolean";
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                        for (int j = 0; j < count; j++) {
+                            columnSymbol.values.add(resultColumn.res);
+                        }
+                        tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                    } else if (resultColumn.res instanceof TableSymbol) {
+                        TableSymbol temp = ((TableSymbol) resultColumn.res).clone();
+                        for (ColumnSymbol col : temp.values.values()) {
+                            tableSymbol.values.put(col.name, col);
+                        }
+                    }*/
+                }
+            }
+            return tableSymbol;
+        }
     }
 
     @Override
@@ -2183,8 +2256,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(ResultColumn resultColumn) {
-        if(resultColumn.tableName!=null)
-            visit(resultColumn.tableName);
         if(resultColumn.expression!=null){
             Object expr = visit((SqlExpression)resultColumn.expression);
             resultColumn.res = expr;
@@ -2193,7 +2264,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(InsertStatement insertStatement) {
-
         System.out.println("AST InsertStmt");
         if(insertStatement.dataBaseName != null)
             visit((AnyName) insertStatement.dataBaseName);

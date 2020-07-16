@@ -1,10 +1,9 @@
-create type Address(String Country, String City)
-create table Student(Name String, Birth String,Address Address)
-create table Faculty(FacultyName String, Students Student)  type = json  path = "C:\\Users\\Dell\\Desktop\\s.txt"
+create Table music(artistName String , songName String)
+create Table lib(name String , num Long) type = json path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
+
 
 fun(){
-    var i = select Count(*) from Faculty where FacultyName="Damascus";
+    var i = select name , Count(*)  from lib  group by name ;
 }
 
 fun();
-

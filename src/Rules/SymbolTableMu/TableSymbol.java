@@ -93,4 +93,45 @@ public class TableSymbol extends Symbol {
         }
         return tableSymbol;
     }
+
+    public ArrayList<TableSymbol> splitIntoTables(ColumnSymbol columnSymbol){
+        boolean cont;
+        ArrayList<TableSymbol> tableSymbols = new ArrayList<>();
+        ArrayList<Object> visited = new ArrayList<>();
+        ColumnSymbol mainColumnSymbol = values.get(columnSymbol.name);
+        for(int i=0;i<mainColumnSymbol.values.size();i++){
+            cont = false;
+            Object object = mainColumnSymbol.values.get(i);
+            System.out.println(object);
+            for(Object obj : visited){
+                if(obj.equals(object)){
+                    cont = true;
+                    break;
+                }
+            }
+            if(!cont){
+                visited.add(object);
+                ArrayList<Integer> indecies = new ArrayList<>();
+                for(int j=0;j<mainColumnSymbol.values.size();j++){
+                    Object innerObject = mainColumnSymbol.values.get(j);
+                    if(innerObject.equals(object)) {
+                        indecies.add(j);
+                    }
+                }
+                TableSymbol newTableSymbol = this.clone();
+                for(ColumnSymbol col : newTableSymbol.values.values()){
+                    col.values.clear();
+                }
+                for (int j = 0;j<indecies.size();j++){
+                    for (ColumnSymbol col : values.values()){
+                        ColumnSymbol newColumSymbol  = newTableSymbol.values.get(col.name);
+                        newColumSymbol.values.add( col.values.get(indecies.get(j)));
+                    }
+                }
+                tableSymbols.add(newTableSymbol);
+            }
+        }
+        return tableSymbols;
+    }
+
 }

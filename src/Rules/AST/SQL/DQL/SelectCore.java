@@ -15,8 +15,8 @@ public class SelectCore extends SqlStatment {
     public Node joinClause;
     public Node expression;
     public SqlExpression whereExpression;
-    public ArrayList<Node> groupByexpressions=new ArrayList<>();
-    public Node havingExpression;
+    public SqlExpression groupByExpression;
+    public SqlExpression havingExpression;
     public ArrayList<Node> valuesExpression = new ArrayList<>();
     public TableSymbol type;
 
