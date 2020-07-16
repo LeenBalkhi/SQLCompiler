@@ -1998,10 +1998,21 @@ public class BaseASTVisitor implements ASTVisitor {
             TableSymbol temp = symbolTable.tableSymbol.clone();
             tempArray = temp.splitIntoTables(col);
             if(selectCore.havingExpression!=null){
-                for(TableSymbol table : tempArray){
+                int offset=0;
+                for(int k = 0;k<tempArray.size();k++){
+                    TableSymbol table = tempArray.get(k-offset);
                     symbolTable.tableSymbol = table.clone();
                     table = ((TableSymbol)visit(selectCore.havingExpression)).clone();
-                    table.printTable(symbolTable);
+                    boolean rem  = true;
+                    for(ColumnSymbol column : table.values.values()){
+                        if(column.values.size()!=0){
+                            rem = false;
+                        }
+                    }
+                    if(rem){
+                        tempArray.remove(k-offset);
+                        offset++;
+                    }
                 }
             }
             symbolTable.tableSymbol = store.clone();
@@ -2018,7 +2029,12 @@ public class BaseASTVisitor implements ASTVisitor {
                 } else if (resultColumn.res instanceof Number) {
                     ColumnSymbol columnSymbol = new ColumnSymbol();
                     columnSymbol.type = "Long";
-                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
+                        columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
+                    }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    } else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
                     int count = symbolTable.tableSymbol.getColumnWithLeastValues();
                     for (int j = 0; j < count; j++) {
                         columnSymbol.values.add(resultColumn.res);
@@ -2027,7 +2043,10 @@ public class BaseASTVisitor implements ASTVisitor {
                 } else if (resultColumn.res instanceof String) {
                     ColumnSymbol columnSymbol = new ColumnSymbol();
                     columnSymbol.type = "String";
-                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    }else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
                     int count = symbolTable.tableSymbol.getColumnWithLeastValues();
                     for (int j = 0; j < count; j++) {
                         columnSymbol.values.add(resultColumn.res);
@@ -2036,7 +2055,10 @@ public class BaseASTVisitor implements ASTVisitor {
                 } else if (resultColumn.res instanceof Boolean) {
                     ColumnSymbol columnSymbol = new ColumnSymbol();
                     columnSymbol.type = "Boolean";
-                    columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    }else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
                     int count = symbolTable.tableSymbol.getColumnWithLeastValues();
                     for (int j = 0; j < count; j++) {
                         columnSymbol.values.add(resultColumn.res);
@@ -2055,6 +2077,7 @@ public class BaseASTVisitor implements ASTVisitor {
             TableSymbol groupingTable;
             for(int m=0;m<tempArray.size();m++){
                 groupingTable = tempArray.get(m);
+                groupingTable.printTable(symbolTable);
                 symbolTable.tableSymbol = groupingTable.clone();
                 if(m == 0){
                     tableSymbol = symbolTable.tableSymbol.clone();
@@ -2080,6 +2103,20 @@ public class BaseASTVisitor implements ASTVisitor {
                         columnSymbol.type = "Long";
                         if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
                             columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
+                        }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                        } else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
+                    } else if (resultColumn.res instanceof String) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "String";
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
                         }else
                             columnSymbol.name = RandomNameGenerator.generateNewRandomName();
                         columnSymbol.values.add(resultColumn.res);
@@ -2087,30 +2124,24 @@ public class BaseASTVisitor implements ASTVisitor {
                             tableSymbol.values.put(columnSymbol.name, columnSymbol);
                         else
                             tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
-                    } /*else if (resultColumn.res instanceof String) {
-                        ColumnSymbol columnSymbol = new ColumnSymbol();
-                        columnSymbol.type = "String";
-                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                        int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                        for (int j = 0; j < count; j++) {
-                            columnSymbol.values.add(resultColumn.res);
-                        }
-                        tableSymbol.values.put(columnSymbol.name, columnSymbol);
                     } else if (resultColumn.res instanceof Boolean) {
                         ColumnSymbol columnSymbol = new ColumnSymbol();
                         columnSymbol.type = "Boolean";
-                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                        int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                        for (int j = 0; j < count; j++) {
-                            columnSymbol.values.add(resultColumn.res);
-                        }
-                        tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                        }else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
                     } else if (resultColumn.res instanceof TableSymbol) {
                         TableSymbol temp = ((TableSymbol) resultColumn.res).clone();
                         for (ColumnSymbol col : temp.values.values()) {
                             tableSymbol.values.put(col.name, col);
                         }
-                    }*/
+                    }
                 }
             }
             return tableSymbol;
