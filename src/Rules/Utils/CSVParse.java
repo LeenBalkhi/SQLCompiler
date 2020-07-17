@@ -19,19 +19,14 @@ public class CSVParse {
     }
 
     public void loadCsv() throws IOException {
-        TableSymbol tableSymbol = new TableSymbol();
         String row;
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         while ((row = csvReader.readLine()) != null) {
             int i=0;
             String[] data = row.split(",");
             for (ColumnSymbol col : tableSymbol.values.values()){
-                if(col.type.equals("Long")){
-                    try {
-                        col.values.add( NumberFormat.getInstance().parse(data[i]));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
+                if(col.type.equals("Number")){
+                    col.values.add(Double.parseDouble(data[i]));
                 }
                 else if(col.type.equals("Boolean")){
                     if(data[i].equals("true")){

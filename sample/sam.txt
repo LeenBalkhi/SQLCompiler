@@ -1,9 +1,16 @@
-create Table music(artistName String , songName String)
-create Table lib(name String , num Number) type = json path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
+create Table colors(id Number,color String) type = json  path= "C:\\Users\\Dell\\Desktop\\colors.txt"
 
 
-fun(){
-    var i = select num , name from lib where num = 4.1 * 1;
+create table movies(name String,genre String,lead_studio String ,audience_score Number,profitability Number, rotten_tomato Number,worldwide_gross Number,year Number) type = csv path = "C:\\Users\\Dell\\Desktop\\movies.txt"
+
+
+fun()
+{
+    var cl = select year, Avg(profitability)  from movies where worldwide_gross >=314.70  group by year having Avg(worldwide_gross)>600;
+    var q = select  genre,Sum(profitability) from movies , cl where clyear = year group by genre;
 }
 
 fun();
+
+
+

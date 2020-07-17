@@ -640,11 +640,7 @@ expr
  | expr K_OR expr  #case11
  | function_name '(' expr ')' #case12
  | '(' expr ')' #case13
- | exp1=expr K_NOT? K_IN ( '(' ( select_stmt
-                          | expr ( ',' expr )*
-                          )?
-                      ')'
-                    | ( database_name '.' )? table_name )  #case14
+ | exp1=expr K_NOT? K_IN ( '(' select_stmt')' | '(' (expr)* ')')#case14
  | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')' #case15
  ;
 

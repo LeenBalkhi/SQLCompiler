@@ -81,7 +81,7 @@ public class JSONParse {
                         columnSymbol.values.add(false);
                     }
                 }else{
-                    columnSymbol.values.add(Double.parseDouble((String) object.get((sqlType.entries.get(i).name))));
+                    columnSymbol.values.add(Double.parseDouble(object.get((sqlType.entries.get(i).name)).toString()));
                 }
             }
         }

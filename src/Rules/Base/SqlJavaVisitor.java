@@ -1200,11 +1200,12 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             sqlExpressionCase2.anyName = visitAny_name(ctx.any_name());
             if(sqlExpressionCase2.parseObject!=null){
                 ColumnSymbol col = (ColumnSymbol) sqlExpressionCase2.parseObject;
-                if(col.values.get(0) instanceof TableSymbol){
+                if(col.values.get(0) instanceof TypeSymbol){
                     if( ((TypeSymbol)col.values.get(0)).values.containsKey(sqlExpressionCase2.anyName.name) ){
                         ColumnSymbol temp = new ColumnSymbol();
                         temp.name = sqlExpressionCase2.anyName.name;
-                        temp.type = ((TypeSymbol)col.values.get(0)).values.get(sqlExpressionCase2.anyName).type;
+                        temp.type = ((TypeSymbol)col.values.get(0)).values.get(sqlExpressionCase2.anyName.name).type;
+                        sqlExpressionCase2.type = temp.type;
                         sqlExpressionCase2.parseObject = temp;
                     }
                 }
@@ -1417,15 +1418,15 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         String name = sqlExpressionCase12.functionName.name;
         if(name.equals("Sum") || name.equals("Min") || name.equals("Max")){
             if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Number")){
-                System.out.println("WTF");
+               // System.out.println("WTF");
             }
         }else if(name.equals("Count")){
             if( ((SqlExpression)sqlExpressionCase12.expression).parseObject != null ){
                 if(!( ((SqlExpression)sqlExpressionCase12.expression).parseObject instanceof TableSymbol )){
-                    System.out.println("WTF");
+                   // System.out.println("WTF");
                 }
             }else if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Number")){
-                System.out.println("WTF");
+                //System.out.println("WTF");
             }
         }
 //        if(ctx.op != null)
@@ -1449,60 +1450,18 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     @Override
     public SqlExpressionCase14 visitCase14(SqlParser.Case14Context ctx) {
         SqlExpressionCase14 sqlExpressionCase14 = new SqlExpressionCase14();
-//        if(ctx.K_NOT() != null)
-//            sqlExpressionCase14.not = true;
-//        sqlExpressionCase14.mainExpression = visitExpr(ctx.exp1);
-//        if(ctx.select_stmt() != null)
-//            sqlExpressionCase14.selectStmt = visitSelect_stmt(ctx.select_stmt());
-//        if(((SelectStmt)sqlExpressionCase14.selectStmt).types.size() == 0){
-//            int line = ctx.select_stmt().start.getLine();
-//            int col = ctx.select_stmt().start.getCharPositionInLine();
-//            String des = "Select Statement Does Not Have Any Type";
-//            Error error = new Error(line,col,des);
-//            errors.add(error);
-//        }else {
-//            if( ((SelectStmt)sqlExpressionCase14.selectStmt).types.size() > 1 ){
-//                int line = ctx.select_stmt().start.getLine();
-//                int col = ctx.select_stmt().start.getCharPositionInLine();
-//                String des = "Select Statement Has More Than One Type";
-//                Error error = new Error(line,col,des);
-//                errors.add(error);
-//            }
-//            else {
-//                if( sqlExpressionCase14.mainExpression.type.equals("String")
-//                        || sqlExpressionCase14.mainExpression.type.equals("Boolean")
-//                        || sqlExpressionCase14.mainExpression.type.equals("Double")
-//                        || sqlExpressionCase14.mainExpression.type.equals("Long")){
-//                    if( (((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.size()>1) ){
-//                        int line = ctx.select_stmt().start.getLine();
-//                        int col = ctx.select_stmt().start.getCharPositionInLine();
-//                        String des = "Select Statement Has More Than One Type";
-//                        Error error = new Error(line,col,des);
-//                        errors.add(error);
-//                    }else {
-//                        if( !((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.entries.get(0).type.equals(sqlExpressionCase14.mainExpression.type) ){
-//                            int line = ctx.select_stmt().start.getLine();
-//                            int col = ctx.select_stmt().start.getCharPositionInLine();
-//                            String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
-//                            Error error = new Error(line,col,des);
-//                            errors.add(error);
-//                        }
-//                        else
-//                            sqlExpressionCase14.type = "Boolean";
-//                    }
-//                }else {
-//                    if(!((SelectStmt)sqlExpressionCase14.selectStmt).types.get(0).sqlType.name.equals(sqlExpressionCase14.mainExpression.type)) {
-//                        int line = ctx.select_stmt().start.getLine();
-//                        int col = ctx.select_stmt().start.getCharPositionInLine();
-//                        String des = "Select Statement Is Not Of The Same Type As The Expression Before In";
-//                        Error error = new Error(line,col,des);
-//                        errors.add(error);
-//                    }
-//                    else
-//                        sqlExpressionCase14.type = "Boolean";
-//                }
-//            }
-//        }
+        sqlExpressionCase14.mainExpression = visitExpr(ctx.exp1);
+        if(ctx.select_stmt()!=null)
+            sqlExpressionCase14.selectStmt = visitSelect_stmt(ctx.select_stmt());
+        else {
+            for(int i =0;i<ctx.expr().size();i++){
+                if(i!=0){
+                    SqlExpressionCase1 sqlExpressionCase1 = (SqlExpressionCase1) visitExpr(ctx.expr(i)).expression;
+                    sqlExpressionCase14.sqlExpressionCase1s.add(sqlExpressionCase1);
+                }
+            }
+        }
+        sqlExpressionCase14.type = "Boolean";
         return sqlExpressionCase14;
     }
 

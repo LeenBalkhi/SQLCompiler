@@ -8,7 +8,7 @@ public class TableSymbol extends Symbol {
 
     public void printTable(SymbolTable symbolTable){
         for(int i = 0;i<this.getColumnWithLeastValues();i++){
-            System.out.println("Row "+i+": ");
+            System.out.println("Row "+(i+1)+": ");
             for(ColumnSymbol col : values.values()){
                 if(symbolTable.sqlTypes.containsKey(col.type)
                         && symbolTable.scopeStack.peek().findSymbol(col.type) != null

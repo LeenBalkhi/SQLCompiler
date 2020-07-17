@@ -28,14 +28,13 @@ public class Main {
             ParseTree tree = parser.parse();
             MainVisitor m = new MainVisitor();
             Node n =  m.visit(tree);
-            if(m.errors.size()!=0){
-                for(int i=0;i<m.errors.size();i++){
-                    m.errors.get(i).printError();
-                }
-            }
+//            if(m.errors.size()!=0){
+//                for(int i=0;i<m.errors.size();i++){
+//                    m.errors.get(i).printError();
+//                }
+//            }
             RandomNameGenerator.i = 0;
-            if(m.errors.size()==0)
-                new BaseASTVisitor(m.symbolTable).visit((Parse) n);
+            new BaseASTVisitor(m.symbolTable).visit((Parse) n);
         } catch (IOException e) {
             e.printStackTrace();
         }
