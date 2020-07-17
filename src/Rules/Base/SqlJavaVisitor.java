@@ -615,13 +615,14 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
     public JavaString visitString(SqlParser.StringContext ctx)
     {
         JavaString javaString = new JavaString();
-        javaString.string ="";
-        for(int i=0 ; i < ctx.expression().size(); i ++)
-            javaString.string+= ctx.expression().get(i).getText();
-        for(int i=0 ; i < ctx.any_name().size(); i ++)
-            javaString.string+=ctx.any_name().get(i).getText();
-//        for(int i=0 ; i < ctx.SPACES().size() ; i++)
-//            javaString.string+=" ";
+        javaString.string = "";
+        for (int i=0;i<ctx.string_entry().size();i++) {
+            javaString.string = javaString.string + (ctx.string_entry(i).getText());
+            if(i!=ctx.string_entry().size()-1){
+                javaString.string = javaString.string + " ";
+            }
+        }
+        System.out.println(javaString.string);
         return  javaString;
     }
     @Override

@@ -108,6 +108,16 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitString(SqlParser.StringContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SqlParser#string_entry}.
+	 * @param ctx the parse tree
+	 */
+	void enterString_entry(SqlParser.String_entryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#string_entry}.
+	 * @param ctx the parse tree
+	 */
+	void exitString_entry(SqlParser.String_entryContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SqlParser#java_function_declaration}.
 	 * @param ctx the parse tree
 	 */

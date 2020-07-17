@@ -1990,16 +1990,17 @@ public class BaseASTVisitor implements ASTVisitor {
             ColumnSymbol col = ((ColumnSymbol)(visit(selectCore.groupByExpression)));
             TableSymbol temp = symbolTable.tableSymbol.clone();
             tempArray = temp.splitIntoTables(col);
-            for(TableSymbol table : tempArray){
-                for(ColumnSymbol column : table.values.values()){
-                    if(!column.name.equals(col.name)){
-                        table.values.remove(col.name);
-                    }
-                }
+            for(int m=0;m<tempArray.size();m++){
+               TableSymbol table = tempArray.get(m);
+               TableSymbol tableSymbol = table.clone();
+               ColumnSymbol columnSymbol = tableSymbol.values.get(col.name);
+               tableSymbol.values.clear();
+               tableSymbol.values.put(columnSymbol.name,columnSymbol);
+               tempArray.set(m,tableSymbol.clone());
             }
             if(selectCore.havingExpression!=null){
-                int offset=0;
-                for(int k = 0;k<tempArray.size();k++){
+                int offset = 0;
+                for(int k = 0;k-offset<tempArray.size();k++){
                     TableSymbol table = tempArray.get(k-offset);
                     symbolTable.tableSymbol = table.clone();
                     table = ((TableSymbol)visit(selectCore.havingExpression)).clone();
@@ -2099,7 +2100,7 @@ public class BaseASTVisitor implements ASTVisitor {
                         }
                     } else if (resultColumn.res instanceof Number) {
                         ColumnSymbol columnSymbol = new ColumnSymbol();
-                        columnSymbol.type = "Long";
+                        columnSymbol.type = "Number";
                         if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
                             columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
                         }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
@@ -2241,15 +2242,22 @@ public class BaseASTVisitor implements ASTVisitor {
         if (selectOrValue.whereExpression!=null){
             symbolTable.tableSymbol = ((TableSymbol)visit(selectOrValue.whereExpression)).clone();
         }
-
         if(selectOrValue.groupByExpression!=null){
             TableSymbol store = symbolTable.tableSymbol.clone();
             ColumnSymbol col = ((ColumnSymbol)(visit(selectOrValue.groupByExpression)));
             TableSymbol temp = symbolTable.tableSymbol.clone();
             tempArray = temp.splitIntoTables(col);
+            for(int m=0;m<tempArray.size();m++){
+                TableSymbol table = tempArray.get(m);
+                TableSymbol tableSymbol = table.clone();
+                ColumnSymbol columnSymbol = tableSymbol.values.get(col.name);
+                tableSymbol.values.clear();
+                tableSymbol.values.put(columnSymbol.name,columnSymbol);
+                tempArray.set(m,tableSymbol.clone());
+            }
             if(selectOrValue.havingExpression!=null){
-                int offset=0;
-                for(int k = 0;k<tempArray.size();k++){
+                int offset = 0;
+                for(int k = 0;k-offset<tempArray.size();k++){
                     TableSymbol table = tempArray.get(k-offset);
                     symbolTable.tableSymbol = table.clone();
                     table = ((TableSymbol)visit(selectOrValue.havingExpression)).clone();
@@ -2267,8 +2275,6 @@ public class BaseASTVisitor implements ASTVisitor {
             }
             symbolTable.tableSymbol = store.clone();
         }
-
-
         if(tempArray==null) {
             TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
             tableSymbol.values.clear();
@@ -2351,7 +2357,7 @@ public class BaseASTVisitor implements ASTVisitor {
                         }
                     } else if (resultColumn.res instanceof Number) {
                         ColumnSymbol columnSymbol = new ColumnSymbol();
-                        columnSymbol.type = "Long";
+                        columnSymbol.type = "Number";
                         if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
                             columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
                         }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){

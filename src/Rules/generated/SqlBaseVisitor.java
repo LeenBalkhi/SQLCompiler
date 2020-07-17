@@ -87,6 +87,13 @@ public class SqlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements Sq
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitString_entry(SqlParser.String_entryContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitJava_function_declaration(SqlParser.Java_function_declarationContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

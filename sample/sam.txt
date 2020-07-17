@@ -3,7 +3,7 @@ create Table lib(name String , num Number) type = json path = "C:\\Users\\Dell\\
 
 
 fun(){
-    var i = select name , Count(*) from (select name from lib  group by name ) group by name having name = "MyLibrary1" ;
+    var i = select num , name from lib where name = "My Library" ;
 }
 
 fun();

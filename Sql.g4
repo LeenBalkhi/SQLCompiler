@@ -62,12 +62,16 @@ return_stmt
 return_value
 :
 expression
-|string
+|'"'string'"'
 |logical_condition
 ;
 
 string:
-'"'(expression|SPACES|any_name|SPACES)* '"'
+ string_entry*
+;
+
+string_entry:
+(any_name | literal_value)
 ;
 
 java_function_declaration
@@ -179,7 +183,7 @@ K_PRINT '(' (expression )? ('+' ( expression))*')'
 
 value:
   variable #varVal
-| string #str
+| '"'string'"' #str
 | java_function_call #jfcVal
 | literal_value #lvVal
 | '(' value ')' #parenthVal
@@ -621,7 +625,7 @@ exists_expr:
 
 expr
  : '*' #case0
- |(literal_value | string | K_TRUE | K_FALSE) #case1
+ |(literal_value | '"'string'"' | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
  |  column_name (  '.' any_name)?  #case2
  | expr '->' '('any_name K_WHERE expr')' #case22
@@ -1209,9 +1213,9 @@ K_PARQUET: P A R Q U E T;
 K_AGGREGATION: A G G R E G A T I O N;
 IDENTIFIER
  : //'"' (~'"' | '""')* '"'
-  // | '`' (~'`' | '``')* '`'
-   //| '[' ~']'* ']'
- | [a-zA-Z_] [a-zA-Z_0-9]* // TODO check: needs more chars in set
+//  | '`' (~'`' | '``')* '`'
+//  | '[' ~']'* ']'
+  [a-zA-Z_] [a-zA-Z_0-9]*
  ;
 
 

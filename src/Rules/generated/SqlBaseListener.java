@@ -135,6 +135,18 @@ public class SqlBaseListener implements SqlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterString_entry(SqlParser.String_entryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitString_entry(SqlParser.String_entryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterJava_function_declaration(SqlParser.Java_function_declarationContext ctx) { }
 	/**
 	 * {@inheritDoc}

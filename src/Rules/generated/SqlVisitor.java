@@ -71,6 +71,12 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitString(SqlParser.StringContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SqlParser#string_entry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitString_entry(SqlParser.String_entryContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SqlParser#java_function_declaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
