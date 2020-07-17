@@ -622,7 +622,6 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 javaString.string = javaString.string + " ";
             }
         }
-        System.out.println(javaString.string);
         return  javaString;
     }
     @Override

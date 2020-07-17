@@ -3,7 +3,7 @@ create Table lib(name String , num Number) type = json path = "C:\\Users\\Dell\\
 
 
 fun(){
-    var i = select num , name from lib where name = "My Library" ;
+    var i = select num , name from lib where num = 4.1 * 1;
 }
 
 fun();

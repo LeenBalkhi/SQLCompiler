@@ -1253,11 +1253,7 @@ public class BaseASTVisitor implements ASTVisitor {
 //        System.out.println("ast SqlExpressionCase1");
 //        System.out.println(sqlExpressionCase1.literalValue);
         if(sqlExpressionCase1.type.equals("Number")){
-            try {
-                return NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            return Double.parseDouble(sqlExpressionCase1.literalValue);
         }
         else if(sqlExpressionCase1.type.equals("String")){
             return sqlExpressionCase1.literalValue;
@@ -1265,7 +1261,6 @@ public class BaseASTVisitor implements ASTVisitor {
         else {
             return sqlExpressionCase1.bool;
         }
-        return null;
     }
 
     @Override
@@ -1456,7 +1451,7 @@ public class BaseASTVisitor implements ASTVisitor {
             }else if(expr2 instanceof Number){
                 switch (op){
                     case "+":{
-                        return (double)expr1 * (double)expr2;
+                        return (double)expr1 + (double)expr2;
                     }
                     case "-":{
                         return (double)expr1 - (double)expr2;

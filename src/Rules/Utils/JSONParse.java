@@ -81,11 +81,7 @@ public class JSONParse {
                         columnSymbol.values.add(false);
                     }
                 }else{
-                    try {
-                        columnSymbol.values.add(NumberFormat.getInstance().parse((String) object.get((sqlType.entries.get(i).name))));
-                    } catch (java.text.ParseException e) {
-                        e.printStackTrace();
-                    }
+                    columnSymbol.values.add(Double.parseDouble((String) object.get((sqlType.entries.get(i).name))));
                 }
             }
         }
@@ -132,11 +128,7 @@ public class JSONParse {
                         symbol.value = false;
                     }
                 }else{
-                    try {
-                        symbol.value = (NumberFormat.getInstance().parse((String) object.get((entry.name))));
-                    } catch (java.text.ParseException e) {
-                        e.printStackTrace();
-                    }
+                    symbol.value = Double.parseDouble((String) object.get((entry.name)));
                 }
                 typeSymbol.values.put(symbol.name,symbol);
             }
