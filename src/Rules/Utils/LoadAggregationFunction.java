@@ -14,10 +14,10 @@ public class LoadAggregationFunction {
     String ClassName = "CommonAggregations";
     String MethodName;
     String JARName = "Agg.jar";
-    public ArrayList<Long> myNumbers;
+    public ArrayList<Double> myNumbers;
 
 
-    public LoadAggregationFunction(ArrayList<Long> list,String methodName) {
+    public LoadAggregationFunction(ArrayList<Double> list,String methodName) {
         myNumbers = list;
         MethodName = methodName;
     }

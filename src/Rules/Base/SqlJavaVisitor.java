@@ -1161,11 +1161,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         SqlExpressionCase1 sqlExpressionCase1 = new SqlExpressionCase1();
         if(ctx.literal_value()!=null){
             sqlExpressionCase1.literalValue = ctx.literal_value().getText();
-            try {
-                sqlExpressionCase1.type = NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue).getClass().getSimpleName();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            sqlExpressionCase1.type = "Number";
         }
         else if(ctx.string()!=null){
             sqlExpressionCase1.literalValue = visitString(ctx.string()).string;
@@ -1254,7 +1250,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         sqlExpressionCase5.SqlExpression2 = visitExpr(ctx.expr(1));
         if(((SqlExpression)sqlExpressionCase5.SqlExpression1).type!=null && ((SqlExpression)sqlExpressionCase5.SqlExpression2).type!=null){
             if( !((SqlExpression)sqlExpressionCase5.SqlExpression1).type.equals(((SqlExpression)sqlExpressionCase5.SqlExpression2).type) ||
-                    (!((SqlExpression)sqlExpressionCase5.SqlExpression1).type.equals("Long") && !((SqlExpression)sqlExpressionCase5.SqlExpression1).type.equals("Double")) ){
+                    (!((SqlExpression)sqlExpressionCase5.SqlExpression1).type.equals("Number") ) ){
                 int line = ctx.start.getLine();
                 int col = ctx.start.getCharPositionInLine();
                 String des = "Operation "+ sqlExpressionCase5.op +" Cannot Be Done Between "+ ((SqlExpression)sqlExpressionCase5.SqlExpression1).type +
@@ -1284,7 +1280,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         sqlExpressionCase6.SqlExpression2 = visitExpr(ctx.expr(1));
         if(((SqlExpression)sqlExpressionCase6.SqlExpression1).type!=null && ((SqlExpression)sqlExpressionCase6.SqlExpression2).type!=null){
             if( !((SqlExpression)sqlExpressionCase6.SqlExpression1).type.equals(((SqlExpression)sqlExpressionCase6.SqlExpression2).type) ||
-                    (!((SqlExpression)sqlExpressionCase6.SqlExpression1).type.equals("Long") && !((SqlExpression)sqlExpressionCase6.SqlExpression1).type.equals("Double")) ){
+                    (!((SqlExpression)sqlExpressionCase6.SqlExpression1).type.equals("Number")) ){
                 int line = ctx.start.getLine();
                 int col = ctx.start.getCharPositionInLine();
                 String des = "Operation "+ sqlExpressionCase6.op +" Cannot Be Done Between "+ ((SqlExpression)sqlExpressionCase6.SqlExpression1).type +
@@ -1324,8 +1320,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         if(((SqlExpression)sqlExpressionCase8.SqlExpression1).type!=null && ((SqlExpression)sqlExpressionCase8.SqlExpression1).type!=null){
             if( !((SqlExpression)sqlExpressionCase8.SqlExpression1).type.equals(((SqlExpression)sqlExpressionCase8.SqlExpression2).type) ||
                     ( ( sqlExpressionCase8.op.equals(">") || sqlExpressionCase8.op.equals("<") || sqlExpressionCase8.op.equals(">=") ||
-                            sqlExpressionCase8.op.equals("<=") ) && ( !((SqlExpression)sqlExpressionCase8.SqlExpression1).type.equals("Long") &&
-                            !((SqlExpression)sqlExpressionCase8.SqlExpression1).type.equals("Double") ) )
+                            sqlExpressionCase8.op.equals("<=") ) && ( !((SqlExpression)sqlExpressionCase8.SqlExpression1).type.equals("Number")) )
             ){
                 int line = ctx.start.getLine();
                 int col = ctx.start.getCharPositionInLine();
@@ -1421,7 +1416,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         sqlExpressionCase12.expression = visitExpr(ctx.expr());
         String name = sqlExpressionCase12.functionName.name;
         if(name.equals("Sum") || name.equals("Min") || name.equals("Max")){
-            if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Long")){
+            if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Number")){
                 System.out.println("WTF");
             }
         }else if(name.equals("Count")){
@@ -1429,7 +1424,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 if(!( ((SqlExpression)sqlExpressionCase12.expression).parseObject instanceof TableSymbol )){
                     System.out.println("WTF");
                 }
-            }else if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Long")){
+            }else if(!((SqlExpression)sqlExpressionCase12.expression).type.equals("Number")){
                 System.out.println("WTF");
             }
         }
@@ -1437,8 +1432,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
 //            sqlExpressionCase12.op = ctx.op.getText();
         ColumnSymbol columnSymbol = new ColumnSymbol();
         columnSymbol.name = name;
-        columnSymbol.type = "Long";
-        sqlExpressionCase12.type = "Long";
+        columnSymbol.type = "Number";
+        sqlExpressionCase12.type = "Number";
         sqlExpressionCase12.parseObject = columnSymbol;
         return sqlExpressionCase12;
     }
@@ -1628,9 +1623,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                 }
                 if(symbolTable.sqlTypes.containsKey(sqlTypeEntry.type)
                         || sqlTypeEntry.type.equals("String")
-                        || sqlTypeEntry.type.equals("Long")
+                        || sqlTypeEntry.type.equals("Number")
                         || sqlTypeEntry.type.equals("Boolean")
-                        || sqlTypeEntry.type.equals("Double")
                         || (symbolTable.getSymbol(sqlTypeEntry.type)!=null
                         && symbolTable.getSymbol(sqlTypeEntry.type) instanceof TableSymbol)) {
                     sqlType.entries.add(sqlTypeEntry);
@@ -1694,9 +1688,8 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     String type = columnDef.typeName.name.name;
                     if(symbolTable.sqlTypes.containsKey(type)
                             || type.equals("String")
-                            || type.equals("Long")
+                            || type.equals("Number")
                             || type.equals("Boolean")
-                            || type.equals("Double")
                             || (symbolTable.scopeStack.peek().symbolMap.containsKey(type)
                             && symbolTable.scopeStack.peek().symbolMap.get(type) instanceof TableSymbol)){
                         columnSymbol.type = type;
@@ -1786,6 +1779,9 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
             }
             if(ctx.group!=null){
                 selectCore.groupByExpression = visitExpr(ctx.group);
+                if(! (selectCore.groupByExpression.expression instanceof SqlExpressionCase2)){
+                    errors.add(new Error(0,0,null));
+                }
                 if(ctx.have!=null){
                     selectCore.havingExpression = visitExpr(ctx.have);
                 }
@@ -1984,6 +1980,12 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
                     String des = "Expression Inside Where Is Not Of Type Boolean";
                     Error error = new Error(line, col, des);
                     errors.add(error);
+                }
+            }
+            if(ctx.group!=null){
+                selectOrValue.groupByExpression = visitExpr(ctx.group);
+                if(ctx.have!=null){
+                    selectOrValue.havingExpression = visitExpr(ctx.have);
                 }
             }
             TableSymbol tableSymbol = symbolTable.queryManager.clone();

@@ -979,7 +979,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(SqlStatment sqlStatment) {
-        System.out.println("ast sql statement");
         if(sqlStatment.Unique)
             System.out.println("Unique");
         if(sqlStatment.order!= null)
@@ -1030,10 +1029,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(AnyName anyName) {
-        System.out.println("AST AnyName");
-//        System.out.println(anyName.id);
-        if(anyName.name != null)
-            System.out.println(anyName.name);
+
     }
 
     @Override
@@ -1125,7 +1121,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(ColumnDef columnDef) {
-        System.out.println("AST ColumnDef");
+
 //        if(columnDef.name != null)
 //            visit((AnyName) columnDef.name);
 //        for(int i=0 ; i <columnDef.columnConstraintsTypeNames.size(); i++)
@@ -1256,7 +1252,7 @@ public class BaseASTVisitor implements ASTVisitor {
     public Object visit(SqlExpressionCase1 sqlExpressionCase1) {
 //        System.out.println("ast SqlExpressionCase1");
 //        System.out.println(sqlExpressionCase1.literalValue);
-        if(sqlExpressionCase1.type.equals("Long")){
+        if(sqlExpressionCase1.type.equals("Number")){
             try {
                 return NumberFormat.getInstance().parse(sqlExpressionCase1.literalValue);
             } catch (ParseException e) {
@@ -1291,7 +1287,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpressionCase3 sqlExpressionCase3) {
-        System.out.println("ast SqlExpressionCase3");
+
         System.out.println(sqlExpressionCase3.unaryOperator);
         visit((SqlExpression)sqlExpressionCase3.SqlExpression);
         return null;
@@ -1299,9 +1295,9 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public Object visit(SqlExpressionCase4 sqlExpressionCase4) {
-        System.out.print("ast SqlExpressionCase4");
+
         visit((SqlExpression)sqlExpressionCase4.SqlExpression1);
-        System.out.println(sqlExpressionCase4.op);
+
         visit((SqlExpression)sqlExpressionCase4.SqlExpression2);
         return null;
     }
@@ -1320,19 +1316,19 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "*":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) * (long)col2.values.get(i));
+                            col1.values.set(i,(double)col1.values.get(i) * (double)col2.values.get(i));
                         }
                         break;
                     }
                     case "/":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) / (long)col2.values.get(i));
+                            col1.values.set(i,(double)col1.values.get(i) / (double)col2.values.get(i));
                         }
                         break;
                     }
                     case "%":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) % (long)col2.values.get(i));
+                            col1.values.set(i,(double)col1.values.get(i) % (double)col2.values.get(i));
                         }
                         break;
                     }
@@ -1341,19 +1337,19 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "*":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) * (long)expr2);
+                            col1.values.set(i,(double)col1.values.get(i) * (double)expr2);
                         }
                         break;
                     }
                     case "/":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) / (long)expr2);
+                            col1.values.set(i,(double)col1.values.get(i) / (double)expr2);
                         }
                         break;
                     }
                     case "%":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) % (long)expr2);
+                            col1.values.set(i,(double)col1.values.get(i) % (double)expr2);
                         }
                         break;
                     }
@@ -1365,19 +1361,19 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "*":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) * (long)expr1);
+                            col1.values.set(i,(double)col1.values.get(i) * (double)expr1);
                         }
                         break;
                     }
                     case "/":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) / (long)expr1);
+                            col1.values.set(i,(double)col1.values.get(i) / (double)expr1);
                         }
                         break;
                     }
                     case "%":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) % (long)expr1);
+                            col1.values.set(i,(double)col1.values.get(i) % (double)expr1);
                         }
                         break;
                     }
@@ -1385,13 +1381,13 @@ public class BaseASTVisitor implements ASTVisitor {
             }else if(expr2 instanceof Number){
                 switch (op){
                     case "*":{
-                        return (long)expr1 * (long)expr2;
+                        return (double)expr1 * (double)expr2;
                     }
                     case "/":{
-                        return (long)expr1 / (long)expr2;
+                        return (double)expr1 / (double)expr2;
                     }
                     case "%":{
-                        return (long)expr1 % (long)expr2;
+                        return (double)expr1 % (double)expr2;
                     }
                 }
             }
@@ -1413,13 +1409,13 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "+":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) + (long)col2.values.get(i));
+                            col1.values.set(i,(double)col1.values.get(i) + (double)col2.values.get(i));
                         }
                         break;
                     }
                     case "-":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) - (long)col2.values.get(i));
+                            col1.values.set(i,(double)col1.values.get(i) - (double)col2.values.get(i));
                         }
                         break;
                     }
@@ -1428,13 +1424,13 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "+":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) + (long)expr2);
+                            col1.values.set(i,(double)col1.values.get(i) + (double)expr2);
                         }
                         break;
                     }
                     case "-":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) - (long)expr2);
+                            col1.values.set(i,(double)col1.values.get(i) - (double)expr2);
                         }
                         break;
                     }
@@ -1446,13 +1442,13 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op){
                     case "+":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) + (long)expr1);
+                            col1.values.set(i,(double)col1.values.get(i) + (double)expr1);
                         }
                         break;
                     }
                     case "-":{
                         for(int i=0;i<col1.values.size();i++){
-                            col1.values.set(i,(long)col1.values.get(i) - (long)expr1);
+                            col1.values.set(i,(double)col1.values.get(i) - (double)expr1);
                         }
                         break;
                     }
@@ -1460,10 +1456,10 @@ public class BaseASTVisitor implements ASTVisitor {
             }else if(expr2 instanceof Number){
                 switch (op){
                     case "+":{
-                        return (long)expr1 * (long)expr2;
+                        return (double)expr1 * (double)expr2;
                     }
                     case "-":{
-                        return (long)expr1 - (long)expr2;
+                        return (double)expr1 - (double)expr2;
                     }
                 }
             }
@@ -1503,7 +1499,7 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op) {
                     case ("<"): {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) < ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) < ((double)((ColumnSymbol) expr2).values.get(i)))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1514,7 +1510,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case "<=": {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) <= ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) <= ((double)((ColumnSymbol) expr2).values.get(i)))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1525,7 +1521,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case ">": {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) > ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) > ((double)((ColumnSymbol) expr2).values.get(i)))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1536,7 +1532,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case ">=": {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) >= ((long)((ColumnSymbol) expr2).values.get(i)))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) >= ((double)((ColumnSymbol) expr2).values.get(i)))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1550,7 +1546,7 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op) {
                     case ("<"): {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) < ((long)expr2))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) < ((double)expr2))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1561,7 +1557,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case ("<="): {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) <= ((long)expr2))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) <= ((double)expr2))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1572,7 +1568,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case (">"): {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) > ((long)expr2))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) > ((double)expr2))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1583,7 +1579,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case (">="): {
                         for (int i = 0; i < ((ColumnSymbol) expr1).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr1).values.get(i)) >= ((long)expr2))) {
+                            if (!((double)(((ColumnSymbol) expr1).values.get(i)) >= ((double)expr2))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1599,7 +1595,7 @@ public class BaseASTVisitor implements ASTVisitor {
                 switch (op) {
                     case ("<"): {
                         for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) < ((long)expr1))) {
+                            if (!((double)(((ColumnSymbol) expr2).values.get(i)) < ((double)expr1))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1610,7 +1606,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case ("<="): {
                         for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) <= ((long)expr1))) {
+                            if (!((double)(((ColumnSymbol) expr2).values.get(i)) <= ((double)expr1))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1621,7 +1617,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case (">"): {
                         for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) > ((long)expr1))) {
+                            if (!((double)(((ColumnSymbol) expr2).values.get(i)) > ((double)expr1))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1632,7 +1628,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     }
                     case (">="): {
                         for (int i = 0; i < ((ColumnSymbol) expr2).values.size(); i++) {
-                            if (!((long)(((ColumnSymbol) expr2).values.get(i)) >= ((long)expr1))) {
+                            if (!((double)(((ColumnSymbol) expr2).values.get(i)) >= ((double)expr1))) {
                                 for (ColumnSymbol col : tableSymbol.values.values()) {
                                     col.values.remove(i-offset);
                                 }
@@ -1785,28 +1781,26 @@ public class BaseASTVisitor implements ASTVisitor {
         TableSymbol table1 =  (TableSymbol) visit((SqlExpression)sqlExpressionCase11.SqlExpression1);
         TableSymbol table2 = (TableSymbol) visit((SqlExpression)sqlExpressionCase11.SqlExpression2);
         TableSymbol result = TableSymbol.combineTables(table1,table2);
-        result.printTable(symbolTable);
         return result;
     }
 
     @Override
     public Object visit(SqlExpressionCase12 sqlExpressionCase12) {
-        System.out.println("ast SqlExpressionCase12");
         visit(sqlExpressionCase12.functionName);
         if(sqlExpressionCase12.distinct!=false)
             System.out.println("DISTINCT");
         Object expr = visit((SqlExpression)sqlExpressionCase12.expression);
         if(expr instanceof ColumnSymbol){
             ColumnSymbol columnSymbol= ((ColumnSymbol)expr);
-            ArrayList<Long> list = new ArrayList<>();
+            ArrayList<Double> list = new ArrayList<>();
             for(Object obj : columnSymbol.values){
-                list.add((long)obj);
+                list.add((double) obj);
             }
             LoadAggregationFunction loader = new LoadAggregationFunction(list,sqlExpressionCase12.functionName.name);
             try {
                 ColumnSymbol res = new ColumnSymbol();
                 res.name = sqlExpressionCase12.functionName.name;
-                res.type = "Long";
+                res.type = "Number";
                 for (Object obj : columnSymbol.values){
                     res.values.add(loader.call());
                 }
@@ -1826,12 +1820,12 @@ public class BaseASTVisitor implements ASTVisitor {
             if(sqlExpressionCase12.functionName.name.equals("Count")){
                 TableSymbol temp = (TableSymbol)expr;
                 int count = temp.getColumnWithLeastValues();
-                long result = (long)count;
+                double result = (double) count;
                 ColumnSymbol res = new ColumnSymbol();
                 res.name = "Count";
-                res.type = "Long";
+                res.type = "Number";
                 for(int i=0;i<count;i++){
-                 res.values.add((long)count);
+                 res.values.add((double)count);
                 }
                 return result;
             }
@@ -1922,7 +1916,6 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(CreateTableStatement createTableStatement) {
-        System.out.println("ast CreateTableStatement");
         if(createTableStatement.ifNotExists!=false)
             System.out.println("IF NOT EXISTS");
         if(createTableStatement.dataBaseName!=null)
@@ -1997,6 +1990,13 @@ public class BaseASTVisitor implements ASTVisitor {
             ColumnSymbol col = ((ColumnSymbol)(visit(selectCore.groupByExpression)));
             TableSymbol temp = symbolTable.tableSymbol.clone();
             tempArray = temp.splitIntoTables(col);
+            for(TableSymbol table : tempArray){
+                for(ColumnSymbol column : table.values.values()){
+                    if(!column.name.equals(col.name)){
+                        table.values.remove(col.name);
+                    }
+                }
+            }
             if(selectCore.havingExpression!=null){
                 int offset=0;
                 for(int k = 0;k<tempArray.size();k++){
@@ -2028,7 +2028,7 @@ public class BaseASTVisitor implements ASTVisitor {
                     tableSymbol.values.put(col.name, col);
                 } else if (resultColumn.res instanceof Number) {
                     ColumnSymbol columnSymbol = new ColumnSymbol();
-                    columnSymbol.type = "Long";
+                    columnSymbol.type = "Number";
                     if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
                         columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
                     }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
@@ -2077,7 +2077,6 @@ public class BaseASTVisitor implements ASTVisitor {
             TableSymbol groupingTable;
             for(int m=0;m<tempArray.size();m++){
                 groupingTable = tempArray.get(m);
-                groupingTable.printTable(symbolTable);
                 symbolTable.tableSymbol = groupingTable.clone();
                 if(m == 0){
                     tableSymbol = symbolTable.tableSymbol.clone();
@@ -2230,6 +2229,7 @@ public class BaseASTVisitor implements ASTVisitor {
 
     @Override
     public TableSymbol visit(SelectOrValue selectOrValue) {
+        ArrayList<TableSymbol> tempArray = null;
         for(int i=0;i<selectOrValue.tablesorSbqueries.size();i++){
             visit((TableOrSubquery)selectOrValue.tablesorSbqueries.get(i));
             if(i==0)
@@ -2241,48 +2241,162 @@ public class BaseASTVisitor implements ASTVisitor {
         if (selectOrValue.whereExpression!=null){
             symbolTable.tableSymbol = ((TableSymbol)visit(selectOrValue.whereExpression)).clone();
         }
-        TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
-        tableSymbol.values.clear();
-        for(int i=0;i<selectOrValue.resColumns.size();i++){
-            visit((ResultColumn)selectOrValue.resColumns.get(i));
-            ResultColumn resultColumn = (ResultColumn)selectOrValue.resColumns.get(i);
-            if(resultColumn.res instanceof ColumnSymbol){
-                ColumnSymbol col = ((ColumnSymbol)resultColumn.res);
-                tableSymbol.values.put(col.name,col);
-            }else if(resultColumn.res instanceof Number){
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "Long";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for(int j = 0 ; j < count ; j++){
-                    columnSymbol.values.add(resultColumn.res);
+
+        if(selectOrValue.groupByExpression!=null){
+            TableSymbol store = symbolTable.tableSymbol.clone();
+            ColumnSymbol col = ((ColumnSymbol)(visit(selectOrValue.groupByExpression)));
+            TableSymbol temp = symbolTable.tableSymbol.clone();
+            tempArray = temp.splitIntoTables(col);
+            if(selectOrValue.havingExpression!=null){
+                int offset=0;
+                for(int k = 0;k<tempArray.size();k++){
+                    TableSymbol table = tempArray.get(k-offset);
+                    symbolTable.tableSymbol = table.clone();
+                    table = ((TableSymbol)visit(selectOrValue.havingExpression)).clone();
+                    boolean rem  = true;
+                    for(ColumnSymbol column : table.values.values()){
+                        if(column.values.size()!=0){
+                            rem = false;
+                        }
+                    }
+                    if(rem){
+                        tempArray.remove(k-offset);
+                        offset++;
+                    }
                 }
-                tableSymbol.values.put(columnSymbol.name,columnSymbol);
-            }else if(resultColumn.res instanceof String){
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "String";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for(int j = 0 ; j < count ; j++){
-                    columnSymbol.values.add(resultColumn.res);
-                }
-                tableSymbol.values.put(columnSymbol.name,columnSymbol);
-            }else if(resultColumn.res instanceof Boolean){
-                ColumnSymbol columnSymbol = new ColumnSymbol();
-                columnSymbol.type = "Boolean";
-                columnSymbol.name = RandomNameGenerator.generateNewRandomName();
-                int count = symbolTable.tableSymbol.getColumnWithLeastValues();
-                for(int j = 0 ; j < count ; j++){
-                    columnSymbol.values.add(resultColumn.res);
-                }
-                tableSymbol.values.put(columnSymbol.name,columnSymbol);
             }
+            symbolTable.tableSymbol = store.clone();
         }
-//        if(selectOrValue.join!=null)
-//            visit((JoinClause)selectOrValue.join);
-//        for(int i=0;i<selectOrValue.expressions.size();i++)
-//            visit((SqlExpression)selectOrValue.expressions.get(i));
-        return tableSymbol;
+
+
+        if(tempArray==null) {
+            TableSymbol tableSymbol = symbolTable.tableSymbol.clone();
+            tableSymbol.values.clear();
+            for (int i = 0; i < selectOrValue.resColumns.size(); i++) {
+                visit((ResultColumn) selectOrValue.resColumns.get(i));
+                ResultColumn resultColumn = (ResultColumn) selectOrValue.resColumns.get(i);
+                if (resultColumn.res instanceof ColumnSymbol) {
+                    ColumnSymbol col = ((ColumnSymbol) resultColumn.res);
+                    tableSymbol.values.put(col.name, col);
+                } else if (resultColumn.res instanceof Number) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "Number";
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
+                        columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
+                    }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    } else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof String) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "String";
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    }else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof Boolean) {
+                    ColumnSymbol columnSymbol = new ColumnSymbol();
+                    columnSymbol.type = "Boolean";
+                    if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                        columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                    }else
+                        columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                    int count = symbolTable.tableSymbol.getColumnWithLeastValues();
+                    for (int j = 0; j < count; j++) {
+                        columnSymbol.values.add(resultColumn.res);
+                    }
+                    tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                } else if (resultColumn.res instanceof TableSymbol) {
+                    TableSymbol temp = ((TableSymbol) resultColumn.res).clone();
+                    for (ColumnSymbol col : temp.values.values()) {
+                        tableSymbol.values.put(col.name, col);
+                    }
+                }
+            }
+            return tableSymbol;
+        }else{
+            TableSymbol tableSymbol = null;
+            TableSymbol groupingTable;
+            for(int m=0;m<tempArray.size();m++){
+                groupingTable = tempArray.get(m);
+                symbolTable.tableSymbol = groupingTable.clone();
+                if(m == 0){
+                    tableSymbol = symbolTable.tableSymbol.clone();
+                    tableSymbol.values.clear();
+                }
+                for (int i = 0; i < selectOrValue.resColumns.size(); i++) {
+                    visit((ResultColumn) selectOrValue.resColumns.get(i));
+                    ResultColumn resultColumn = (ResultColumn) selectOrValue.resColumns.get(i);
+                    if (resultColumn.res instanceof ColumnSymbol) {
+                        ColumnSymbol col = ((ColumnSymbol) resultColumn.res).clone();
+                        for(int k = 0;k<col.values.size();k++){
+                            if(k!=0)
+                                col.values.remove(k);
+                        }
+                        if(!tableSymbol.values.containsKey(col.name))
+                            tableSymbol.values.put(col.name, col);
+                        else {
+                            if(col.values.size()!=0)
+                                tableSymbol.values.get(col.name).values.add(col.values.get(0));
+                        }
+                    } else if (resultColumn.res instanceof Number) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "Long";
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12 ){
+                            columnSymbol.name = ((SqlExpressionCase12)((SqlExpression)resultColumn.expression).expression).functionName.name;
+                        }else if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                        } else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
+                    } else if (resultColumn.res instanceof String) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "String";
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                        }else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
+                    } else if (resultColumn.res instanceof Boolean) {
+                        ColumnSymbol columnSymbol = new ColumnSymbol();
+                        columnSymbol.type = "Boolean";
+                        if( ((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase2 ){
+                            columnSymbol.name = ((SqlExpressionCase2)((SqlExpression)resultColumn.expression).expression).columnName.name;
+                        }else
+                            columnSymbol.name = RandomNameGenerator.generateNewRandomName();
+                        columnSymbol.values.add(resultColumn.res);
+                        if(!tableSymbol.values.containsKey(columnSymbol.name))
+                            tableSymbol.values.put(columnSymbol.name, columnSymbol);
+                        else
+                            tableSymbol.values.get(columnSymbol.name).values.add(columnSymbol.values.get(0));
+                    } else if (resultColumn.res instanceof TableSymbol) {
+                        TableSymbol temp = ((TableSymbol) resultColumn.res).clone();
+                        for (ColumnSymbol col : temp.values.values()) {
+                            tableSymbol.values.put(col.name, col);
+                        }
+                    }
+                }
+            }
+            return tableSymbol;
+        }
     }
 
     @Override

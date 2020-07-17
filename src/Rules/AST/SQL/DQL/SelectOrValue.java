@@ -14,5 +14,7 @@ public class SelectOrValue extends SqlStatment {
     public Node join;
     public ArrayList<Node> expressions = new ArrayList<>();
     public SqlExpression whereExpression;
+    public SqlExpression havingExpression;
+    public SqlExpression groupByExpression;
     public TableSymbol type;
 }

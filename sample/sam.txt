@@ -1,9 +1,9 @@
 create Table music(artistName String , songName String)
-create Table lib(name String , num Long) type = json path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
+create Table lib(name String , num Number) type = json path = "C:\\Users\\Dell\\Desktop\\sample2.txt"
 
 
 fun(){
-    var i = select name , Count(*)  from lib  group by name having num = 3;
+    var i = select name , Count(*) from (select name from lib  group by name ) group by name having name = "MyLibrary1" ;
 }
 
 fun();

@@ -102,7 +102,6 @@ public class TableSymbol extends Symbol {
         for(int i=0;i<mainColumnSymbol.values.size();i++){
             cont = false;
             Object object = mainColumnSymbol.values.get(i);
-            System.out.println(object);
             for(Object obj : visited){
                 if(obj.equals(object)){
                     cont = true;
