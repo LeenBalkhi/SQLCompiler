@@ -314,6 +314,7 @@ sql_stmt
  create_table_stmt
 | create_type
 | factored_select_stmt
+| create_agg_func
  ;
 
 /*
@@ -363,6 +364,11 @@ create_table_stmt
  K_AS select_stmt
  ;
 */
+
+create_agg_func:
+K_CREATE K_AGGREGATION any_name '(' '"'path'"' ',' '"' clas=any_name '"' ',' '"' method=any_name '"' ',' param=any_name ',' ret=any_name')'
+;
+
 create_table_stmt
  : K_CREATE  K_TABLE ( K_IF K_NOT K_EXISTS )?
    table_name
@@ -379,7 +385,7 @@ path:
 any_name':' ( '\\' '\\'  any_name)* '\\' '\\' file_name
 ;
 file_name:
- any_name '.txt'
+ any_name ('.txt' | '.jar')
 ;
 
 create_type
@@ -627,7 +633,7 @@ expr
  : '*' #case0
  |(literal_value | '"'string'"' | K_TRUE | K_FALSE) #case1
  | '(' K_VAR expression')' #case16
- |  column_name (  '.' any_name)?  #case2
+ | (table=any_name'.')? column_name  #case2
  | expr '->' '('any_name K_WHERE expr')' #case22
  | unary_operator expr  #case3
  | expr op='||' expr  #case4
@@ -731,7 +737,7 @@ table_or_subquery
  ;
 
 join_clause
- : table_or_subquery ( join_operator table_or_subquery join_constraint )*
+ : table_or_subquery ( join_operator table_or_subquery)*
  ;
 
 join_operator

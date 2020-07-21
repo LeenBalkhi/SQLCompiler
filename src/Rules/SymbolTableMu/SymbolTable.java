@@ -12,6 +12,7 @@ public class SymbolTable {
     public ArrayList<AggregationFunction> aggregationFunctions = new ArrayList<>();
     public ArrayList<FunctionSymbol> functionSymbols = new ArrayList<>();
     public TableSymbol tableSymbol;
+    public LinkedHashMap<String,TableSymbol> tables = new LinkedHashMap<>();
 
     public SymbolTable() {
         scopeStack = new Stack<>();
@@ -51,7 +52,6 @@ public class SymbolTable {
         }
         return null;
     }
-
 
 
 }

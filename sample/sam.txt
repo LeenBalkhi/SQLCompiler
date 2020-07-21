@@ -1,16 +1,13 @@
-create Table colors(id Number,color String) type = json  path= "C:\\Users\\Dell\\Desktop\\colors.txt"
+create Table colors(num Number)
 
 
-create table movies(name String,genre String,lead_studio String ,audience_score Number,profitability Number, rotten_tomato Number,worldwide_gross Number,year Number) type = csv path = "C:\\Users\\Dell\\Desktop\\movies.txt"
+create aggregation avg( "C:\\Users\\Dell\\Desktop\\Agg\\out\\artifacts\\Agg_jar\\Agg.jar" , "CommonAggregations" , "Avg" , Number , Number)
 
-
-fun()
-{
-    var cl = select year, Avg(profitability)  from movies where worldwide_gross >=314.70  group by year having Avg(worldwide_gross)>600;
-    var q = select  genre,Sum(profitability) from movies , cl where clyear = year group by genre;
+fn(){
+    var c = select colors.num from colors where colors.num = avg(colors.num) ;
 }
 
-fun();
+
 
 
 

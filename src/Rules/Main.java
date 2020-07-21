@@ -1,5 +1,7 @@
 package Rules;
 
+import CodeGen.GenerateCodeFromNodes.MainNodeGen;
+import CodeGen.GenerateCodeFromNodes.SymbolTableHolder;
 import Rules.AST.Node;
 import Rules.AST.Parse;
 import Rules.AST.Visitor.BaseASTVisitor;
@@ -33,8 +35,11 @@ public class Main {
 //                    m.errors.get(i).printError();
 //                }
 //            }
-            RandomNameGenerator.i = 0;
-            new BaseASTVisitor(m.symbolTable).visit((Parse) n);
+//            RandomNameGenerator.i = 0;
+//            new BaseASTVisitor(m.symbolTable).visit((Parse) n);
+            SymbolTableHolder.symbolTable = m.symbolTable;
+            MainNodeGen mainNodeGen = new MainNodeGen(n);
+            mainNodeGen.geClasses();
         } catch (IOException e) {
             e.printStackTrace();
         }

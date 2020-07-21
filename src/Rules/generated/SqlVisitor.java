@@ -463,6 +463,12 @@ public interface SqlVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSql_stmt(SqlParser.Sql_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SqlParser#create_agg_func}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreate_agg_func(SqlParser.Create_agg_funcContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SqlParser#create_table_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

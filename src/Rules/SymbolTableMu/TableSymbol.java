@@ -34,6 +34,18 @@ public class TableSymbol extends Symbol {
             SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
             sqlTypeEntry.name = entry.getValue().name;
             sqlTypeEntry.type = entry.getValue().type;
+            if(symbolTable.sqlTypes.containsKey(entry.getValue().type)
+                    && symbolTable.scopeStack.peek().findSymbol(entry.getValue().type)!=null &&
+                    symbolTable.scopeStack.peek().findSymbol(entry.getValue().type) instanceof TableSymbol){
+                sqlTypeEntry.isTable = true;
+            }
+            else if(symbolTable.sqlTypes.containsKey(entry.getValue().type)){
+                sqlTypeEntry.isType = true;
+            }
+            else{
+                sqlTypeEntry.isTable = false;
+                sqlTypeEntry.isType = false;
+            }
             newSqlType.entries.add(sqlTypeEntry);
         });
         sqlTypes.put(newSqlType.name,newSqlType);

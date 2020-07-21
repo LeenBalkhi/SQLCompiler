@@ -1255,16 +1255,16 @@ public class BaseASTVisitor implements ASTVisitor {
     public Object visit(SqlExpressionCase2 sqlExpressionCase2) {
         ColumnSymbol col;
         col = symbolTable.tableSymbol.values.get(sqlExpressionCase2.columnName.name);
-        if(sqlExpressionCase2.anyName!=null){
-            ColumnSymbol res = new ColumnSymbol();
-            res.name = sqlExpressionCase2.anyName.name;
-            for(Object obj : col.values){
-                TypeSymbol typeSymbol = ((TypeSymbol)obj);
-                res.type = typeSymbol.values.get(sqlExpressionCase2.anyName.name).type;
-                res.values.add( typeSymbol.values.get(sqlExpressionCase2.anyName.name).value );
-            }
-            return res.clone();
-        }
+//        if(sqlExpressionCase2.anyName!=null){
+//            ColumnSymbol res = new ColumnSymbol();
+//            res.name = sqlExpressionCase2.anyName.name;
+//            for(Object obj : col.values){
+//                TypeSymbol typeSymbol = ((TypeSymbol)obj);
+//                res.type = typeSymbol.values.get(sqlExpressionCase2.anyName.name).type;
+//                res.values.add( typeSymbol.values.get(sqlExpressionCase2.anyName.name).value );
+//            }
+//            return res.clone();
+//        }
         return col.clone();
     }
 
@@ -1773,46 +1773,46 @@ public class BaseASTVisitor implements ASTVisitor {
         if(sqlExpressionCase12.distinct!=false)
             System.out.println("DISTINCT");
         Object expr = visit((SqlExpression)sqlExpressionCase12.expression);
-        if(expr instanceof ColumnSymbol){
-            ColumnSymbol columnSymbol= ((ColumnSymbol)expr);
-            ArrayList<Double> list = new ArrayList<>();
-            for(Object obj : columnSymbol.values){
-                list.add((double) obj);
-            }
-            LoadAggregationFunction loader = new LoadAggregationFunction(list,sqlExpressionCase12.functionName.name);
-            try {
-                ColumnSymbol res = new ColumnSymbol();
-                res.name = sqlExpressionCase12.functionName.name;
-                res.type = "Number";
-                for (Object obj : columnSymbol.values){
-                    res.values.add(loader.call());
-                }
-                return res;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }else if(expr instanceof TableSymbol){
-            if(sqlExpressionCase12.functionName.name.equals("Count")){
-                TableSymbol temp = (TableSymbol)expr;
-                int count = temp.getColumnWithLeastValues();
-                double result = (double) count;
-                ColumnSymbol res = new ColumnSymbol();
-                res.name = "Count";
-                res.type = "Number";
-                for(int i=0;i<count;i++){
-                 res.values.add((double)count);
-                }
-                return result;
-            }
-        }
+//        if(expr instanceof ColumnSymbol){
+//            ColumnSymbol columnSymbol= ((ColumnSymbol)expr);
+//            ArrayList<Double> list = new ArrayList<>();
+//            for(Object obj : columnSymbol.values){
+//                list.add((double) obj);
+//            }
+//            LoadAggregationFunction loader = new LoadAggregationFunction(list,sqlExpressionCase12.functionName.name);
+//            try {
+//                ColumnSymbol res = new ColumnSymbol();
+//                res.name = sqlExpressionCase12.functionName.name;
+//                res.type = "Number";
+//                for (Object obj : columnSymbol.values){
+//                    res.values.add(loader.call());
+//                }
+//                return res;
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (NoSuchMethodException e) {
+//                e.printStackTrace();
+//            } catch (InvocationTargetException e) {
+//                e.printStackTrace();
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+//            }
+//        }else if(expr instanceof TableSymbol){
+//            if(sqlExpressionCase12.functionName.name.equals("Count")){
+//                TableSymbol temp = (TableSymbol)expr;
+//                int count = temp.getColumnWithLeastValues();
+//                double result = (double) count;
+//                ColumnSymbol res = new ColumnSymbol();
+//                res.name = "Count";
+//                res.type = "Number";
+//                for(int i=0;i<count;i++){
+//                 res.values.add((double)count);
+//                }
+//                return result;
+//            }
+//        }
         return null;
     }
 

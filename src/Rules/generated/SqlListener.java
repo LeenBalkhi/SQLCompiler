@@ -772,6 +772,16 @@ public interface SqlListener extends ParseTreeListener {
 	 */
 	void exitSql_stmt(SqlParser.Sql_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SqlParser#create_agg_func}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreate_agg_func(SqlParser.Create_agg_funcContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SqlParser#create_agg_func}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreate_agg_func(SqlParser.Create_agg_funcContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SqlParser#create_table_stmt}.
 	 * @param ctx the parse tree
 	 */
