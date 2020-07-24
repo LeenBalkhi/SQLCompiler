@@ -1,0 +1,14 @@
+create table songs(initials String,track_id String, artist_name String, title String, loudness Number, tempo Number, time_signature Number, keyy Number,mode Number,duration Number, year Number) type = csv, path= "sample\\songs.csv";
+
+create type region( String name);
+create type country(String name, region region);
+create type city( String name, country country);
+
+create table clubs (id Number,name String, city city) type=json, path="sample\\clubs.json";
+create table countries(id Number, name String, code String, post_code String, region String) type=json , path= "sample\\countries.json";
+
+fn()
+{
+    var c = select id, name, code, post_code from countries where id <= 2 ;
+    print(c);
+}
