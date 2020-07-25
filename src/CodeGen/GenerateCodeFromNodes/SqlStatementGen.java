@@ -81,44 +81,41 @@ public class SqlStatementGen {
 
             }
         }
-      /*  for(Map.Entry<String , SqlType> entry1: SymbolTableHolder.symbolTable.sqlTypes.entrySet())
-        {
-            File file = new File("src\\CodeGen\\CreatedClasses\\"+ entry1.getValue().name +".java");
-            if(file.exists())
-            {
-                file.delete();
-            }
+        for(Map.Entry<String , SqlType> entry1: SymbolTableHolder.symbolTable.sqlTypes.entrySet()) {
+
+            File file = new File("src\\CodeGen\\CreatedClasses\\" + entry1.getValue().name + ".java");
+            if (!file.exists()) {
             OpenTypeFile(entry1.getValue().name);
             output.append("package CodeGen.CreatedClasses;\n\n");
             output.append("import org.json.simple.JSONArray;;\n" +
-                    "import CodeGen.DBTable;\n"+
-                    "import Rules.AST.SQL.DDL.CreateTableStatement;\n"+
+                    "import CodeGen.DBTable;\n" +
+                    "import Rules.AST.SQL.DDL.CreateTableStatement;\n" +
                     "import com.google.gson.*;\n" +
-                    "import com.google.gson.stream.JsonReader;\n"+
+                    "import com.google.gson.stream.JsonReader;\n" +
                     "import java.io.*;\n" +
-                    "import java.util.*;\n"+
-                    "import java.lang.reflect.Field;\n"+
-                    "import Rules.SymbolTableMu.*;\n"+
+                    "import java.util.*;\n" +
+                    "import java.lang.reflect.Field;\n" +
+                    "import Rules.SymbolTableMu.*;\n" +
                     "import java.lang.annotation.*;\n");
             output.append("public class " + entry1.getValue().name + " {\n\n");
-            for(SqlTypeEntry entry2 : entry1.getValue().entries) {
-                if(entry2.type.equalsIgnoreCase("string"))
-                    output.append("\tpublic String " + entry2.name+ ";\n");
-               else if(entry2.type.equalsIgnoreCase("double"))
-                    output.append("\tpublic double " + entry2.name+ ";\n");
-               else if(entry2.type.equalsIgnoreCase("boolean"))
-                    output.append("\tpublic boolean " + entry2.name+ ";\n");
+            for (SqlTypeEntry entry2 : entry1.getValue().entries) {
+                if (entry2.type.equalsIgnoreCase("string"))
+                    output.append("\tpublic String " + entry2.name + ";\n");
+                else if (entry2.type.equalsIgnoreCase("double"))
+                    output.append("\tpublic double " + entry2.name + ";\n");
+                else if (entry2.type.equalsIgnoreCase("boolean"))
+                    output.append("\tpublic boolean " + entry2.name + ";\n");
                 else {
-                        output.append("\tpublic "+ entry2.type +" "+ entry2.name+";\n");
+                    output.append("\tpublic " + entry2.type + " " + entry2.name + ";\n");
                 }
 
             }
 
-            output.append("\t@Override\n"+
+            output.append("\t@Override\n" +
                     "\tpublic String toString(){\n");
             output.append("\tStringBuilder stringBuilder = new StringBuilder();\n");
-            for(SqlTypeEntry entry3 : entry1.getValue().entries){
-                output.append("\tstringBuilder.append("+entry3.name+"+\"  \");\n");
+            for (SqlTypeEntry entry3 : entry1.getValue().entries) {
+                output.append("\tstringBuilder.append(" + entry3.name + "+\"  \");\n");
             }
             output.append("\treturn stringBuilder.toString();");
             output.append("\t}");
@@ -126,7 +123,8 @@ public class SqlStatementGen {
             output.close();
 
         }
-      //  iterate sqltypes and create a class for each type*/
+        }
+      //  iterate sqltypes and create a class for each type
     }
 
     public void OpenFile(String name) {

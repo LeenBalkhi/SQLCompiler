@@ -36,7 +36,7 @@ public class songs {
 	public double year;
 	public static ArrayList<songs> Mysongs = new ArrayList<>();
 
-	private ArrayList<songs> load() throws IOException {
+	private ArrayList<songs> load() throws IOException { 
  	BufferedReader csvReader = new BufferedReader(new FileReader("sample\\songs.csv"));
 	String row="";
 	while ((row = csvReader.readLine()) != null) {

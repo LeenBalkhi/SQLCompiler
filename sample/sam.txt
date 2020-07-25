@@ -1,7 +1,13 @@
 create table songs(initials String,track_id String, artist_name String, title String, loudness Number, tempo Number, time_signature Number, keyy Number,mode Number,duration Number, year Number) type = csv, path= "sample\\songs.csv";
 
-fn()
-{
-  var c = select title from songs;
-  print(c);
-}
+create type region( String name);
+create type country( Double id,  String name, region region);
+create type city( Double id,  String name, country country);
+
+create table clubs (id Number,name String, city city) type=json, path="sample\\clubs.json";
+create table countries(id Number, name String, code String, post_code String, region String) type=json , path= "sample\\countries.json";
+
+create aggregation function count("Agg\\src\\CommonAggregations.jar","CommonAggregations","count",number,[number]);
+create aggregation function avg("Agg\\src\\CommonAggregations.jar","CommonAggregations","avg",number,[number]);
+create aggregation function max("Agg\\src\\CommonAggregations.jar","CommonAggregations","max",number,[number]);
+create aggregation function stdev("Agg\\src\\CommonAggregations.jar","CommonAggregations","stdev",number,[number]);
