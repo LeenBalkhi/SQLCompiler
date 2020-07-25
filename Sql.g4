@@ -158,9 +158,9 @@ create_agg_fun:
 K_CREATE  K_AGGREGATION K_FUNCTION
 function_name
 '('
- jar_path ','
-  class_name /*classname*/ ','
-  method_name/*MethodName*/ ','
+ '"'jar_path'"' ','
+  '"'class_name'"' /*classname*/ ','
+  '"'method_name'"'/*MethodName*/ ','
   type/*return type*/  ','
   param_array
  ')'

@@ -1,20 +1,20 @@
 import java.util.List;
 
 public final class CommonAggregations {
-    public double Sum(List<Double> numbers){
+    public double sum(List<Double> numbers){
         return numbers.
                 stream().
                 mapToDouble(Double::doubleValue)
                 .sum();
     }
 
-    public double Avg(List<Double> numbers){
+    public double avg(List<Double> numbers){
         return (numbers.
                 stream().
                 mapToDouble(Double::doubleValue)
                 .sum())/numbers.size();
     }
-    public double Max(List<Double> numbers){
+    public double max(List<Double> numbers){
         double max =-10000000;
         for (double n: numbers
              ) {
@@ -24,7 +24,7 @@ public final class CommonAggregations {
         }
         return max;
     }
-    public double Min(List<Double> numbers){
+    public double min(List<Double> numbers){
         double min =10000000;
         for (double n: numbers
         ) {
@@ -34,8 +34,25 @@ public final class CommonAggregations {
         }
         return min;
     }
-    public double Count(List<Object> numbers){
+    public double count(List<Object> numbers){
         return numbers.size();
+    }
+    public double stdev(List<Double> columns)
+    {
+        double standardDeviation;
+        double sum=0;
+        for ( double c: columns)
+        {
+            sum+= c;
+        }
+        double avg = sum/columns.size();
+        double sd =0;
+        for ( double c: columns)
+        {
+            sd+= pow(c-avg,2)/columns.size();
+        }
+        standardDeviation = sqrt(sd);
+        return  standardDeviation;
     }
     private static volatile CommonAggregations myCommonAggregator;
 

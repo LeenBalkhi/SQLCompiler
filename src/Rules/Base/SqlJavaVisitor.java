@@ -1579,7 +1579,7 @@ public class SqlJavaVisitor extends SqlBaseVisitor<Node> {
         } else {
             for (int i = 0 ; i < ctx.type().size() ; i++){
                 SqlTypeEntry sqlTypeEntry = new SqlTypeEntry();
-                sqlTypeEntry.type = ctx.type(i).getText();
+                sqlTypeEntry.type = visitAny_name(ctx.type(i).type_name().name().any_name()).name;
                 sqlTypeEntry.name = visitAny_name(ctx.any_name(i)).name;
                 if (sqlType.entries.size() != 0) {
                     for(int j = 0; j < sqlType.entries.size(); j++){

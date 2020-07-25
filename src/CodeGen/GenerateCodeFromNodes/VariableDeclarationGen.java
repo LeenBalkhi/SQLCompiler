@@ -11,6 +11,8 @@ import Rules.AST.SQL.DQL.SelectCore;
 import Rules.AST.SQL.DQL.TableOrSubquery;
 import Rules.AST.SQL.Database.ResultColumn;
 import Rules.AST.SQL.Expression.*;
+import Rules.AST.SQL.JoinClause;
+import Rules.AST.SQL.JoinOperator;
 import Rules.SymbolTableMu.SqlType;
 import Rules.SymbolTableMu.SqlTypeEntry;
 
@@ -200,6 +202,35 @@ public class VariableDeclarationGen {
                 output.append(").collect(Collectors.toList());\n");
             }
 
+            if(selectCore.joinClause != null)
+            {
+                JoinClause joinClause = new JoinClause();
+                String tableName="";
+                boolean inner;
+                for(int i=0 ; i <joinClause.tableOrSubQueries.size(); i++)
+                {
+                    TableOrSubquery tableOrSubquery = (TableOrSubquery) joinClause.tableOrSubQueries.get(i);
+                     tableName = tableOrSubquery.tableName.name;
+                }
+                for(int i=0 ; i <joinClause.joinOperators.size(); i++)
+                {
+                    JoinOperator tempOp = (JoinOperator) joinClause.joinOperators.get(i);
+                    if (tempOp.op.equalsIgnoreCase("inner"))
+                    {
+                        inner=true;
+                    }
+                }
+                for(int i=0 ; i <joinClause.joinConstraints.size(); i++)
+                {
+
+                }
+                output.append(" ArrayList<From"+ name +"> copy = new ArrayList<>();\n");
+                output.append("for(From"+name+" f : From"+name+".list_from"+name+") copy.add(f);\n");
+                output.append("From"+name+".list_from"+name+" =(ArrayList<From"+ name +">) From"+name+".list_from"+name+".stream().filter(f->");
+                // visit(sqlExpression);
+                output.append(").collect(Collectors.toList());\n");
+
+            }
             output.append("return From"+name+".list_from"+name+";\n");
 
             output.append("}\n");
@@ -347,15 +378,7 @@ public class VariableDeclarationGen {
         }
     }
 
-    public void openMain()
-    {
-        try {
-            String name = "src\\CodeGen\\CreatedClasses\\Main.java";
-            output = new BufferedWriter(new FileWriter(name,true));
-        } catch (IOException e) {
-            System.out.println("IOException in OpenFile");
-        }
-    }
+
     public void OpenFile() {
         try {
             String name = "src\\CodeGen\\CreatedClasses\\"+ this.name +".java";

@@ -4,6 +4,8 @@ import Rules.AST.Java.FunctionDeclaration;
 import Rules.AST.Java.JavaStatment;
 import Rules.AST.SQL.SqlStatment;
 
+import java.io.IOException;
+
 public class JavaStatementGen {
     public JavaStatment javaStatment;
 
@@ -11,7 +13,7 @@ public class JavaStatementGen {
         javaStatment = j;
     }
 
-    public void genJavaStatement(){
+    public void genJavaStatement() throws IOException {
         if(javaStatment.javaStatment instanceof SqlStatment){
             SqlStatment sqlStatment = (SqlStatment)javaStatment.javaStatment;
             SqlStatementGen sqlStatementGen = new SqlStatementGen(sqlStatment);
