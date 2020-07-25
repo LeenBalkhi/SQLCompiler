@@ -4,7 +4,7 @@ create Table colors(num Number)
 create aggregation avg( "C:\\Users\\Dell\\Desktop\\Agg\\out\\artifacts\\Agg_jar\\Agg.jar" , "CommonAggregations" , "Avg" , Number , Number)
 
 fn(){
-    var c = select colors.num from colors where colors.num = avg(colors.num) ;
+    var c = select avg(colors.num) from colors where colors.num > avg(colors.num) ;
 }
 
 

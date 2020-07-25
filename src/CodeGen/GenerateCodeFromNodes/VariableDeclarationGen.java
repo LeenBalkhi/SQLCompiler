@@ -36,13 +36,15 @@ public class VariableDeclarationGen {
 
     public ArrayList<String> tos = new ArrayList<>();
 
+    public ArrayList<String> aggfuns = new ArrayList<>();
+
+
     public VariableDeclarationGen(VariableDeclaration v){
         variableDeclaration = v;
         name = ((SimpleVariable)((Variable)((VariableAssignment)variableDeclaration.variableAssignments.get(0)).variable).variable).VariableName.get(0);
     }
 
     public void genVariableDeclaration(){
-
         VariableAssignment varAss = (VariableAssignment)variableDeclaration.variableAssignments.get(0);
         FactoredSelectStatement f = (FactoredSelectStatement) ((VariableAssignmentValue)(((Assignment)varAss.assignments.get(0))).variableAssignmentValue).Value;
         SelectCore selectCore = (SelectCore) f.selectCore;
@@ -85,6 +87,34 @@ public class VariableDeclarationGen {
                                     if(entry.name.equals(sqlc2.columnName.name)){
                                         output.append("public "+entry.type+" "+sqlType.name+"$"+entry.name+";\n");
                                         fields.add(sqlType.name+"$"+entry.name);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else if(((SqlExpression)resultColumn.expression).expression instanceof SqlExpressionCase12){
+                    SqlExpressionCase12 sqlc12 =  (SqlExpressionCase12) ((SqlExpression)resultColumn.expression).expression;
+                    if(((SqlExpression)sqlc12.expression).expression instanceof SqlExpressionCase2){
+                        SqlExpressionCase2 sqlc2 = (SqlExpressionCase2) ((SqlExpression)sqlc12.expression).expression;
+                        if(sqlc2.tableName!=null){
+                            SqlType sqlType = SymbolTableHolder.symbolTable.sqlTypes.get(sqlc2.tableName.name);
+                            for(SqlTypeEntry entry : sqlType.entries){
+                                if(entry.name.equals(sqlc2.columnName.name)){
+                                    output.append("public double "+sqlc12.functionName.name+"$"+sqlType.name+"$"+entry.name+";\n");
+                                    aggfuns.add(sqlc12.functionName.name+"$"+sqlType.name+"$"+entry.name);
+                                }
+                            }
+                        }else{
+                            for(int i=0;i<selectCore.tableOrSubQueries.size();i++){
+                                TableOrSubquery tableOrSubquery = (TableOrSubquery) selectCore.tableOrSubQueries.get(i);
+                                if(tableOrSubquery.tableName!=null){
+                                    String tableName = tableOrSubquery.tableName.name;
+                                    SqlType sqlType = SymbolTableHolder.symbolTable.sqlTypes.get(tableName);
+                                    for(SqlTypeEntry entry : sqlType.entries){
+                                        if(entry.name.equals(sqlc2.columnName.name)){
+                                            output.append("public double "+sqlc12.functionName.name+"$"+sqlType.name +"$"+ entry.name+";\n");
+                                            aggfuns.add(sqlc12.functionName.name+"$"+sqlType.name+"$"+entry.name);
+                                        }
                                     }
                                 }
                             }
@@ -133,19 +163,30 @@ public class VariableDeclarationGen {
 
             fromOutput.append("public static ArrayList<From"+ name +"> list_from"+ name +" = new ArrayList<>();\n");
 
-            for(String field : fields){
-                String[] data = field.split("\\$");
-                SqlType sqlType = SymbolTableHolder.symbolTable.sqlTypes.get(data[0]);
+            for(String str : tos){
+                SqlType sqlType = SymbolTableHolder.symbolTable.sqlTypes.get(str);
                 for(SqlTypeEntry entry : sqlType.entries){
-                    if(entry.name.equals(data[1])){
-                        if(entry.type.equals("Number")){
-                            fromOutput.append("public double get"+data[0]+ data[1]+"(){\n");
-                            fromOutput.append("return "+data[0]+"."+data[1]+";\n");
-                            fromOutput.append("}\n");
-                        }
+                    if(entry.type.equals("Number")){
+                        fromOutput.append("public double get"+ str + entry.name +"(){\n");
+                        fromOutput.append("return "+str+"."+entry.name+";\n");
+                        fromOutput.append("}\n");
                     }
                 }
             }
+
+//            for(String field : fields){
+//                String[] data = field.split("\\$");
+//                SqlType sqlType = SymbolTableHolder.symbolTable.sqlTypes.get(data[0]);
+//                for(SqlTypeEntry entry : sqlType.entries){
+//                    if(entry.name.equals(data[1])){
+//                        if(entry.type.equals("Number")){
+//                            fromOutput.append("public double get"+data[0]+ data[1]+"(){\n");
+//                            fromOutput.append("return "+data[0]+"."+data[1]+";\n");
+//                            fromOutput.append("}\n");
+//                        }
+//                    }
+//                }
+//            }
 
             fromOutput.append("}\n");
 
@@ -171,7 +212,7 @@ public class VariableDeclarationGen {
 
             if(selectCore.whereExpression!=null){
                 SqlExpression sqlExpression = selectCore.whereExpression;
-                output.append(" ArrayList<From"+ name +"> copy = new ArrayList<>()");
+                output.append(" ArrayList<From"+ name +"> copy = new ArrayList<>();\n");
                 output.append("for(From"+name+" f : From"+name+".list_from"+name+") copy.add(f);\n");
                 output.append("From"+name+".list_from"+name+" =(ArrayList<From"+ name +">) From"+name+".list_from"+name+".stream().filter(f->");
                 visit(sqlExpression);
@@ -185,6 +226,8 @@ public class VariableDeclarationGen {
 
             output.append("public ArrayList<"+ name +"> getData(){\n" +
                     "fillData();\n");
+
+            output.append("ArrayList<Double> copy = null\n");
             output.append("ArrayList<From"+ name +"> from = cartProduct();\n");
 
 
@@ -198,15 +241,39 @@ public class VariableDeclarationGen {
                 output.append(name+"."+str+" = f."+data[0]+"."+data[1]+";\n");
             }
 
+            for (String str : aggfuns){
+                String[] data = str.split("\\$");
+                output.append(name+"."+str+" = f."+data[1]+"."+data[2]+";\n");
+            }
+
             output.append("list_"+name+".add("+name+");\n");
 
             output.append("}\n"); //End of for
 
+            if(aggfuns.size()!=0){
+                for (String str : aggfuns){
+                    output.append("copy = new ArrayList<>();\n");
+                    output.append("for("+name+" "+name+" : list_"+name+") {\n");
+                    String data[] = str.split("\\$");
+                    output.append("copy.add("+name+"."+str+");\n");
+                    output.append("}\n");
+                    output.append("for("+name+" "+name+" : list_"+name+"){\n");
+                    output.append(name+"."+str+" = "+data[0]+".call( copy );\n");
+                    output.append("}\n");
+                }
+            }
 
             output.append("return list_"+ name +";\n");
 
-
             output.append("}\n"); //End Of getData
+
+
+            for(String str : aggfuns){
+                String data[] = str.split("\\$");
+                output.append("public double get"+data[1]+data[2]+"(){\n");
+                output.append("return "+data[1]+"."+data[2]+";\n");
+                output.append("}\n");
+            }
 
 
             output.append("}\n"); //End Of Class
@@ -243,6 +310,8 @@ public class VariableDeclarationGen {
             visit((SqlExpressionCase1)sqlExpression.expression);
         }else if(sqlExpression.expression instanceof SqlExpressionCase12){
             visit((SqlExpressionCase12)sqlExpression.expression);
+        }else if(sqlExpression.expression instanceof SqlExpressionCase8){
+            visit((SqlExpressionCase8)sqlExpression.expression);
         }
     }
 
@@ -281,6 +350,12 @@ public class VariableDeclarationGen {
         visit((SqlExpression)sqlExpressionCase6.SqlExpression1);
         output.append(sqlExpressionCase6.op);
         visit((SqlExpression)sqlExpressionCase6.SqlExpression2);
+    }
+
+    public void visit(SqlExpressionCase8 sqlExpressionCase8) throws IOException {
+        visit((SqlExpression)sqlExpressionCase8.SqlExpression1);
+        output.append(sqlExpressionCase8.op);
+        visit((SqlExpression)sqlExpressionCase8.SqlExpression2);
     }
 
     public void visit(SqlExpressionCase12 sqlExpressionCase12) throws IOException{
